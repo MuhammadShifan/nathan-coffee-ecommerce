@@ -77,9 +77,9 @@ const ContactPage = () => {
   return (
     <>
       <SEOMeta
-        title="Contact Us -Nathan Coffee | Coimbatore & Thanjavur Stores"
-        description="Get in touch withNathan Coffee Mart. Call +91 63838 05976 or WhatsApp for wholesale coffee powder inquiries, retail orders, and fresh batch dispatch from Coimbatore & Thanjavur."
-        keywords="contactNathan coffee, nathan coffee phone number, thanjavur coffee shop address, coimbatore coffee powder wholesale contact,Nathan filter coffee customer support"
+        title="Contact Us -Nathan Coffee | Thanjavur & Thanjavur Stores"
+        description="Get in touch withNathan Coffee Mart. Call +91 63838 05976 or WhatsApp for wholesale coffee powder inquiries, retail orders, and fresh batch dispatch from Thanjavur & Thanjavur."
+        keywords="contactNathan coffee, nathan coffee phone number, thanjavur coffee shop address, Thanjavur coffee powder wholesale contact,Nathan filter coffee customer support"
         canonicalUrl="https://nadhancoffee.com/contact"
         breadcrumbs={breadcrumbs}
         includeLocalBusiness={true}
@@ -216,14 +216,14 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              {/* Coimbatore Location */}
+              {/* Thanjavur Location */}
               <div className="p-4 rounded-2xl bg-brand-coffee-50 border border-brand-coffee-200 space-y-2">
                 <div className="flex items-center gap-2 text-brand-pink-600 font-bold text-sm">
                   <MapPin className="w-4 h-4" />
-                  <span>Coimbatore Hub & Roastery:</span>
+                  <span>Thanjavur Hub & Roastery:</span>
                 </div>
                 <p className="text-xs text-brand-coffee-800 leading-relaxed">
-                  <strong>Avinashi Road / R.S. Puram,</strong> Coimbatore, Tamil Nadu - 641002
+                  <strong>Avinashi Road / R.S. Puram,</strong> Thanjavur, Tamil Nadu - 641002
                 </p>
                 <p className="text-[11px] text-brand-coffee-500">
                   Primary Online Order Dispatch Center

@@ -36,15 +36,15 @@ const AboutPage = () => {
     },
     {
       year: '2012',
-      title: 'Expanding Roastery Operations to Coimbatore',
+      title: 'Expanding Roastery Operations to Thanjavur',
       description:
-        'To meet burgeoning demand from coffee lovers across western Tamil Nadu, we established our modern roastery hub in Coimbatore while strictly maintaining our artisanal, slow-roast heritage.',
+        'To meet burgeoning demand from coffee lovers across western Tamil Nadu, we established our modern roastery hub in Thanjavur while strictly maintaining our artisanal, slow-roast heritage.',
     },
     {
       year: '2026',
       title: 'Pan-India Online Store & Fresh Dispatch',
       description:
-        'LaunchedNathan Coffee Mart Online with high-barrier zip-lock kraft pouches, delivering 100% pure filter coffee fresh from our Coimbatore and Thanjavur roasteries to homes across all of India.',
+        'LaunchedNathan Coffee Mart Online with high-barrier zip-lock kraft pouches, delivering 100% pure filter coffee fresh from our Thanjavur and Thanjavur roasteries to homes across all of India.',
     },
   ];
 
@@ -52,8 +52,8 @@ const AboutPage = () => {
     <>
       <SEOMeta
         title="Our Legacy & Heritage -Nathan Coffee | Authentic South Indian Roasters"
-        description="Discover the 70+ year legacy ofNathan Coffee Mart. Founded by our beloved Grandfather in Thanjavur and expanded to Coimbatore. Dedicated to 100% pure filter coffee roasting with zero artificial additives."
-        keywords="nadhan coffee legacy, nathan coffee history, thanjavur filter coffee grandfather, authentic coimbatore coffee roasters, pure filter coffee heritage tamil nadu"
+        description="Discover the 70+ year legacy ofNathan Coffee Mart. Founded by our beloved Grandfather in Thanjavur and expanded to Thanjavur. Dedicated to 100% pure filter coffee roasting with zero artificial additives."
+        keywords="nadhan coffee legacy, nathan coffee history, thanjavur filter coffee grandfather, authentic Thanjavur coffee roasters, pure filter coffee heritage tamil nadu"
         canonicalUrl="https://nadhancoffee.com/about"
         breadcrumbs={breadcrumbs}
         includeLocalBusiness={true}
@@ -135,7 +135,7 @@ const AboutPage = () => {
               </p>
 
               <p className="text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
-                That foundational philosophy is alive in every single pouch ofNathan Coffee today. From our original roastery near Canara Bank on South Street, Thanjavur, to our modern hub in Coimbatore, every harvest batch is inspected by hand, slow drum-roasted to medium-dark perfection, and ground to the exact micron size required for the sweetest decoction.
+                That foundational philosophy is alive in every single pouch ofNathan Coffee today. From our original roastery near Canara Bank on South Street, Thanjavur, to our modern hub in Thanjavur, every harvest batch is inspected by hand, slow drum-roasted to medium-dark perfection, and ground to the exact micron size required for the sweetest decoction.
               </p>
 
               {/* Famous Quote Box */}

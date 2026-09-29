@@ -4,7 +4,7 @@ const addressSchema = new mongoose.Schema({
   doorNo: { type: String, default: '' },
   street: { type: String, default: '' },
   landmark: { type: String, default: '' },
-  city: { type: String, default: 'Coimbatore' },
+  city: { type: String, default: 'Thanjavur' },
   state: { type: String, default: 'Tamil Nadu' },
   pincode: { type: String, default: '' },
   isDefault: { type: Boolean, default: false },

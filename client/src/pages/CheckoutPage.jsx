@@ -36,7 +36,7 @@ const CheckoutPage = () => {
     doorNo: '',
     street: '',
     landmark: '',
-    city: 'Coimbatore',
+    city: 'Thanjavur',
     state: 'Tamil Nadu',
     pincode: '',
   });
@@ -486,7 +486,7 @@ const CheckoutPage = () => {
                       required
                       value={formData.city}
                       onChange={handleChange}
-                      placeholder="e.g. Coimbatore / Thanjavur"
+                      placeholder="e.g. Thanjavur / Thanjavur"
                       className="w-full px-4 py-2.5 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-xs text-brand-coffee-900 bg-brand-coffee-50/50"
                     />
                   </div>
@@ -708,7 +708,7 @@ const CheckoutPage = () => {
                   <span>Fresh Roast Guarantee:</span>
                 </div>
                 <p className="text-[11px] text-brand-coffee-700 leading-relaxed">
-                  Your coffee is freshly grounded and sealed in our Coimbatore/Thanjavur mill right before dispatch.
+                  Your coffee is freshly grounded and sealed in our Thanjavur/Thanjavur mill right before dispatch.
                 </p>
               </div>
             </div>

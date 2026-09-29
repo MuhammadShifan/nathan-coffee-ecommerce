@@ -13,7 +13,7 @@ const PolicyPage = () => {
       content: (
         <div className="space-y-4 text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
           <p>
-            At <strong>Nadhan Coffee Mart</strong>, we take pride in delivering freshly roasted and ground South Indian filter coffee powder right from our Coimbatore and Thanjavur roasting units to your home.
+            At <strong>Nadhan Coffee Mart</strong>, we take pride in delivering freshly roasted and ground South Indian filter coffee powder right from our Thanjavur and Thanjavur roasting units to your home.
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">1. Dispatch Timelines</h3>
           <p>
@@ -84,7 +84,7 @@ const PolicyPage = () => {
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">2. Jurisdiction</h3>
           <p>
-            Any legal claims or disputes related toNathan Coffee Mart transactions are subject to the exclusive jurisdiction of the competent courts in Coimbatore / Thanjavur, Tamil Nadu.
+            Any legal claims or disputes related toNathan Coffee Mart transactions are subject to the exclusive jurisdiction of the competent courts in Thanjavur / Thanjavur, Tamil Nadu.
           </p>
         </div>
       ),

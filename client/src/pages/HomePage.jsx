@@ -51,9 +51,9 @@ const HomePage = () => {
   return (
     <>
       <SEOMeta
-        title="Pure & Fresh Filter Coffee Powder from Coimbatore |Nathan Coffee"
-        description="Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee Mart. Freshly roasted in Coimbatore and Thanjavur. Slow drum roast with intense aroma in 250g, 500g, 1kg packs with fast delivery across India."
-        keywords="coffee powder,Nathan coffee, nathan coffee,Nathan coffee mart, filter coffee powder, buy filter coffee powder online, coimbatore coffee powder, thanjavur coffee powder, pure coffee powder, degree coffee powder, kumbakonam degree coffee powder, best coffee powder in tamil nadu"
+        title="Pure & Fresh Filter Coffee Powder from Thanjavur |Nathan Coffee"
+        description="Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee Mart. Freshly roasted in Thanjavur and Thanjavur. Slow drum roast with intense aroma in 250g, 500g, 1kg packs with fast delivery across India."
+        keywords="coffee powder,Nathan coffee, nathan coffee,Nathan coffee mart, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, degree coffee powder, kumbakonam degree coffee powder, best coffee powder in tamil nadu"
         canonicalUrl="https://nadhancoffee.com"
         ogImage="/images/hero-coffee.jpg"
         includeLocalBusiness={true}
@@ -100,7 +100,7 @@ const HomePage = () => {
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 underline decoration-brand-yellow-400 decoration-4 underline-offset-4 sm:underline-offset-8">
                     Coffee Powder
                   </span>{' '}
-                  from Coimbatore
+                  from Thanjavur
                 </motion.h1>
 
                 {/* Sub-heading & Tamil Slogan */}
@@ -236,7 +236,7 @@ const HomePage = () => {
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 space-y-2.5 sm:space-y-3">
             <div className="inline-flex items-center gap-1.5 bg-brand-pink-100 text-brand-pink-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5 text-brand-pink-600" />
-              <span>Direct From Our Coimbatore & Thanjavur Mills</span>
+              <span>Direct From Our Thanjavur & Thanjavur Mills</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-brand-coffee-950 tracking-tight">
               Featured Filter Coffee Powder Range
@@ -343,7 +343,7 @@ const HomePage = () => {
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-brand-coffee-950">Fresh Batch Fast Dispatch</h3>
                 <p className="text-xs sm:text-sm text-brand-coffee-700 leading-relaxed">
-                  Every order is freshly packed in airtight multi-layer zip-lock kraft pouches and dispatched directly from our Coimbatore and Thanjavur roasteries to your doorstep.
+                  Every order is freshly packed in airtight multi-layer zip-lock kraft pouches and dispatched directly from our Thanjavur and Thanjavur roasteries to your doorstep.
                 </p>
                 <div className="text-xs font-bold text-emerald-700 flex items-center gap-1">
                   <span>Shipped within 24 Hours</span>
@@ -377,7 +377,7 @@ const HomePage = () => {
 
             <div className="lg:col-span-7 space-y-4 sm:space-y-5 text-center lg:text-left w-full">
               <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-brand-pink-600 bg-brand-pink-50 px-3 py-1 rounded-full border border-brand-pink-200">
-                Our Roots in Thanjavur & Coimbatore
+                Our Roots in Thanjavur & Thanjavur
               </span>
               <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-brand-coffee-950 leading-tight">
                 "Quality over quantity is the true essence of great coffee."
@@ -413,7 +413,7 @@ const HomePage = () => {
               Loved by Filter Coffee Enthusiasts
             </h2>
             <p className="text-xs sm:text-sm text-brand-coffee-600">
-              Real feedback from customers across Coimbatore, Thanjavur, Chennai, and Bangalore.
+              Real feedback from customers across Thanjavur, Thanjavur, Chennai, and Bangalore.
             </p>
           </div>
 
@@ -429,7 +429,7 @@ const HomePage = () => {
               </p>
               <div className="pt-2 border-t border-brand-coffee-100 flex items-center justify-between text-xs">
                 <span className="font-bold text-brand-coffee-950">Dr. K. Swaminathan</span>
-                <span className="text-brand-coffee-400">Coimbatore</span>
+                <span className="text-brand-coffee-400">Thanjavur</span>
               </div>
             </div>
 
@@ -476,7 +476,7 @@ const HomePage = () => {
             </h2>
             <div className="text-xs text-brand-coffee-700 leading-relaxed space-y-2.5">
               <p>
-                Looking for the best <strong>coffee powder</strong> in Coimbatore, Thanjavur, or anywhere in Tamil Nadu? <strong>Nadhan Coffee Mart</strong> (also known as <strong>Nathan Coffee</strong>) is your trusted traditional source for 100% pure filter coffee powder, handcrafted with decades of roasting heritage. Our filter coffee beans are handpicked from the verdant slopes of the Western Ghats and slow drum-roasted to bring out rich caramelized flavor notes and unmatched aroma.
+                Looking for the best <strong>coffee powder</strong> in Thanjavur, Thanjavur, or anywhere in Tamil Nadu? <strong>Nadhan Coffee Mart</strong> (also known as <strong>Nathan Coffee</strong>) is your trusted traditional source for 100% pure filter coffee powder, handcrafted with decades of roasting heritage. Our filter coffee beans are handpicked from the verdant slopes of the Western Ghats and slow drum-roasted to bring out rich caramelized flavor notes and unmatched aroma.
               </p>
               <p>
                 Whether you prefer <strong>100% Pure Coffee Powder (0% Chicory)</strong> for an authentic intense decoction or our signature <strong>80:20 Roasted French Chicory Coffee Blend</strong> for hotel-style frothy morning degree coffee,Nathan Coffee delivers fresh roast batches right to your door. Order 250g, 500g, or 1kg coffee packs online with secure Razorpay UPI / Card payments and fast all-India delivery.

@@ -279,7 +279,7 @@ const MyOrdersPage = () => {
                       No Orders Yet!
                     </h3>
                     <p className="text-xs sm:text-sm text-brand-coffee-600 max-w-md mx-auto">
-                      You haven't placed any orders with this mobile number (+91 {user?.mobileNumber}). Taste the legendary Coimbatore-Thanjavur heritage filter coffee today!
+                      You haven't placed any orders with this mobile number (+91 {user?.mobileNumber}). Taste the legendary Thanjavur-Thanjavur heritage filter coffee today!
                     </p>
                   </div>
 

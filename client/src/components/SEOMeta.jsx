@@ -2,9 +2,9 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 const SEOMeta = ({
-  title = 'Nadhan Coffee | Pure & Fresh Filter Coffee Powder from Coimbatore',
-  description = 'Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee Mart. Freshly roasted in Coimbatore and Thanjavur. Rich aroma, slow drum roast, available in 250g, 500g, 1kg packs with fast delivery across India.',
-  keywords = 'coffee powder,Nathan coffee, nathan coffee,Nathan coffee mart, filter coffee powder, buy filter coffee powder online, coimbatore coffee powder, thanjavur coffee powder, pure coffee powder, best coffee powder in tamil nadu, degree coffee powder, chicory coffee blend, south indian filter coffee powder',
+  title = 'Nadhan Coffee | Pure & Fresh Filter Coffee Powder from Thanjavur',
+  description = 'Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee Mart. Freshly roasted in Thanjavur and Thanjavur. Rich aroma, slow drum roast, available in 250g, 500g, 1kg packs with fast delivery across India.',
+  keywords = 'coffee powder,Nathan coffee, nathan coffee,Nathan coffee mart, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, best coffee powder in tamil nadu, degree coffee powder, chicory coffee blend, south indian filter coffee powder',
   canonicalUrl = 'https://nadhancoffee.com',
   ogImage = '/images/hero-coffee.jpg',
   ogType = 'website',
@@ -23,11 +23,11 @@ const SEOMeta = ({
     '@type': 'CoffeeShop',
     '@id': 'https://nadhancoffee.com/#localbusiness',
     name: 'Nadhan Coffee Mart',
-    alternateName: ['Nathan Coffee', 'Nadhan Filter Coffee', 'Nadhan Coffee Coimbatore', 'Nadhan Coffee Thanjavur'],
+    alternateName: ['Nathan Coffee', 'Nadhan Filter Coffee', 'Nadhan Coffee Thanjavur', 'Nadhan Coffee Thanjavur'],
     url: siteUrl,
     logo: `${siteUrl}/images/logo.jpeg`,
     image: `${siteUrl}/images/hero-coffee.jpg`,
-    description: 'Premier manufacturer and retailer of 100% Pure South Indian Filter Coffee Powder and traditional roasted blends in Coimbatore and Thanjavur.',
+    description: 'Premier manufacturer and retailer of 100% Pure South Indian Filter Coffee Powder and traditional roasted blends in Thanjavur and Thanjavur.',
     founder: {
       '@type': 'Person',
       name: 'GrandfatherNathan',
@@ -51,7 +51,7 @@ const SEOMeta = ({
       {
         '@type': 'PostalAddress',
         streetAddress: 'Nadhan Coffee Mart Hub, R.S. Puram / Avinashi Road',
-        addressLocality: 'Coimbatore',
+        addressLocality: 'Thanjavur',
         addressRegion: 'Tamil Nadu',
         postalCode: '641002',
         addressCountry: 'IN',
@@ -143,7 +143,7 @@ const SEOMeta = ({
           name: 'What is special aboutNathan Filter Coffee Powder?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Nadhan Coffee is slow roasted using traditional drum roasting techniques perfected since 1950 in South Street Thanjavur and Coimbatore. We use 100% selected plantation Arabica and Robusta beans with zero artificial colors, yielding a thick, aromatic golden decoction.',
+            text: 'Nadhan Coffee is slow roasted using traditional drum roasting techniques perfected since 1950 in South Street Thanjavur and Thanjavur. We use 100% selected plantation Arabica and Robusta beans with zero artificial colors, yielding a thick, aromatic golden decoction.',
           },
         },
         {
@@ -159,7 +159,7 @@ const SEOMeta = ({
           name: 'Do you deliverNathan Coffee powder across India?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes! We ship freshly roasted and groundNathan Coffee powder across all states in India with fast courier dispatch from Coimbatore and Thanjavur, offering Free Delivery on orders above ₹500.',
+            text: 'Yes! We ship freshly roasted and groundNathan Coffee powder across all states in India with fast courier dispatch from Thanjavur and Thanjavur, offering Free Delivery on orders above ₹500.',
           },
         },
       ],

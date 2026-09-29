@@ -84,7 +84,7 @@ const OrderSuccessPage = () => {
               Thank You for Your Order!
             </h1>
             <p className="text-xs sm:text-sm text-brand-coffee-700 max-w-lg mx-auto">
-              We have received your order. Our master roasters in Coimbatore & Thanjavur will pack your fresh coffee powder and dispatch it right away.
+              We have received your order. Our master roasters in Thanjavur & Thanjavur will pack your fresh coffee powder and dispatch it right away.
             </p>
           </div>
 

@@ -23,7 +23,7 @@ const Footer = () => {
               <div>
                 <span className="font-extrabold text-xl tracking-tight text-brand-pink-400">NADHAN </span>
                 <span className="font-bold text-xl text-white">COFFEE</span>
-                <p className="text-[11px] text-brand-yellow-400 font-medium">Coimbatore & Thanjavur</p>
+                <p className="text-[11px] text-brand-yellow-400 font-medium">Thanjavur & Thanjavur</p>
               </div>
             </Link>
             <p className="text-sm text-brand-coffee-300 leading-relaxed">
@@ -138,7 +138,7 @@ const Footer = () => {
 
         {/* Bottom Bar with SEO Keywords */}
         <div className="mt-12 pt-8 border-t border-brand-coffee-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-brand-coffee-400">
-          <p>© 2026Nathan Coffee Mart. All Rights Reserved. Pure Filter Coffee from Coimbatore & Thanjavur.</p>
+          <p>© 2026Nathan Coffee Mart. All Rights Reserved. Pure Filter Coffee from Thanjavur & Thanjavur.</p>
           <div className="flex items-center gap-3">
             <span className="text-brand-pink-400 font-medium flex items-center gap-1">
               Crafted with <Heart className="w-3 h-3 fill-brand-pink-500 text-brand-pink-500 inline" /> for South Indian Coffee Lovers

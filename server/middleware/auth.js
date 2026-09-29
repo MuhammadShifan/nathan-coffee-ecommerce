@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
 import User from '../models/User.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'nadhan_coffee_super_secret_jwt_key_2026_coimbatore_thanjavur';
+const JWT_SECRET = process.env.JWT_SECRET || 'nadhan_coffee_super_secret_jwt_key_2026_Thanjavur_thanjavur';
 
 /**
  * Protect routes for Admin access

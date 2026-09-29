@@ -75,7 +75,7 @@ const productSchema = new mongoose.Schema(
     },
     origin: {
       type: String,
-      default: 'Coimbatore & Thanjavur, Tamil Nadu',
+      default: 'Thanjavur & Thanjavur, Tamil Nadu',
     },
     category: {
       type: String,

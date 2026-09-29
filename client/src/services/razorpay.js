@@ -92,7 +92,7 @@ export const openRazorpayModal = async ({
     },
     notes: {
       address: `${customer?.address?.doorNo || ''}, ${customer?.address?.street || ''}, ${customer?.address?.city || ''}, ${customer?.address?.pincode || ''}`,
-      brand: 'Nadhan Coffee Coimbatore/Thanjavur',
+      brand: 'Nadhan Coffee Thanjavur/Thanjavur',
     },
     theme: {
       color: '#e60067', // Brand Pink

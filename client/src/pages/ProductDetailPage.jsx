@@ -42,7 +42,7 @@ const productReviewsDictionary = {
     },
     {
       name: 'Lakshmi Raman',
-      location: 'Coimbatore',
+      location: 'Thanjavur',
       date: 'September 05, 2026',
       rating: 5,
       comment: "We have been buying Nathan Coffee since our grandparents' time in Thanjavur. The slow wood-fired drum roast preserves essential coffee oils and thick golden foam.",
@@ -93,7 +93,7 @@ const productReviewsDictionary = {
     },
     {
       name: 'Ananya Raghavan',
-      location: 'Coimbatore',
+      location: 'Thanjavur',
       date: 'September 02, 2026',
       rating: 5,
       comment: 'Freshly ground and delivered with incredible aroma. Once you taste authentic Nathan Coffee, you can never go back to commercial instant powders.',
@@ -312,7 +312,7 @@ const ProductDetailPage = () => {
       <SEOMeta
         title={`${product.title} -Nathan Coffee Mart`}
         description={product.shortDescription || product.description}
-        keywords={`${product.title}, south indian filter coffee, coimbatore coffee, pure coffee powder buy online, thanjavur filter coffee`}
+        keywords={`${product.title}, south indian filter coffee, Thanjavur coffee, pure coffee powder buy online, thanjavur filter coffee`}
         canonicalUrl={`https://nadhancoffee.com/product/${product.slug}`}
         breadcrumbs={breadcrumbs}
         productData={{
@@ -795,7 +795,7 @@ const ProductDetailPage = () => {
                   </div>
                   <div className="flex justify-between py-2 border-b border-brand-coffee-100">
                     <span className="text-brand-coffee-500 font-bold">Heritage Origin:</span>
-                    <span className="text-brand-coffee-900 font-medium">{product.origin || 'Coimbatore & Thanjavur, Tamil Nadu'}</span>
+                    <span className="text-brand-coffee-900 font-medium">{product.origin || 'Thanjavur & Thanjavur, Tamil Nadu'}</span>
                   </div>
                 </div>
               </div>

@@ -10,7 +10,7 @@ const router = express.Router();
 const generateToken = (id) => {
   return jwt.sign(
     { id, role: 'admin' },
-    process.env.JWT_SECRET || 'nadhan_coffee_super_secret_jwt_key_2026_coimbatore_thanjavur',
+    process.env.JWT_SECRET || 'nadhan_coffee_super_secret_jwt_key_2026_Thanjavur_thanjavur',
     { expiresIn: '30d' }
   );
 };

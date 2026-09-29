@@ -153,7 +153,7 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
           <div>
             <h1 className="text-xl font-extrabold text-brand-coffee-950">{title}</h1>
             <p className="text-xs text-brand-coffee-600">
-              Live Store Manager •Nathan Coffee Mart (Coimbatore & Thanjavur)
+              Live Store Manager •Nathan Coffee Mart (Thanjavur & Thanjavur)
             </p>
           </div>
 
