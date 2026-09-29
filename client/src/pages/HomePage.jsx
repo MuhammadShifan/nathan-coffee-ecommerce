@@ -413,7 +413,7 @@ const HomePage = () => {
               Loved by Filter Coffee Enthusiasts
             </h2>
             <p className="text-xs sm:text-sm text-brand-coffee-600">
-              Real feedback from customers across Thanjavur, Thanjavur, Chennai, and Bangalore.
+              Real feedback from customers across Thanjavur, Coimbatore, Chennai, and Bangalore.
             </p>
           </div>
 
@@ -472,7 +472,7 @@ const HomePage = () => {
           <div className="bg-brand-coffee-100/50 rounded-3xl p-6 sm:p-8 border border-brand-coffee-200/80 space-y-3 sm:space-y-4">
             <h2 className="text-base sm:text-lg font-bold text-brand-coffee-950 flex items-center gap-2">
               <Coffee className="w-5 h-5 text-brand-pink-600 flex-shrink-0" />
-              <span>AboutNathan Coffee Mart — Pure South Indian Filter Coffee Powder Online</span>
+              <span>About Nathan Coffee Mart — Pure South Indian Filter Coffee Powder Online</span>
             </h2>
             <div className="text-xs text-brand-coffee-700 leading-relaxed space-y-2.5">
               <p>

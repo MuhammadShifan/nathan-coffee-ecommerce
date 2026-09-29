@@ -72,7 +72,7 @@ const Navbar = () => {
             <span className="bg-brand-yellow-500 text-brand-pink-900 text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full">
               Fresh Roast 2026
             </span>
-            <span className="hidden sm:inline">100% Pure Filter Coffee Powder from Thanjavur & Thanjavur</span>
+            <span className="hidden sm:inline">100% Pure Filter Coffee Powder from Thanjavur</span>
             <span className="sm:hidden">100% Pure Filter Coffee</span>
           </div>
           <div className="flex items-center gap-4 text-xs">
