@@ -96,8 +96,8 @@ const Navbar = () => {
             : 'bg-white/90 backdrop-blur-sm border-b border-brand-coffee-100 py-2.5 sm:py-3.5'
           }`}
       >
-        <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
-          {/* Brand Logo & Name */}
+        <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
+          {/* Brand Logo & Name (Left Side) */}
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0 flex-shrink">
             <div className="relative overflow-hidden rounded-lg border-2 border-brand-pink-500 shadow-sm bg-brand-pink-600 p-0.5 flex-shrink-0 transition-transform group-hover:scale-105">
               <picture>
@@ -112,14 +112,14 @@ const Navbar = () => {
               </picture>
             </div>
             <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-1">
-                <span className="font-extrabold text-base sm:text-2xl tracking-tight text-brand-pink-600 group-hover:text-brand-pink-700 font-sans">
+              <div className="flex items-center gap-1 min-w-0">
+                <span className="font-extrabold text-sm sm:text-2xl tracking-tight text-brand-pink-600 group-hover:text-brand-pink-700 font-sans truncate">
                   Nathan
                 </span>
-                <span className="font-bold text-base sm:text-2xl text-brand-coffee-950">COFFEE</span>
+                <span className="font-bold text-sm sm:text-2xl text-brand-coffee-950 truncate">COFFEE</span>
               </div>
-              <span className="text-[9px] sm:text-xs font-semibold tracking-wider text-brand-coffee-700 uppercase -mt-0.5 flex items-center gap-1 font-tamil truncate">
-                நாடன் காப்பி மார்ட் <span className="text-brand-pink-500 hidden sm:inline">•</span> <span className="hidden sm:inline">Since 1950</span>
+              <span className="hidden sm:flex items-center gap-1 text-xs font-semibold tracking-wider text-brand-coffee-700 uppercase -mt-0.5 font-tamil truncate">
+                நாடன் காப்பி மார்ட் <span className="text-brand-pink-500">•</span> <span>Since 1950</span>
               </span>
             </div>
           </Link>
@@ -150,12 +150,12 @@ const Navbar = () => {
           </nav>
 
           {/* Right Action Icons & Auth CTA */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {/* Cart Button with animated Counter badge */}
             <motion.button
               id="cart-toggle-btn"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 sm:p-2.5 rounded-xl bg-brand-coffee-100/70 hover:bg-brand-pink-50 text-brand-coffee-900 hover:text-brand-pink-600 transition-all border border-brand-coffee-200 hover:border-brand-pink-300"
+              className="relative p-2 sm:p-2.5 rounded-xl bg-brand-coffee-100/70 hover:bg-brand-pink-50 text-brand-coffee-900 hover:text-brand-pink-600 transition-all border border-brand-coffee-200 hover:border-brand-pink-300 flex-shrink-0"
               whileTap={{ scale: 0.95 }}
               aria-label="View Shopping Cart"
             >
@@ -194,7 +194,7 @@ const Navbar = () => {
                   <button
                     id="user-profile-menu-btn"
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 sm:py-2 rounded-xl bg-brand-coffee-100/80 hover:bg-brand-coffee-200 text-brand-coffee-950 font-bold text-xs border border-brand-coffee-200 transition-colors"
+                    className="flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-xl bg-brand-coffee-100/80 hover:bg-brand-coffee-200 text-brand-coffee-950 font-bold text-xs border border-brand-coffee-200 transition-colors flex-shrink-0"
                     aria-label="User Account Menu"
                   >
                     <div className="w-6 h-6 rounded-full bg-brand-pink-600 text-white flex items-center justify-center text-[10px] font-black">
@@ -261,7 +261,7 @@ const Navbar = () => {
                 <button
                   id="nav-login-btn"
                   onClick={() => openAuthModal()}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white hover:bg-brand-pink-50 text-brand-coffee-900 hover:text-brand-pink-600 font-bold text-xs border border-brand-coffee-200 hover:border-brand-pink-300 transition-all shadow-sm"
+                  className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white hover:bg-brand-pink-50 text-brand-coffee-900 hover:text-brand-pink-600 font-bold text-xs border border-brand-coffee-200 hover:border-brand-pink-300 transition-all shadow-sm flex-shrink-0"
                 >
                   <UserIcon className="w-3.5 h-3.5 text-brand-pink-600" />
                   <span>Login</span>
@@ -283,7 +283,7 @@ const Navbar = () => {
             <button
               id="mobile-menu-toggle-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-brand-coffee-800 hover:bg-brand-pink-50 hover:text-brand-pink-600 transition-colors"
+              className="md:hidden p-2 rounded-xl text-brand-coffee-800 hover:bg-brand-pink-50 hover:text-brand-pink-600 transition-colors flex-shrink-0"
               aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
