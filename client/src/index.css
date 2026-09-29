@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  body {
+    background-color: #fdfbf7;
+    color: #150a06;
+    overflow-x: hidden;
+    width: 100%;
+    min-width: 320px;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: #e60067;
+    color: #ffffff;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .glass-dark {
+    background: rgba(21, 10, 6, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .text-glow-yellow {
+    text-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+  }
+
+  .text-glow-pink {
+    text-shadow: 0 0 16px rgba(230, 0, 103, 0.4);
+  }
+
+  .bg-radial-brand {
+    background: radial-gradient(circle at 50% 0%, rgba(230, 0, 103, 0.15) 0%, rgba(255, 215, 0, 0.08) 40%, transparent 70%);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f7f0e6;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e60067;
+    border-radius: 9999px;
+  }
+}
+
+/* Button pulse & shine animation */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 80%
+  );
+  transform: rotate(30deg) translateX(-100%);
+  transition: transform 0.8s ease;
+}
+
+.btn-shimmer:hover::after {
+  transform: rotate(30deg) translateX(100%);
+}

@@ -1,0 +1,25 @@
+{
+  "name": "nadhan-coffee-mart-monorepo",
+  "version": "1.0.0",
+  "description": "Nadhan Coffee Mart - E-Commerce MERN Platform",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"magenta,yellow\" \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "seed": "npm run seed --prefix server",
+    "build": "npm run build --prefix client",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "keywords": [
+    "nadhan coffee",
+    "filter coffee powder",
+    "coimbatore coffee",
+    "thanjavur coffee",
+    "mern ecommerce"
+  ],
+  "author": "Nadhan Coffee Mart",
+  "license": "ISC"
+}
