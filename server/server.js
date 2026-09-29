@@ -81,10 +81,10 @@ app.use('/', seoRoutes);
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    service: 'Nadhan Coffee Mart API',
+    service: 'Nathan Coffee Mart API',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
-    brand: 'Nadhan Coffee - Since 1950s',
+    brand: 'Nathan Coffee - Since 1950s',
   });
 });
 

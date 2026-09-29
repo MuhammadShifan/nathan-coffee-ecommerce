@@ -53,8 +53,8 @@ const AboutPage = () => {
       <SEOMeta
         title="Our Legacy & Heritage -Nathan Coffee | Authentic South Indian Roasters"
         description="Discover the 70+ year legacy ofNathan Coffee Mart. Founded by our beloved Grandfather in Thanjavur and expanded to Thanjavur. Dedicated to 100% pure filter coffee roasting with zero artificial additives."
-        keywords="nadhan coffee legacy, nathan coffee history, thanjavur filter coffee grandfather, authentic Thanjavur coffee roasters, pure filter coffee heritage tamil nadu"
-        canonicalUrl="https://nadhancoffee.com/about"
+        keywords="Nathan coffee legacy, nathan coffee history, thanjavur filter coffee grandfather, authentic Thanjavur coffee roasters, pure filter coffee heritage tamil nadu"
+        canonicalUrl="https://Nathancoffee.com/about"
         breadcrumbs={breadcrumbs}
         includeLocalBusiness={true}
       />
@@ -72,7 +72,7 @@ const AboutPage = () => {
 
             {/* H1 Tag for SEO */}
             <h1 className="text-2xl xs:text-3xl sm:text-5xl font-extrabold text-brand-coffee-950 tracking-tight max-w-4xl mx-auto">
-              Our Legacy & Heritage - <span className="text-brand-pink-600">Nadhan Coffee</span>
+              Our Legacy & Heritage - <span className="text-brand-pink-600">Nathan Coffee</span>
             </h1>
 
             <p className="text-xs sm:text-base text-brand-coffee-700 max-w-2xl mx-auto leading-relaxed">

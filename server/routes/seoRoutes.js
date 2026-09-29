@@ -7,7 +7,7 @@ const router = express.Router();
 // Dynamic sitemap.xml generator
 router.get('/sitemap.xml', async (req, res) => {
   try {
-    const baseUrl = process.env.SITE_URL || 'https://nadhancoffee.com';
+    const baseUrl = process.env.SITE_URL || 'https://Nathancoffee.com';
     let products = await Product.find({}, 'slug updatedAt');
 
     if (!products || products.length === 0) {
@@ -57,7 +57,7 @@ router.get('/sitemap.xml', async (req, res) => {
 
 // Dynamic robots.txt
 router.get('/robots.txt', (req, res) => {
-  const baseUrl = process.env.SITE_URL || 'https://nadhancoffee.com';
+  const baseUrl = process.env.SITE_URL || 'https://Nathancoffee.com';
   const robotsTxt = `User-agent: *
 Allow: /
 Disallow: /admin/

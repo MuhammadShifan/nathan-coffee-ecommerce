@@ -128,7 +128,7 @@ const CheckoutPage = () => {
             customer_name: formData.name,
             customer_phone: formData.phone,
             user_id: user?._id || '',
-            brand: 'Nadhan Coffee Mart',
+            brand: 'Nathan Coffee Mart',
           },
         });
 
@@ -283,7 +283,7 @@ const CheckoutPage = () => {
       <SEOMeta
         title="Secure Checkout - Nathan Coffee Mart"
         description="Fast and secure Razorpay payment checkout for Nathan Pure Filter Coffee Powder with all-India shipping."
-        canonicalUrl="https://nadhancoffee.com/checkout"
+        canonicalUrl="https://Nathancoffee.com/checkout"
         includeLocalBusiness={false}
       />
 

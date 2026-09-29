@@ -60,7 +60,7 @@ const ShopPage = () => {
         title="Buy Pure Filter Coffee Powder Online -Nathan Coffee"
         description="Shop fresh authentic South Indian filter coffee powder online fromNathan Coffee Mart. Available in 250g, 500g, 1kg packs. 100% Pure & Chicory Blends roasted in Thanjavur & Thanjavur. Fast shipping across India."
         keywords="buy pure filter coffee powder online,Nathan coffee shop, filter coffee 250g, filter coffee 500g, pure coffee powder buy online, nathan coffee shop, Thanjavur filter coffee order, chicory coffee powder buy"
-        canonicalUrl="https://nadhancoffee.com/shop"
+        canonicalUrl="https://Nathancoffee.com/shop"
         breadcrumbs={breadcrumbs}
         includeLocalBusiness={true}
       />
@@ -84,7 +84,7 @@ const ShopPage = () => {
             <div>
               <h1 className="text-2xl xs:text-3xl sm:text-4xl font-extrabold text-brand-coffee-950 tracking-tight">
                 Buy Pure Filter Coffee Powder Online -{' '}
-                <span className="text-brand-pink-600">Nadhan Coffee</span>
+                <span className="text-brand-pink-600">Nathan Coffee</span>
               </h1>
               <p className="text-xs sm:text-sm text-brand-coffee-700 mt-1 max-w-2xl">
                 Freshly ground and packed in airtight ziplock kraft pouches to lock in original aroma. Choose from 100% Pure Filter Coffee or Traditional Chicory blends.

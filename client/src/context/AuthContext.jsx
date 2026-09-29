@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   // ----------------------------------------------------
   const [admin, setAdmin] = useState(() => {
     try {
-      const saved = localStorage.getItem('nadhan_admin_info');
+      const saved = localStorage.getItem('Nathan_admin_info');
       return saved ? JSON.parse(saved) : null;
     } catch (e) {
       return null;
@@ -25,9 +25,9 @@ export const AuthProvider = ({ children }) => {
         const adminData = res.data.data;
         const token = adminData.token;
         setAdmin(adminData);
-        localStorage.setItem('nadhan_admin_info', JSON.stringify(adminData));
+        localStorage.setItem('Nathan_admin_info', JSON.stringify(adminData));
         if (token) {
-          localStorage.setItem('nadhan_admin_token', token);
+          localStorage.setItem('Nathan_admin_token', token);
           localStorage.setItem('admin_token', token);
         }
         setAdminLoading(false);
@@ -44,8 +44,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setAdmin(null);
-    localStorage.removeItem('nadhan_admin_info');
-    localStorage.removeItem('nadhan_admin_token');
+    localStorage.removeItem('Nathan_admin_info');
+    localStorage.removeItem('Nathan_admin_token');
     localStorage.removeItem('admin_token');
   };
 
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
   // ----------------------------------------------------
   const [user, setUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('nadhan_user_info');
+      const saved = localStorage.getItem('Nathan_user_info');
       return saved ? JSON.parse(saved) : null;
     } catch (e) {
       return null;
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
 
   const [userToken, setUserToken] = useState(() => {
     try {
-      return localStorage.getItem('nadhan_user_token') || null;
+      return localStorage.getItem('Nathan_user_token') || null;
     } catch (e) {
       return null;
     }
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
           const res = await api.get('/api/auth/me');
           if (res.data.success && res.data.user) {
             setUser(res.data.user);
-            localStorage.setItem('nadhan_user_info', JSON.stringify(res.data.user));
+            localStorage.setItem('Nathan_user_info', JSON.stringify(res.data.user));
           }
         } catch (err) {
           console.warn('Session expired or invalid token');
@@ -145,8 +145,8 @@ export const AuthProvider = ({ children }) => {
         setUser(receivedUser);
         setUserToken(receivedToken);
 
-        localStorage.setItem('nadhan_user_token', receivedToken);
-        localStorage.setItem('nadhan_user_info', JSON.stringify(receivedUser));
+        localStorage.setItem('Nathan_user_token', receivedToken);
+        localStorage.setItem('Nathan_user_info', JSON.stringify(receivedUser));
 
         setUserLoading(false);
         setIsAuthModalOpen(false);
@@ -176,8 +176,8 @@ export const AuthProvider = ({ children }) => {
   const logoutUser = () => {
     setUser(null);
     setUserToken(null);
-    localStorage.removeItem('nadhan_user_token');
-    localStorage.removeItem('nadhan_user_info');
+    localStorage.removeItem('Nathan_user_token');
+    localStorage.removeItem('Nathan_user_info');
   };
 
   /**
@@ -188,7 +188,7 @@ export const AuthProvider = ({ children }) => {
       const res = await api.put('/api/auth/profile', profileData);
       if (res.data.success && res.data.user) {
         setUser(res.data.user);
-        localStorage.setItem('nadhan_user_info', JSON.stringify(res.data.user));
+        localStorage.setItem('Nathan_user_info', JSON.stringify(res.data.user));
         return { success: true, user: res.data.user };
       }
       return { success: false, message: res.data.message };
@@ -204,7 +204,7 @@ export const AuthProvider = ({ children }) => {
         admin,
         isAuthenticated: Boolean(
           admin?.token ||
-          (typeof window !== 'undefined' && (localStorage.getItem('nadhan_admin_token') || localStorage.getItem('admin_token')))
+          (typeof window !== 'undefined' && (localStorage.getItem('Nathan_admin_token') || localStorage.getItem('admin_token')))
         ),
         adminLoading,
         login,

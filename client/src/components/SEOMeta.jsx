@@ -2,10 +2,10 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 const SEOMeta = ({
-  title = 'Nadhan Coffee | Pure & Fresh Filter Coffee Powder from Thanjavur',
+  title = 'Nathan Coffee | Pure & Fresh Filter Coffee Powder from Thanjavur',
   description = 'Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee Mart. Freshly roasted in Thanjavur and Thanjavur. Rich aroma, slow drum roast, available in 250g, 500g, 1kg packs with fast delivery across India.',
   keywords = 'coffee powder,Nathan coffee, nathan coffee,Nathan coffee mart, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, best coffee powder in tamil nadu, degree coffee powder, chicory coffee blend, south indian filter coffee powder',
-  canonicalUrl = 'https://nadhancoffee.com',
+  canonicalUrl = 'https://Nathancoffee.com',
   ogImage = '/images/hero-coffee.jpg',
   ogType = 'website',
   productData = null,
@@ -13,7 +13,7 @@ const SEOMeta = ({
   includeLocalBusiness = true,
   includeFAQ = false,
 }) => {
-  const siteUrl = 'https://nadhancoffee.com';
+  const siteUrl = 'https://Nathancoffee.com';
   const fullCanonical = canonicalUrl.startsWith('http') ? canonicalUrl : `${siteUrl}${canonicalUrl}`;
   const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 
@@ -21,9 +21,9 @@ const SEOMeta = ({
   const localBusinessSchema = {
     '@context': 'https://schema.org',
     '@type': 'CoffeeShop',
-    '@id': 'https://nadhancoffee.com/#localbusiness',
-    name: 'Nadhan Coffee Mart',
-    alternateName: ['Nathan Coffee', 'Nadhan Filter Coffee', 'Nadhan Coffee Thanjavur', 'Nadhan Coffee Thanjavur'],
+    '@id': 'https://Nathancoffee.com/#localbusiness',
+    name: 'Nathan Coffee Mart',
+    alternateName: ['Nathan Coffee', 'Nathan Filter Coffee', 'Nathan Coffee Thanjavur', 'Nathan Coffee Thanjavur'],
     url: siteUrl,
     logo: `${siteUrl}/images/logo.jpeg`,
     image: `${siteUrl}/images/hero-coffee.jpg`,
@@ -35,7 +35,7 @@ const SEOMeta = ({
     },
     foundingDate: '1950',
     telephone: '+91-6383805976',
-    email: 'info@nadhancoffee.com',
+    email: 'info@Nathancoffee.com',
     priceRange: '₹₹',
     currenciesAccepted: 'INR',
     paymentAccepted: 'Cash, Credit Card, Debit Card, UPI, Net Banking, Razorpay',
@@ -50,7 +50,7 @@ const SEOMeta = ({
       },
       {
         '@type': 'PostalAddress',
-        streetAddress: 'Nadhan Coffee Mart Hub, R.S. Puram / Avinashi Road',
+        streetAddress: 'Nathan Coffee Mart Hub, R.S. Puram / Avinashi Road',
         addressLocality: 'Thanjavur',
         addressRegion: 'Tamil Nadu',
         postalCode: '641002',
@@ -71,8 +71,8 @@ const SEOMeta = ({
       },
     ],
     sameAs: [
-      'https://www.facebook.com/nadhancoffee',
-      'https://www.instagram.com/nadhancoffee',
+      'https://www.facebook.com/Nathancoffee',
+      'https://www.instagram.com/Nathancoffee',
       'https://wa.me/916383805976',
     ],
   };
@@ -105,7 +105,7 @@ const SEOMeta = ({
       mpn: productData.fssaiNumber || '22426461000422',
       brand: {
         '@type': 'Brand',
-        name: 'Nadhan Coffee',
+        name: 'Nathan Coffee',
         logo: `${siteUrl}/images/logo.jpeg`,
       },
       offers: {
@@ -119,7 +119,7 @@ const SEOMeta = ({
         itemCondition: 'https://schema.org/NewCondition',
         seller: {
           '@type': 'Organization',
-          name: 'Nadhan Coffee Mart',
+          name: 'Nathan Coffee Mart',
         },
       },
       aggregateRating: {
@@ -143,7 +143,7 @@ const SEOMeta = ({
           name: 'What is special aboutNathan Filter Coffee Powder?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Nadhan Coffee is slow roasted using traditional drum roasting techniques perfected since 1950 in South Street Thanjavur and Thanjavur. We use 100% selected plantation Arabica and Robusta beans with zero artificial colors, yielding a thick, aromatic golden decoction.',
+            text: 'Nathan Coffee is slow roasted using traditional drum roasting techniques perfected since 1950 in South Street Thanjavur and Thanjavur. We use 100% selected plantation Arabica and Robusta beans with zero artificial colors, yielding a thick, aromatic golden decoction.',
           },
         },
         {
@@ -176,7 +176,7 @@ const SEOMeta = ({
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
       {/* Open Graph / Facebook */}
-      <meta property="og:site_name" content="Nadhan Coffee Mart" />
+      <meta property="og:site_name" content="Nathan Coffee Mart" />
       <meta property="og:type" content={ogType} />
       <meta property="og:url" content={fullCanonical} />
       <meta property="og:title" content={title} />

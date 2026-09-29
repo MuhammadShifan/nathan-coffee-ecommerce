@@ -9,8 +9,8 @@ const AdminLoginPage = () => {
   const { login, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('admin@nadhancoffee.com');
-  const [password, setPassword] = useState('Nadhan@2026');
+  const [email, setEmail] = useState('admin@Nathancoffee.com');
+  const [password, setPassword] = useState('Nathan@2026');
   const [showPassword, setShowPassword] = useState(false);
   const [errorAlert, setErrorAlert] = useState(null);
 
@@ -37,7 +37,7 @@ const AdminLoginPage = () => {
       <SEOMeta
         title="Admin Portal Login -Nathan Coffee Mart"
         description="Secure admin access portal forNathan Coffee order and product inventory management."
-        canonicalUrl="https://nadhancoffee.com/admin/login"
+        canonicalUrl="https://Nathancoffee.com/admin/login"
         includeLocalBusiness={false}
       />
 
@@ -92,7 +92,7 @@ const AdminLoginPage = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@nadhancoffee.com"
+                  placeholder="admin@Nathancoffee.com"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-xs text-brand-coffee-900 bg-brand-coffee-50/60"
                 />
               </div>
@@ -140,7 +140,7 @@ const AdminLoginPage = () => {
               <span>Default Master Credentials:</span>
             </div>
             <p className="font-mono text-[10px]">
-              Email: <strong>admin@nadhancoffee.com</strong> | Pass: <strong>Nadhan@2026</strong>
+              Email: <strong>admin@Nathancoffee.com</strong> | Pass: <strong>Nathan@2026</strong>
             </p>
           </div>
         </motion.div>

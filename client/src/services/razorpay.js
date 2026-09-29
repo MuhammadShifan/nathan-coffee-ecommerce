@@ -23,7 +23,7 @@ export const openRazorpayModal = async ({
   orderId,
   amount,
   currency = 'INR',
-  name = 'Nadhan Coffee Mart',
+  name = 'Nathan Coffee Mart',
   description = 'Pure Filter Coffee Powder Order',
   customer,
   onSuccess,
@@ -92,7 +92,7 @@ export const openRazorpayModal = async ({
     },
     notes: {
       address: `${customer?.address?.doorNo || ''}, ${customer?.address?.street || ''}, ${customer?.address?.city || ''}, ${customer?.address?.pincode || ''}`,
-      brand: 'Nadhan Coffee Thanjavur/Thanjavur',
+      brand: 'Nathan Coffee Thanjavur/Thanjavur',
     },
     theme: {
       color: '#e60067', // Brand Pink

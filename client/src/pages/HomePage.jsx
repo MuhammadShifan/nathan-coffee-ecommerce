@@ -54,7 +54,7 @@ const HomePage = () => {
         title="Pure & Fresh Filter Coffee Powder from Thanjavur |Nathan Coffee"
         description="Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee Mart. Freshly roasted in Thanjavur and Thanjavur. Slow drum roast with intense aroma in 250g, 500g, 1kg packs with fast delivery across India."
         keywords="coffee powder,Nathan coffee, nathan coffee,Nathan coffee mart, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, degree coffee powder, kumbakonam degree coffee powder, best coffee powder in tamil nadu"
-        canonicalUrl="https://nadhancoffee.com"
+        canonicalUrl="https://Nathancoffee.com"
         ogImage="/images/hero-coffee.jpg"
         includeLocalBusiness={true}
         includeFAQ={true}
@@ -196,7 +196,7 @@ const HomePage = () => {
                     <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 bg-white/95 backdrop-blur-md p-2.5 sm:p-3.5 rounded-2xl border border-white/60 shadow-lg flex items-center gap-2.5 sm:gap-3">
                       <img
                         src="/images/250g front.png"
-                        alt="Nadhan 250g Coffee Powder Pack"
+                        alt="Nathan 250g Coffee Powder Pack"
                         className="h-11 sm:h-14 w-auto object-contain flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
@@ -476,7 +476,7 @@ const HomePage = () => {
             </h2>
             <div className="text-xs text-brand-coffee-700 leading-relaxed space-y-2.5">
               <p>
-                Looking for the best <strong>coffee powder</strong> in Thanjavur, Thanjavur, or anywhere in Tamil Nadu? <strong>Nadhan Coffee Mart</strong> (also known as <strong>Nathan Coffee</strong>) is your trusted traditional source for 100% pure filter coffee powder, handcrafted with decades of roasting heritage. Our filter coffee beans are handpicked from the verdant slopes of the Western Ghats and slow drum-roasted to bring out rich caramelized flavor notes and unmatched aroma.
+                Looking for the best <strong>coffee powder</strong> in Thanjavur, Thanjavur, or anywhere in Tamil Nadu? <strong>Nathan Coffee Mart</strong> (also known as <strong>Nathan Coffee</strong>) is your trusted traditional source for 100% pure filter coffee powder, handcrafted with decades of roasting heritage. Our filter coffee beans are handpicked from the verdant slopes of the Western Ghats and slow drum-roasted to bring out rich caramelized flavor notes and unmatched aroma.
               </p>
               <p>
                 Whether you prefer <strong>100% Pure Coffee Powder (0% Chicory)</strong> for an authentic intense decoction or our signature <strong>80:20 Roasted French Chicory Coffee Blend</strong> for hotel-style frothy morning degree coffee,Nathan Coffee delivers fresh roast batches right to your door. Order 250g, 500g, or 1kg coffee packs online with secure Razorpay UPI / Card payments and fast all-India delivery.

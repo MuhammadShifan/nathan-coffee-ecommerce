@@ -1,7 +1,7 @@
 {
-  "name": "nadhan-coffee-mart-monorepo",
+  "name": "Nathan-coffee-mart-monorepo",
   "version": "1.0.0",
-  "description": "Nadhan Coffee Mart - E-Commerce MERN Platform",
+  "description": "Nathan Coffee Mart - E-Commerce MERN Platform",
   "scripts": {
     "dev": "concurrently -n \"SERVER,CLIENT\" -c \"magenta,yellow\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "npm run dev --prefix server",
@@ -14,12 +14,12 @@
     "concurrently": "^9.1.2"
   },
   "keywords": [
-    "nadhan coffee",
+    "Nathan coffee",
     "filter coffee powder",
     "Thanjavur coffee",
     "thanjavur coffee",
     "mern ecommerce"
   ],
-  "author": "Nadhan Coffee Mart",
+  "author": "Nathan Coffee Mart",
   "license": "ISC"
 }

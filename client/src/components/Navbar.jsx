@@ -104,7 +104,7 @@ const Navbar = () => {
                 <source srcSet="/images/logo.avif" type="image/avif" />
                 <img
                   src="/images/logo.jpeg"
-                  alt="Nadhan Coffee Mart Logo"
+                  alt="Nathan Coffee Mart Logo"
                   className="h-8 sm:h-11 w-auto object-contain bg-white rounded"
                   width="130"
                   height="42"

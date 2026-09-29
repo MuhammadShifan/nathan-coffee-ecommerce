@@ -61,7 +61,7 @@ const OrderSuccessPage = () => {
       <SEOMeta
         title={`Order Confirmed #${orderId || ''} -Nathan Coffee`}
         description="YourNathan Coffee order is placed successfully. Thank you for choosing authentic South Indian filter coffee."
-        canonicalUrl={`https://nadhancoffee.com/order-success/${orderId}`}
+        canonicalUrl={`https://Nathancoffee.com/order-success/${orderId}`}
         includeLocalBusiness={false}
       />
 

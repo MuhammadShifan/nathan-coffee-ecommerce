@@ -10,7 +10,7 @@ dotenv.config();
 
 const seedDatabase = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://Muhammad_shifan:muhammadshifan2006@mdsdb.joqwsjx.mongodb.net/nadhan_coffee?retryWrites=true&w=majority';
+    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://Muhammad_shifan:muhammadshifan2006@mdsdb.joqwsjx.mongodb.net/Nathan_coffee?retryWrites=true&w=majority';
     await mongoose.connect(mongoUri);
     console.log('🌱 Connected to MongoDB for seeding...');
 
@@ -26,11 +26,11 @@ const seedDatabase = async () => {
     console.log(`✅ Seeded ${createdProducts.length} Products`);
 
     // Seed Master Admin
-    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@nadhancoffee.com').toLowerCase();
-    const adminPassword = process.env.ADMIN_PASSWORD || 'Nadhan@2026';
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@Nathancoffee.com').toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD || 'Nathan@2026';
 
     const admin = await Admin.create({
-      name: 'Nadhan Master Admin',
+      name: 'Nathan Master Admin',
       email: adminEmail,
       password: adminPassword,
       role: 'admin',

@@ -80,7 +80,7 @@ const ContactPage = () => {
         title="Contact Us -Nathan Coffee | Thanjavur & Thanjavur Stores"
         description="Get in touch withNathan Coffee Mart. Call +91 63838 05976 or WhatsApp for wholesale coffee powder inquiries, retail orders, and fresh batch dispatch from Thanjavur & Thanjavur."
         keywords="contactNathan coffee, nathan coffee phone number, thanjavur coffee shop address, Thanjavur coffee powder wholesale contact,Nathan filter coffee customer support"
-        canonicalUrl="https://nadhancoffee.com/contact"
+        canonicalUrl="https://Nathancoffee.com/contact"
         breadcrumbs={breadcrumbs}
         includeLocalBusiness={true}
       />
@@ -100,7 +100,7 @@ const ContactPage = () => {
 
           {/* H1 Tag for SEO */}
           <h1 className="text-2xl xs:text-3xl sm:text-5xl font-extrabold text-brand-coffee-950 tracking-tight">
-            Contact Us - <span className="text-brand-pink-600">Nadhan Coffee</span>
+            Contact Us - <span className="text-brand-pink-600">Nathan Coffee</span>
           </h1>
 
           <p className="text-xs sm:text-sm text-brand-coffee-700 max-w-2xl">
@@ -152,7 +152,7 @@ const ContactPage = () => {
             </div>
             <div className="pt-3 border-t border-brand-coffee-100">
               <a
-                href="https://wa.me/916383805976?text=Hello%20Nadhan%20Coffee%2C%20I%20would%20like%20to%20order%20pure%20filter%20coffee%20powder"
+                href="https://wa.me/916383805976?text=Hello%20Nathan%20Coffee%2C%20I%20would%20like%20to%20order%20pure%20filter%20coffee%20powder"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all"
@@ -175,10 +175,10 @@ const ContactPage = () => {
             </div>
             <div className="pt-3 border-t border-brand-coffee-100">
               <a
-                href="mailto:info@nadhancoffee.com"
+                href="mailto:info@Nathancoffee.com"
                 className="block text-sm font-extrabold text-brand-coffee-900 hover:text-brand-pink-600 transition-colors"
               >
-                info@nadhancoffee.com
+                info@Nathancoffee.com
               </a>
               <span className="text-[11px] text-brand-coffee-400">Response within 24h</span>
             </div>

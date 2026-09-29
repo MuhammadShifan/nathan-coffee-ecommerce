@@ -34,7 +34,7 @@ router.post('/create-order', async (req, res) => {
       amount: Math.round(amount * 100),
       currency,
       receipt: receipt || `rec_${Date.now().toString().slice(-8)}`,
-      notes: notes || { business: 'Nadhan Coffee Mart' },
+      notes: notes || { business: 'Nathan Coffee Mart' },
     };
 
     const razorpayOrder = await razorpayInstance.orders.create(options);
@@ -100,7 +100,7 @@ router.post('/verify', protectUserOptional, async (req, res) => {
       orderId: generatedOrderId,
       customer: orderDetails?.customer || {
         name: 'Valued Customer',
-        email: 'customer@nadhancoffee.com',
+        email: 'customer@Nathancoffee.com',
         phone: '9443104462',
         address: {
           doorNo: '2928',

@@ -5,10 +5,10 @@ import axios from 'axios';
  */
 export const getAdminToken = () => {
   try {
-    const directToken = localStorage.getItem('nadhan_admin_token') || localStorage.getItem('admin_token');
+    const directToken = localStorage.getItem('Nathan_admin_token') || localStorage.getItem('admin_token');
     if (directToken && directToken.trim()) return directToken.trim();
 
-    const adminInfo = localStorage.getItem('nadhan_admin_info');
+    const adminInfo = localStorage.getItem('Nathan_admin_info');
     if (adminInfo) {
       const parsed = JSON.parse(adminInfo);
       if (parsed?.token && typeof parsed.token === 'string') {
@@ -23,10 +23,10 @@ export const getAdminToken = () => {
 
 export const getUserToken = () => {
   try {
-    const token = localStorage.getItem('nadhan_user_token');
+    const token = localStorage.getItem('Nathan_user_token');
     if (token && token.trim()) return token.trim();
 
-    const userInfo = localStorage.getItem('nadhan_user_info');
+    const userInfo = localStorage.getItem('Nathan_user_info');
     if (userInfo) {
       const parsed = JSON.parse(userInfo);
       if (parsed?.token && typeof parsed.token === 'string') {

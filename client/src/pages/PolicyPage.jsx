@@ -13,7 +13,7 @@ const PolicyPage = () => {
       content: (
         <div className="space-y-4 text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
           <p>
-            At <strong>Nadhan Coffee Mart</strong>, we take pride in delivering freshly roasted and ground South Indian filter coffee powder right from our Thanjavur and Thanjavur roasting units to your home.
+            At <strong>Nathan Coffee Mart</strong>, we take pride in delivering freshly roasted and ground South Indian filter coffee powder right from our Thanjavur and Thanjavur roasting units to your home.
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">1. Dispatch Timelines</h3>
           <p>
@@ -42,7 +42,7 @@ const PolicyPage = () => {
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">1. Order Cancellations</h3>
           <p>
-            You can cancel your order within 2 hours of placing it by contacting our support team via WhatsApp at +91 63838 05976 or emailing info@nadhancoffee.com. Once an order has been freshly ground and dispatched, it cannot be cancelled.
+            You can cancel your order within 2 hours of placing it by contacting our support team via WhatsApp at +91 63838 05976 or emailing info@Nathancoffee.com. Once an order has been freshly ground and dispatched, it cannot be cancelled.
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">2. Damaged or Incorrect Items</h3>
           <p>
@@ -98,7 +98,7 @@ const PolicyPage = () => {
       <SEOMeta
         title={`${activePolicy.title} -Nathan Coffee`}
         description={`ReadNathan Coffee Mart's ${activePolicy.title}. Transparent policies for fresh coffee powder dispatch and customer assurance.`}
-        canonicalUrl={`https://nadhancoffee.com/policy/${type}`}
+        canonicalUrl={`https://Nathancoffee.com/policy/${type}`}
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">

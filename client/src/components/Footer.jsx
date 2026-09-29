@@ -17,11 +17,11 @@ const Footer = () => {
             <Link to="/" className="inline-flex items-center gap-3">
               <img
                 src="/images/logo.jpeg"
-                alt="Nadhan Coffee Logo"
+                alt="Nathan Coffee Logo"
                 className="h-11 w-auto bg-white rounded-lg p-0.5 border-2 border-brand-pink-500"
               />
               <div>
-                <span className="font-extrabold text-xl tracking-tight text-brand-pink-400">NADHAN </span>
+                <span className="font-extrabold text-xl tracking-tight text-brand-pink-400">Nathan </span>
                 <span className="font-bold text-xl text-white">COFFEE</span>
                 <p className="text-[11px] text-brand-yellow-400 font-medium">Thanjavur & Thanjavur</p>
               </div>
@@ -126,10 +126,10 @@ const Footer = () => {
                   <Phone className="w-3.5 h-3.5" /> +91 63838 05976
                 </a>
                 <a
-                  href="mailto:info@nadhancoffee.com"
+                  href="mailto:info@Nathancoffee.com"
                   className="flex items-center gap-2 text-brand-coffee-300 hover:text-white text-xs"
                 >
-                  <Mail className="w-3.5 h-3.5 text-brand-pink-400" /> info@nadhancoffee.com
+                  <Mail className="w-3.5 h-3.5 text-brand-pink-400" /> info@Nathancoffee.com
                 </a>
               </div>
             </div>

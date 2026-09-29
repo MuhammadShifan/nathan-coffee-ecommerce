@@ -46,7 +46,7 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <div className="flex items-center gap-2">
-            <span className="font-black text-brand-pink-500">NADHAN</span>
+            <span className="font-black text-brand-pink-500">Nathan</span>
             <span className="text-xs bg-brand-yellow-400 text-brand-coffee-950 font-bold px-1.5 py-0.5 rounded">
               ADMIN
             </span>
@@ -71,12 +71,12 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
             <Link to="/" className="flex items-center gap-3">
               <img
                 src="/images/logo.jpeg"
-                alt="Nadhan Coffee Logo"
+                alt="Nathan Coffee Logo"
                 className="h-10 w-auto bg-white rounded-lg p-0.5 border border-brand-pink-500"
               />
               <div>
                 <div className="flex items-center gap-1">
-                  <span className="font-extrabold text-lg text-brand-pink-400">NADHAN</span>
+                  <span className="font-extrabold text-lg text-brand-pink-400">Nathan</span>
                   <span className="font-bold text-lg text-white">COFFEE</span>
                 </div>
                 <span className="text-[10px] text-brand-yellow-400 font-semibold tracking-wider uppercase block">
@@ -124,7 +124,7 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
             </div>
             <div className="overflow-hidden">
               <h4 className="text-xs font-bold text-white truncate">{admin?.name || 'Administrator'}</h4>
-              <p className="text-[11px] text-brand-yellow-300 truncate">{admin?.email || 'admin@nadhancoffee.com'}</p>
+              <p className="text-[11px] text-brand-yellow-300 truncate">{admin?.email || 'admin@Nathancoffee.com'}</p>
             </div>
           </div>
 

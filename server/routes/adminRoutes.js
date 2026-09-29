@@ -10,7 +10,7 @@ const router = express.Router();
 const generateToken = (id) => {
   return jwt.sign(
     { id, role: 'admin' },
-    process.env.JWT_SECRET || 'nadhan_coffee_super_secret_jwt_key_2026_Thanjavur_thanjavur',
+    process.env.JWT_SECRET || 'Nathan_coffee_super_secret_jwt_key_2026_Thanjavur_thanjavur',
     { expiresIn: '30d' }
   );
 };
@@ -44,15 +44,15 @@ router.post('/login', async (req, res) => {
     }
 
     // Default master admin fallback for instant setup if DB was freshly started
-    const defaultEmail = (process.env.ADMIN_EMAIL || 'admin@nadhancoffee.com').toLowerCase();
-    const defaultPassword = process.env.ADMIN_PASSWORD || 'Nadhan@2026';
+    const defaultEmail = (process.env.ADMIN_EMAIL || 'admin@Nathancoffee.com').toLowerCase();
+    const defaultPassword = process.env.ADMIN_PASSWORD || 'Nathan@2026';
 
     if (email.toLowerCase().trim() === defaultEmail && password === defaultPassword) {
       // Auto-create in DB if not exists
       let existingAdmin = await Admin.findOne({ email: defaultEmail });
       if (!existingAdmin) {
         existingAdmin = await Admin.create({
-          name: 'Nadhan Master Admin',
+          name: 'Nathan Master Admin',
           email: defaultEmail,
           password: defaultPassword,
           role: 'admin',

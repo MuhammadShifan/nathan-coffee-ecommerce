@@ -303,7 +303,7 @@ const AdminDashboardPage = () => {
                           <a
                             href={`https://wa.me/91${order.customer?.phone?.replace(/\D/g, '')}?text=Hello%20${encodeURIComponent(
                               order.customer?.name || ''
-                            )}%2C%20we%20have%20received%20your%20Nadhan%20Coffee%20order%20${order.orderId}.`}
+                            )}%2C%20we%20have%20received%20your%20Nathan%20Coffee%20order%20${order.orderId}.`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition-colors"
