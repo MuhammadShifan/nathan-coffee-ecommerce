@@ -14,6 +14,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import newLogo from '../assets/images/newLogo.png';
 
 const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
   const { admin, logout } = useAuth();
@@ -70,7 +71,7 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
           <div className="p-6 border-b border-brand-coffee-800 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
               <img
-                src="/images/logo.jpeg"
+                src={newLogo}
                 alt="Nathan Coffee Logo"
                 className="h-10 w-auto bg-white rounded-lg p-0.5 border border-brand-pink-500"
               />
@@ -99,8 +100,8 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all ${isActive
-                      ? 'bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 text-white shadow-md shadow-brand-pink-600/20'
-                      : 'text-brand-coffee-300 hover:bg-brand-coffee-900 hover:text-white'
+                    ? 'bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 text-white shadow-md shadow-brand-pink-600/20'
+                    : 'text-brand-coffee-300 hover:bg-brand-coffee-900 hover:text-white'
                     }`}
                 >
                   <div className="flex items-center gap-3">
@@ -124,7 +125,7 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
             </div>
             <div className="overflow-hidden">
               <h4 className="text-xs font-bold text-white truncate">{admin?.name || 'Administrator'}</h4>
-              <p className="text-[11px] text-brand-yellow-300 truncate">{admin?.email || 'admin@Nathancoffee.com'}</p>
+              <p className="text-[11px] text-brand-yellow-300 truncate">{admin?.email || 'nathan@gmail.com'}</p>
             </div>
           </div>
 
@@ -153,7 +154,7 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
           <div>
             <h1 className="text-xl font-extrabold text-brand-coffee-950">{title}</h1>
             <p className="text-xs text-brand-coffee-600">
-              Live Store Manager •Nathan Coffee Mart (Thanjavur & Thanjavur)
+              Live Store Manager •Nathan Coffee  (Thanjavur & Thanjavur)
             </p>
           </div>
 

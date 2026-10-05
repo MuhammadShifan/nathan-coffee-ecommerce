@@ -211,7 +211,7 @@ const AuthModal = () => {
             </div>
 
             <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white font-sans">
-              Nathan Coffee Mart
+              Nathan Coffee
             </h3>
             <p className="text-xs text-brand-pink-100 mt-1 font-medium">
               {step === 'phone'
@@ -398,7 +398,7 @@ const AuthModal = () => {
             {/* Footer Trust Shield */}
             <div className="pt-3 border-t border-brand-coffee-100 flex items-center justify-center gap-1.5 text-[11px] text-brand-coffee-500 text-center">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-              <span>Safe & Secure 256-bit Login • Nathan Coffee Mart</span>
+              <span>Safe & Secure 256-bit Login • Nathan Coffee </span>
             </div>
           </div>
         </motion.div>

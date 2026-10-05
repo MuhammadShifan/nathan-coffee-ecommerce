@@ -3,8 +3,8 @@ import { Helmet } from 'react-helmet-async';
 
 const SEOMeta = ({
   title = 'Nathan Coffee | Pure & Fresh Filter Coffee Powder from Thanjavur',
-  description = 'Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee Mart. Freshly roasted in Thanjavur and Thanjavur. Rich aroma, slow drum roast, available in 250g, 500g, 1kg packs with fast delivery across India.',
-  keywords = 'coffee powder,Nathan coffee, nathan coffee,Nathan coffee mart, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, best coffee powder in tamil nadu, degree coffee powder, chicory coffee blend, south indian filter coffee powder',
+  description = 'Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee . Freshly roasted in Thanjavur and Thanjavur. Rich aroma, slow drum roast, available in 250g, 500g, 1kg packs with fast delivery across India.',
+  keywords = 'coffee powder,Nathan coffee, nathan coffee,Nathan coffee , filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, best coffee powder in tamil nadu, degree coffee powder, chicory coffee blend, south indian filter coffee powder',
   canonicalUrl = 'https://Nathancoffee.com',
   ogImage = '/images/hero-coffee.jpg',
   ogType = 'website',
@@ -22,7 +22,7 @@ const SEOMeta = ({
     '@context': 'https://schema.org',
     '@type': 'CoffeeShop',
     '@id': 'https://Nathancoffee.com/#localbusiness',
-    name: 'Nathan Coffee Mart',
+    name: 'Nathan Coffee ',
     alternateName: ['Nathan Coffee', 'Nathan Filter Coffee', 'Nathan Coffee Thanjavur', 'Nathan Coffee Thanjavur'],
     url: siteUrl,
     logo: `${siteUrl}/images/logo.jpeg`,
@@ -50,7 +50,7 @@ const SEOMeta = ({
       },
       {
         '@type': 'PostalAddress',
-        streetAddress: 'Nathan Coffee Mart Hub, R.S. Puram / Avinashi Road',
+        streetAddress: 'Nathan Coffee  Hub, R.S. Puram / Avinashi Road',
         addressLocality: 'Thanjavur',
         addressRegion: 'Tamil Nadu',
         postalCode: '641002',
@@ -119,7 +119,7 @@ const SEOMeta = ({
         itemCondition: 'https://schema.org/NewCondition',
         seller: {
           '@type': 'Organization',
-          name: 'Nathan Coffee Mart',
+          name: 'Nathan Coffee ',
         },
       },
       aggregateRating: {
@@ -176,7 +176,7 @@ const SEOMeta = ({
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
       {/* Open Graph / Facebook */}
-      <meta property="og:site_name" content="Nathan Coffee Mart" />
+      <meta property="og:site_name" content="Nathan Coffee " />
       <meta property="og:type" content={ogType} />
       <meta property="og:url" content={fullCanonical} />
       <meta property="og:title" content={title} />

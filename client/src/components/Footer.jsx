@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Award, CheckCircle2, ShieldCheck, Heart, Coffee } from 'lucide-react';
+import newLogo from '../assets/images/newLogo.png';
 
 const Footer = () => {
   return (
@@ -16,7 +17,7 @@ const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="inline-flex items-center gap-3">
               <img
-                src="/images/logo.jpeg"
+                src={newLogo}
                 alt="Nathan Coffee Logo"
                 className="h-11 w-auto bg-white rounded-lg p-0.5 border-2 border-brand-pink-500"
               />
@@ -138,7 +139,7 @@ const Footer = () => {
 
         {/* Bottom Bar with SEO Keywords */}
         <div className="mt-12 pt-8 border-t border-brand-coffee-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-brand-coffee-400">
-          <p>© 2026Nathan Coffee Mart. All Rights Reserved. Pure Filter Coffee from Thanjavur & Thanjavur.</p>
+          <p>© 2026Nathan Coffee . All Rights Reserved. Pure Filter Coffee from Thanjavur & Thanjavur.</p>
           <div className="flex items-center gap-3">
             <span className="text-brand-pink-400 font-medium flex items-center gap-1">
               Crafted with <Heart className="w-3 h-3 fill-brand-pink-500 text-brand-pink-500 inline" /> for South Indian Coffee Lovers

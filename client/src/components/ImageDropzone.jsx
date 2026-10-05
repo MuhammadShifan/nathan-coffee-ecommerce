@@ -12,7 +12,7 @@ import {
   Eye,
   Trash2,
 } from 'lucide-react';
-import api from '../services/api';
+import api, { uploadProductImages, getAdminToken } from '../services/api';
 
 /**
  * ImageDropzone Component (Multi-Image Upload & Preview)
@@ -114,11 +114,7 @@ const ImageDropzone = ({
     });
 
     try {
-      const res = await api.post('/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const res = await uploadProductImages(formData);
 
       if (res.data.success && res.data.urls && res.data.urls.length > 0) {
         const newImages = [...imageList, ...res.data.urls];
@@ -135,7 +131,7 @@ const ImageDropzone = ({
       const localUrls = validFiles.map((f) => URL.createObjectURL(f));
       const newImages = [...imageList, ...localUrls];
       onChange(newImages);
-      setUploadError(err.response?.data?.message || 'Server upload failed. Stored local previews.');
+      setUploadError(err.response?.data?.message || err.message || 'Server upload failed. Stored local previews.');
     } finally {
       setUploading(false);
     }
