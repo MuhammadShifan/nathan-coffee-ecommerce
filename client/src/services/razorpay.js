@@ -1,3 +1,5 @@
+import newLogo from '../assets/images/newLogo.png';
+
 /**
  * Utility to load the Razorpay SDK dynamically if not already present
  */
@@ -23,7 +25,7 @@ export const openRazorpayModal = async ({
   orderId,
   amount,
   currency = 'INR',
-  name = 'Nathan Coffee Mart',
+  name = 'Nathan Coffee ',
   description = 'Pure Filter Coffee Powder Order',
   customer,
   onSuccess,
@@ -42,7 +44,7 @@ export const openRazorpayModal = async ({
     currency: currency,
     name: name,
     description: description,
-    image: '/images/logo.jpeg',
+    image: newLogo,
     order_id: orderId,
     handler: function (response) {
       // response contains razorpay_payment_id, razorpay_order_id, razorpay_signature

@@ -76,6 +76,14 @@ const App = () => {
           {/* Admin Pages */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route
+            path="/admin"
+            element={
+              <ProtectedAdminRoute>
+                <Navigate to="/admin/dashboard" replace />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route
             path="/admin/dashboard"
             element={
               <ProtectedAdminRoute>

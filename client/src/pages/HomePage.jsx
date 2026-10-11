@@ -22,6 +22,7 @@ import ProductCard from '../components/ProductCard';
 import SEOMeta from '../components/SEOMeta';
 import BrewingGuideModal from '../components/BrewingGuideModal';
 import { defaultProductsData } from '../data/defaultProducts';
+import newLogo from '../assets/images/newLogo.png';
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
@@ -52,8 +53,8 @@ const HomePage = () => {
     <>
       <SEOMeta
         title="Pure & Fresh Filter Coffee Powder from Thanjavur |Nathan Coffee"
-        description="Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee Mart. Freshly roasted in Thanjavur and Thanjavur. Slow drum roast with intense aroma in 250g, 500g, 1kg packs with fast delivery across India."
-        keywords="coffee powder,Nathan coffee, nathan coffee,Nathan coffee mart, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, degree coffee powder, kumbakonam degree coffee powder, best coffee powder in tamil nadu"
+        description="Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee . Freshly roasted in Thanjavur and Thanjavur. Slow drum roast with intense aroma in 250g, 500g, 1kg packs with fast delivery across India."
+        keywords="coffee powder,Nathan coffee, nathan coffee,Nathan coffee , filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, degree coffee powder, kumbakonam degree coffee powder, best coffee powder in tamil nadu"
         canonicalUrl="https://Nathancoffee.com"
         ogImage="/images/hero-coffee.jpg"
         includeLocalBusiness={true}
@@ -286,16 +287,13 @@ const HomePage = () => {
               </span>
               <div className="flex items-center justify-center gap-3 flex-wrap sm:flex-nowrap">
                 <div className="relative overflow-hidden rounded-xl border-2 border-brand-pink-500 shadow-sm bg-brand-pink-600 p-0.5 flex-shrink-0">
-                  <picture>
-                    <source srcSet="/images/logo.avif" type="image/avif" />
-                    <img
-                      src="/images/logo.jpeg"
-                      alt="Nathan Coffee Mart Logo"
-                      className="h-8 sm:h-10 w-auto object-contain bg-white rounded-lg"
-                      width="100"
-                      height="32"
-                    />
-                  </picture>
+                  <img
+                    src={newLogo}
+                    alt="Nathan Coffee  Logo"
+                    className="h-8 sm:h-10 w-auto object-contain bg-white rounded-lg"
+                    width="100"
+                    height="32"
+                  />
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold text-brand-coffee-950 text-center">
                   Why Coffee Lovers Choose Nathan Coffee
@@ -364,7 +362,7 @@ const HomePage = () => {
                 <div className="w-56 sm:w-72 max-w-full rounded-3xl overflow-hidden border-4 border-brand-yellow-400 shadow-2xl ring-4 sm:ring-8 ring-brand-pink-50 bg-brand-coffee-900 mx-auto">
                   <img
                     src="/images/grandfather photo.jpg"
-                    alt="Beloved Founder Grandfather ofNathan Coffee Mart"
+                    alt="Beloved Founder Grandfather ofNathan Coffee "
                     className="w-full h-auto object-cover"
                   />
                 </div>
@@ -472,11 +470,11 @@ const HomePage = () => {
           <div className="bg-brand-coffee-100/50 rounded-3xl p-6 sm:p-8 border border-brand-coffee-200/80 space-y-3 sm:space-y-4">
             <h2 className="text-base sm:text-lg font-bold text-brand-coffee-950 flex items-center gap-2">
               <Coffee className="w-5 h-5 text-brand-pink-600 flex-shrink-0" />
-              <span>About Nathan Coffee Mart — Pure South Indian Filter Coffee Powder Online</span>
+              <span>About Nathan Coffee  — Pure South Indian Filter Coffee Powder Online</span>
             </h2>
             <div className="text-xs text-brand-coffee-700 leading-relaxed space-y-2.5">
               <p>
-                Looking for the best <strong>coffee powder</strong> in Thanjavur, Thanjavur, or anywhere in Tamil Nadu? <strong>Nathan Coffee Mart</strong> (also known as <strong>Nathan Coffee</strong>) is your trusted traditional source for 100% pure filter coffee powder, handcrafted with decades of roasting heritage. Our filter coffee beans are handpicked from the verdant slopes of the Western Ghats and slow drum-roasted to bring out rich caramelized flavor notes and unmatched aroma.
+                Looking for the best <strong>coffee powder</strong> in Thanjavur, Thanjavur, or anywhere in Tamil Nadu? <strong>Nathan Coffee </strong> (also known as <strong>Nathan Coffee</strong>) is your trusted traditional source for 100% pure filter coffee powder, handcrafted with decades of roasting heritage. Our filter coffee beans are handpicked from the verdant slopes of the Western Ghats and slow drum-roasted to bring out rich caramelized flavor notes and unmatched aroma.
               </p>
               <p>
                 Whether you prefer <strong>100% Pure Coffee Powder (0% Chicory)</strong> for an authentic intense decoction or our signature <strong>80:20 Roasted French Chicory Coffee Blend</strong> for hotel-style frothy morning degree coffee,Nathan Coffee delivers fresh roast batches right to your door. Order 250g, 500g, or 1kg coffee packs online with secure Razorpay UPI / Card payments and fast all-India delivery.

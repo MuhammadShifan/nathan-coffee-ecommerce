@@ -58,7 +58,7 @@ const ShopPage = () => {
     <>
       <SEOMeta
         title="Buy Pure Filter Coffee Powder Online -Nathan Coffee"
-        description="Shop fresh authentic South Indian filter coffee powder online fromNathan Coffee Mart. Available in 250g, 500g, 1kg packs. 100% Pure & Chicory Blends roasted in Thanjavur & Thanjavur. Fast shipping across India."
+        description="Shop fresh authentic South Indian filter coffee powder online fromNathan Coffee . Available in 250g, 500g, 1kg packs. 100% Pure & Chicory Blends roasted in Thanjavur & Thanjavur. Fast shipping across India."
         keywords="buy pure filter coffee powder online,Nathan coffee shop, filter coffee 250g, filter coffee 500g, pure coffee powder buy online, nathan coffee shop, Thanjavur filter coffee order, chicory coffee powder buy"
         canonicalUrl="https://Nathancoffee.com/shop"
         breadcrumbs={breadcrumbs}
@@ -108,8 +108,8 @@ const ShopPage = () => {
             <button
               onClick={() => setActiveCategory('all')}
               className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeCategory === 'all'
-                  ? 'bg-brand-pink-600 text-white shadow-sm'
-                  : 'bg-brand-coffee-50 text-brand-coffee-700 hover:bg-brand-pink-50'
+                ? 'bg-brand-pink-600 text-white shadow-sm'
+                : 'bg-brand-coffee-50 text-brand-coffee-700 hover:bg-brand-pink-50'
                 }`}
             >
               All ({products.length})
@@ -117,8 +117,8 @@ const ShopPage = () => {
             <button
               onClick={() => setActiveCategory('pure_coffee')}
               className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeCategory === 'pure_coffee'
-                  ? 'bg-brand-pink-600 text-white shadow-sm'
-                  : 'bg-brand-coffee-50 text-brand-coffee-700 hover:bg-brand-pink-50'
+                ? 'bg-brand-pink-600 text-white shadow-sm'
+                : 'bg-brand-coffee-50 text-brand-coffee-700 hover:bg-brand-pink-50'
                 }`}
             >
               100% Pure Coffee
@@ -126,8 +126,8 @@ const ShopPage = () => {
             <button
               onClick={() => setActiveCategory('chicory_blend')}
               className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeCategory === 'chicory_blend'
-                  ? 'bg-brand-pink-600 text-white shadow-sm'
-                  : 'bg-brand-coffee-50 text-brand-coffee-700 hover:bg-brand-pink-50'
+                ? 'bg-brand-pink-600 text-white shadow-sm'
+                : 'bg-brand-coffee-50 text-brand-coffee-700 hover:bg-brand-pink-50'
                 }`}
             >
               Chicory Blends (80:20)

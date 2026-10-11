@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
@@ -10,7 +11,7 @@ const router = express.Router();
 const generateToken = (id) => {
   return jwt.sign(
     { id, role: 'admin' },
-    process.env.JWT_SECRET || 'Nathan_coffee_super_secret_jwt_key_2026_Thanjavur_thanjavur',
+    process.env.JWT_SECRET || 'nadhan_coffee_super_secret_jwt_key_2026_coimbatore_thanjavur',
     { expiresIn: '30d' }
   );
 };
@@ -43,13 +44,16 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Default master admin fallback for instant setup if DB was freshly started
-    const defaultEmail = (process.env.ADMIN_EMAIL || 'admin@Nathancoffee.com').toLowerCase();
-    const defaultPassword = process.env.ADMIN_PASSWORD || 'Nathan@2026';
+    // Default master admin fallback for instant setup if DB was freshly started or credentials updated
+    const defaultEmail = (process.env.ADMIN_EMAIL || 'nathan@gmail.com').toLowerCase().trim();
+    const defaultPassword = process.env.ADMIN_PASSWORD || '12345678';
 
     if (email.toLowerCase().trim() === defaultEmail && password === defaultPassword) {
-      // Auto-create in DB if not exists
-      let existingAdmin = await Admin.findOne({ email: defaultEmail });
+      // Find existing admin by new default email OR previous legacy admin email
+      let existingAdmin = await Admin.findOne({
+        $or: [{ email: defaultEmail }, { email: 'admin@gmail.com' }, { email: 'admin@nathancoffee.com' }],
+      });
+
       if (!existingAdmin) {
         existingAdmin = await Admin.create({
           name: 'Nathan Master Admin',
@@ -58,6 +62,12 @@ router.post('/login', async (req, res) => {
           role: 'admin',
           lastLogin: new Date(),
         });
+      } else {
+        // Update credentials and trigger bcrypt pre('save') hash
+        existingAdmin.email = defaultEmail;
+        existingAdmin.password = defaultPassword;
+        existingAdmin.lastLogin = new Date();
+        await existingAdmin.save();
       }
 
       return res.json({

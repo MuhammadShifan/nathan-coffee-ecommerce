@@ -310,7 +310,7 @@ const ProductDetailPage = () => {
   return (
     <>
       <SEOMeta
-        title={`${product.title} -Nathan Coffee Mart`}
+        title={`${product.title} -Nathan Coffee `}
         description={product.shortDescription || product.description}
         keywords={`${product.title}, south indian filter coffee, Thanjavur coffee, pure coffee powder buy online, thanjavur filter coffee`}
         canonicalUrl={`https://Nathancoffee.com/product/${product.slug}`}

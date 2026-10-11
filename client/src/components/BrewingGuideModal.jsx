@@ -64,7 +64,7 @@ const BrewingGuideModal = ({ isOpen, onClose }) => {
                   How to Brew Authentic South Indian Filter Coffee
                 </h3>
                 <p className="text-xs text-brand-pink-700 font-semibold font-tamil">
-                  நாடன் பாரம்பரிய ஃபில்டர் காபி செய்முறை
+                  நாதன் பாரம்பரிய ஃபில்டர் காபி செய்முறை
                 </p>
               </div>
             </div>

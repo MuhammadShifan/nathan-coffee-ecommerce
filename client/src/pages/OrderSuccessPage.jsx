@@ -213,7 +213,7 @@ const OrderSuccessPage = () => {
             className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand-coffee-950 hover:bg-brand-coffee-900 text-white font-bold text-xs rounded-xl shadow-md transition-all"
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>Return toNathan Coffee Mart Home</span>
+            <span>Return toNathan Coffee  Home</span>
           </Link>
         </div>
       </div>

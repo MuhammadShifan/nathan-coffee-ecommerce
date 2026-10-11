@@ -44,7 +44,7 @@ const AboutPage = () => {
       year: '2026',
       title: 'Pan-India Online Store & Fresh Dispatch',
       description:
-        'LaunchedNathan Coffee Mart Online with high-barrier zip-lock kraft pouches, delivering 100% pure filter coffee fresh from our Thanjavur and Thanjavur roasteries to homes across all of India.',
+        'LaunchedNathan Coffee  Online with high-barrier zip-lock kraft pouches, delivering 100% pure filter coffee fresh from our Thanjavur and Thanjavur roasteries to homes across all of India.',
     },
   ];
 
@@ -52,7 +52,7 @@ const AboutPage = () => {
     <>
       <SEOMeta
         title="Our Legacy & Heritage -Nathan Coffee | Authentic South Indian Roasters"
-        description="Discover the 70+ year legacy ofNathan Coffee Mart. Founded by our beloved Grandfather in Thanjavur and expanded to Thanjavur. Dedicated to 100% pure filter coffee roasting with zero artificial additives."
+        description="Discover the 70+ year legacy ofNathan Coffee . Founded by our beloved Grandfather in Thanjavur and expanded to Thanjavur. Dedicated to 100% pure filter coffee roasting with zero artificial additives."
         keywords="Nathan coffee legacy, nathan coffee history, thanjavur filter coffee grandfather, authentic Thanjavur coffee roasters, pure filter coffee heritage tamil nadu"
         canonicalUrl="https://Nathancoffee.com/about"
         breadcrumbs={breadcrumbs}
@@ -79,7 +79,7 @@ const AboutPage = () => {
               For over seven decades,Nathan Coffee has been more than a roastery—it is an enduring devotion to the sacred ritual of authentic South Indian filter coffee.
             </p>
             <p className="text-xs sm:text-sm font-semibold text-brand-pink-700 font-tamil">
-              பாரம்பரியமும் சுத்தமும் இணைந்த நாடன் காப்பியின் 70 ஆண்டுகால வரலாறு
+              பாரம்பரியமும் சுத்தமும் இணைந்த நாதன் காப்பியின் 70 ஆண்டுகால வரலாறு
             </p>
           </div>
         </section>
@@ -95,7 +95,7 @@ const AboutPage = () => {
                 <div className="w-60 sm:w-80 max-w-full rounded-3xl overflow-hidden border-4 border-brand-yellow-400 shadow-2xl ring-4 sm:ring-8 ring-brand-pink-100 bg-brand-coffee-950 transition-transform duration-500 group-hover:scale-105 mx-auto">
                   <img
                     src="/images/grandfather photo.jpg"
-                    alt="Founder Grandfather ofNathan Coffee Mart"
+                    alt="Founder Grandfather ofNathan Coffee "
                     className="w-full h-auto object-cover"
                     width="400"
                     height="470"
@@ -115,7 +115,7 @@ const AboutPage = () => {
                   Founded by our beloved Grandfather on South Street, Thanjavur.
                 </p>
                 <p className="text-[11px] text-brand-coffee-600 font-medium font-tamil mt-1">
-                  நமது அன்பிற்குரிய தாத்தாவால் உருவாக்கப்பட்ட நாடன் காப்பி மார்ட்
+                  நமது அன்பிற்குரிய தாத்தாவால் உருவாக்கப்பட்ட நாதன் காப்பி மார்ட்
                 </p>
               </div>
             </div>
@@ -144,7 +144,7 @@ const AboutPage = () => {
                   "Quality over quantity is the true essence of great coffee."
                 </p>
                 <p className="text-[11px] sm:text-xs font-bold text-brand-pink-700">
-                  — The Guiding Motto ofNathan Coffee Mart Since 1950
+                  — The Guiding Motto ofNathan Coffee  Since 1950
                 </p>
               </div>
 

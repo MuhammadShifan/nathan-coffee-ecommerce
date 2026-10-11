@@ -1,5 +1,5 @@
+import 'dotenv/config';
 import express from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -17,8 +17,6 @@ import contactRoutes from './routes/contactRoutes.js';
 import seoRoutes from './routes/seoRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -81,7 +79,7 @@ app.use('/', seoRoutes);
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    service: 'Nathan Coffee Mart API',
+    service: 'Nathan Coffee  API',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
     brand: 'Nathan Coffee - Since 1950s',
@@ -95,7 +93,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
-  console.log(`🚀Nathan Coffee Mart Backend running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  console.log(`🚀Nathan Coffee  Backend running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
 
 export default app;

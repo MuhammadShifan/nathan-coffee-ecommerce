@@ -2,7 +2,7 @@ export const defaultProductsData = [
   {
     _id: 'prod-250g-pure',
     title: 'Pure Filter Coffee Powder (250g)',
-    tamilTitle: 'நாடன் காப்பி - தூய ஃபில்டர் காபித்தூள் (250g)',
+    tamilTitle: 'நாதன் காப்பி - தூய ஃபில்டர் காபித்தூள் (250g)',
     slug: 'pure-filter-coffee-powder-250g',
     shortDescription: '100% Pure Filter Coffee Powder crafted with traditional slow drum roasting from Thanjavur & Thanjavur.',
     description: 'Experience the legendary South Indian filter coffee withNathan Coffee. Our 250g Kraft Stand-up Pouch features 100% pure shade-grown Arabica & Robusta beans, ground to the perfect decoction consistency. Zero artificial colors, zero preservatives, 100% rich aroma and thick golden foam.',
@@ -28,7 +28,7 @@ export const defaultProductsData = [
   {
     _id: 'prod-500g-pure',
     title: 'Pure Filter Coffee Powder (500g)',
-    tamilTitle: 'நாடன் காப்பி - தூய ஃபில்டர் காபித்தூள் (500g)',
+    tamilTitle: 'நாதன் காப்பி - தூய ஃபில்டர் காபித்தூள் (500g)',
     slug: 'pure-filter-coffee-powder-500g',
     shortDescription: 'Family Value Pack: Authentic 500g Slow-Roast South Indian Filter Coffee with thick golden decoction.',
     description: 'Our flagship 500g value pack for passionate filter coffee connoisseurs. Hand-selected beans slow roasted in small batches to preserve natural essential coffee oils. Yields maximum decoction cup after cup with unforgettable traditional aroma.',
@@ -54,7 +54,7 @@ export const defaultProductsData = [
   {
     _id: 'prod-chicory-blend',
     title: 'Traditional Chicory Blended Coffee Powder',
-    tamilTitle: 'நாடன் பாரம்பரிய சிக்கரி கலந்த காபித்தூள் (80:20 Blend)',
+    tamilTitle: 'நாதன் பாரம்பரிய சிக்கரி கலந்த காபித்தூள் (80:20 Blend)',
     slug: 'traditional-chicory-blended-coffee-powder',
     shortDescription: 'Authentic South Indian Hotel-Style Filter Coffee Blend (80% Pure Coffee + 20% Roasted French Chicory).',
     description: 'The golden South Indian restaurant & wedding style blend! Carefully roasted French chicory blended with high-grown Arabica & Robusta gives a dark, velvety decoction with a heavenly lingering aftertaste and rich foaming crema.',

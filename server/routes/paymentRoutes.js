@@ -34,7 +34,7 @@ router.post('/create-order', async (req, res) => {
       amount: Math.round(amount * 100),
       currency,
       receipt: receipt || `rec_${Date.now().toString().slice(-8)}`,
-      notes: notes || { business: 'Nathan Coffee Mart' },
+      notes: notes || { business: 'Nathan Coffee ' },
     };
 
     const razorpayOrder = await razorpayInstance.orders.create(options);

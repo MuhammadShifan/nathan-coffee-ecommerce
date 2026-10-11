@@ -62,11 +62,6 @@ const Footer = () => {
                   <span>›</span> Contact & Bulk Wholesale
                 </Link>
               </li>
-              <li>
-                <Link to="/admin/login" className="text-brand-coffee-400 hover:text-brand-yellow-400 transition-colors flex items-center gap-1.5 text-xs pt-2">
-                  <span>🔒</span> Admin Portal Login
-                </Link>
-              </li>
             </ul>
           </div>
 

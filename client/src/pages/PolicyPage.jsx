@@ -13,7 +13,7 @@ const PolicyPage = () => {
       content: (
         <div className="space-y-4 text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
           <p>
-            At <strong>Nathan Coffee Mart</strong>, we take pride in delivering freshly roasted and ground South Indian filter coffee powder right from our Thanjavur and Thanjavur roasting units to your home.
+            At <strong>Nathan Coffee </strong>, we take pride in delivering freshly roasted and ground South Indian filter coffee powder right from our Thanjavur and Thanjavur roasting units to your home.
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">1. Dispatch Timelines</h3>
           <p>
@@ -57,7 +57,7 @@ const PolicyPage = () => {
       content: (
         <div className="space-y-4 text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
           <p>
-            Nathan Coffee Mart is committed to safeguarding your privacy. We only collect necessary contact and shipping details (Name, Phone, Delivery Address, Email) to fulfill your orders.
+            Nathan Coffee  is committed to safeguarding your privacy. We only collect necessary contact and shipping details (Name, Phone, Delivery Address, Email) to fulfill your orders.
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">1. Payment Security</h3>
           <p>
@@ -76,7 +76,7 @@ const PolicyPage = () => {
       content: (
         <div className="space-y-4 text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
           <p>
-            Welcome toNathan Coffee Mart. By purchasing our products or using our website, you agree to comply with and be bound by the terms and conditions outlined here.
+            Welcome toNathan Coffee . By purchasing our products or using our website, you agree to comply with and be bound by the terms and conditions outlined here.
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">1. Product Purity & Shelf Life</h3>
           <p>
@@ -84,7 +84,7 @@ const PolicyPage = () => {
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">2. Jurisdiction</h3>
           <p>
-            Any legal claims or disputes related toNathan Coffee Mart transactions are subject to the exclusive jurisdiction of the competent courts in Thanjavur / Thanjavur, Tamil Nadu.
+            Any legal claims or disputes related toNathan Coffee  transactions are subject to the exclusive jurisdiction of the competent courts in Thanjavur / Thanjavur, Tamil Nadu.
           </p>
         </div>
       ),
@@ -97,7 +97,7 @@ const PolicyPage = () => {
     <>
       <SEOMeta
         title={`${activePolicy.title} -Nathan Coffee`}
-        description={`ReadNathan Coffee Mart's ${activePolicy.title}. Transparent policies for fresh coffee powder dispatch and customer assurance.`}
+        description={`ReadNathan Coffee 's ${activePolicy.title}. Transparent policies for fresh coffee powder dispatch and customer assurance.`}
         canonicalUrl={`https://Nathancoffee.com/policy/${type}`}
       />
 
@@ -120,7 +120,7 @@ const PolicyPage = () => {
                 {activePolicy.title}
               </h1>
               <p className="text-xs text-brand-coffee-500 mt-0.5">
-                Nathan Coffee Mart • Last Updated: 2026
+                Nathan Coffee  • Last Updated: 2026
               </p>
             </div>
           </div>

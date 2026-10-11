@@ -1,17 +1,86 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import Product from '../models/Product.js';
 import { protectAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Target upload directories for direct multipart updates
+const clientPublicImagesDir = path.join(__dirname, '../../client/public/images');
+const clientSrcImagesDir = path.join(__dirname, '../../client/src/assets/images');
+
+if (!fs.existsSync(clientPublicImagesDir)) {
+  fs.mkdirSync(clientPublicImagesDir, { recursive: true });
+}
+if (!fs.existsSync(clientSrcImagesDir)) {
+  fs.mkdirSync(clientSrcImagesDir, { recursive: true });
+}
+
+// Multer Storage Configuration for product updates with file attachments
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, clientPublicImagesDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const sanitizedBase = path
+      .basename(file.originalname, ext)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-');
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
+    const filename = `${sanitizedBase}-${uniqueSuffix}${ext}`;
+    cb(null, filename);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|webp|avif/;
+    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
+    const mime = allowed.test(file.mimetype);
+    if (ext && mime) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files (JPG, PNG, WebP, AVIF) are allowed!'));
+    }
+  },
+});
+
+// Middleware to gracefully handle multipart form-data or standard JSON
+const handleOptionalMultipart = (req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    const multipartHandler = upload.fields([
+      { name: 'images', maxCount: 10 },
+      { name: 'image', maxCount: 10 },
+      { name: 'files', maxCount: 10 },
+      { name: 'file', maxCount: 10 },
+    ]);
+    return multipartHandler(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ success: false, message: `Upload error: ${err.message}` });
+      }
+      next();
+    });
+  }
+  next();
+};
 
 // Fallback seed data in case DB is newly initialized or connecting
 export const defaultProductsData = [
   {
     title: 'Pure Filter Coffee Powder (250g)',
-    tamilTitle: 'நாடன் காப்பி - தூய ஃபில்டர் காபித்தூள் (250g)',
+    tamilTitle: 'நாதன் காப்பி - தூய ஃபில்டர் காபித்தூள் (250g)',
     slug: 'pure-filter-coffee-powder-250g',
     shortDescription: '100% Pure Filter Coffee Powder crafted with traditional slow drum roasting from Thanjavur & Thanjavur.',
-    description: 'Experience the legendary South Indian filter coffee withNathan Coffee. Our 250g Kraft Stand-up Pouch features 100% pure shade-grown Arabica & Robusta beans, ground to the perfect decoction consistency. Zero artificial colors, zero preservatives, 100% rich aroma and thick golden foam.',
+    description: 'Experience the legendary South Indian filter coffee with Nathan Coffee. Our 250g Kraft Stand-up Pouch features 100% pure shade-grown Arabica & Robusta beans, ground to the perfect decoction consistency. Zero artificial colors, zero preservatives, 100% rich aroma and thick golden foam.',
     ingredients: '100% Pure Plantation Arabica & Robusta Coffee Beans (0% Chicory)',
     roastLevel: 'Medium-Dark Slow Roast',
     blendRatio: '100% Pure Coffee',
@@ -33,7 +102,7 @@ export const defaultProductsData = [
   },
   {
     title: 'Pure Filter Coffee Powder (500g)',
-    tamilTitle: 'நாடன் காப்பி - தூய ஃபில்டர் காபித்தூள் (500g)',
+    tamilTitle: 'நாதன் காப்பி - தூய ஃபில்டர் காபித்தூள் (500g)',
     slug: 'pure-filter-coffee-powder-500g',
     shortDescription: 'Family Value Pack: Authentic 500g Slow-Roast South Indian Filter Coffee with thick golden decoction.',
     description: 'Our flagship 500g value pack for passionate filter coffee connoisseurs. Hand-selected beans slow roasted in small batches to preserve natural essential coffee oils. Yields maximum decoction cup after cup with unforgettable traditional aroma.',
@@ -58,7 +127,7 @@ export const defaultProductsData = [
   },
   {
     title: 'Traditional Chicory Blended Coffee Powder',
-    tamilTitle: 'நாடன் பாரம்பரிய சிக்கரி கலந்த காபித்தூள் (80:20 Blend)',
+    tamilTitle: 'நாதன் பாரம்பரிய சிக்கரி கலந்த காபித்தூள் (80:20 Blend)',
     slug: 'traditional-chicory-blended-coffee-powder',
     shortDescription: 'Authentic South Indian Hotel-Style Filter Coffee Blend (80% Pure Coffee + 20% Roasted French Chicory).',
     description: 'The golden South Indian restaurant & wedding style blend! Carefully roasted French chicory blended with high-grown Arabica & Robusta gives a dark, velvety decoction with a heavenly lingering aftertaste and rich foaming crema.',
@@ -83,6 +152,91 @@ export const defaultProductsData = [
   },
 ];
 
+// Helper to normalize images array from JSON or multipart uploads
+const normalizeProductImages = (images, fallbackImage, uploadedFiles = []) => {
+  let list = [];
+
+  if (Array.isArray(images)) {
+    list = images.map((img) => (typeof img === 'object' && img?.url ? img.url : img));
+  } else if (typeof images === 'string' && images.trim() !== '') {
+    try {
+      const parsed = JSON.parse(images);
+      if (Array.isArray(parsed)) {
+        list = parsed.map((img) => (typeof img === 'object' && img?.url ? img.url : img));
+      } else {
+        list = [images.trim()];
+      }
+    } catch {
+      list = [images.trim()];
+    }
+  } else if (fallbackImage && typeof fallbackImage === 'string' && fallbackImage.trim() !== '') {
+    list = [fallbackImage.trim()];
+  }
+
+  // Include newly uploaded files from multipart
+  if (uploadedFiles && uploadedFiles.length > 0) {
+    const newUrls = uploadedFiles.map((f) => `/images/${f.filename}`);
+    list = [...list, ...newUrls];
+  }
+
+  const cleaned = list.filter((img) => typeof img === 'string' && img.trim() !== '');
+  return cleaned.length > 0 ? cleaned : ['/images/250g front.png'];
+};
+
+// Helper to parse and sanitize product body from JSON or FormData
+const parseProductPayload = (req) => {
+  const body = { ...req.body };
+  const rawFiles = [];
+  if (req.files?.images) rawFiles.push(...req.files.images);
+  if (req.files?.image) rawFiles.push(...req.files.image);
+  if (req.files?.files) rawFiles.push(...req.files.files);
+  if (req.files?.file) rawFiles.push(...req.files.file);
+  if (req.file) rawFiles.push(req.file);
+
+  // Copy uploaded files to src/assets/images if present
+  for (const file of rawFiles) {
+    try {
+      const srcDest = path.join(clientSrcImagesDir, file.filename);
+      fs.copyFileSync(file.path, srcDest);
+    } catch (e) {
+      // non-blocking
+    }
+  }
+
+  // Normalize Images
+  body.images = normalizeProductImages(body.images, body.imageUrl || body.image, rawFiles);
+
+  // Normalize inStock
+  if (body.inStock !== undefined) {
+    body.inStock = body.inStock === true || body.inStock === 'true';
+  }
+
+  // Normalize variants
+  if (typeof body.variants === 'string') {
+    try {
+      body.variants = JSON.parse(body.variants);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // If variants not provided but price / mrp / weight are provided, build variant
+  if ((!body.variants || !Array.isArray(body.variants) || body.variants.length === 0) && (body.price || body.mrp)) {
+    const weight = body.weight || body.selectedWeight || '250g';
+    body.variants = [
+      {
+        weight,
+        price: Number(body.price || 299),
+        mrp: Number(body.mrp || 340),
+        inStock: body.inStock !== false,
+        sku: `NC-${weight.toUpperCase()}-${Date.now().toString().slice(-4)}`,
+      },
+    ];
+  }
+
+  return body;
+};
+
 // @route   GET /api/products
 // @desc    Get all products (public)
 router.get('/', async (req, res) => {
@@ -102,7 +256,6 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching products:', error);
-    // Return default products in case of DB connection glitch
     res.json({
       success: true,
       count: defaultProductsData.length,
@@ -141,41 +294,23 @@ router.get('/:idOrSlug', async (req, res) => {
   }
 });
 
-// Helper to normalize images array
-const normalizeProductImages = (images, fallbackImage) => {
-  if (Array.isArray(images)) {
-    return images
-      .map((img) => (typeof img === 'object' && img?.url ? img.url : img))
-      .filter((img) => typeof img === 'string' && img.trim() !== '');
-  }
-  if (typeof images === 'string' && images.trim() !== '') {
-    return [images.trim()];
-  }
-  if (fallbackImage && typeof fallbackImage === 'string' && fallbackImage.trim() !== '') {
-    return [fallbackImage.trim()];
-  }
-  return ['/images/250g front.png'];
-};
-
 // @route   POST /api/products
-// @desc    Create new product (Admin)
-router.post('/', protectAdmin, async (req, res) => {
+// @desc    Create new product (Admin - Supports JSON & FormData)
+router.post('/', protectAdmin, handleOptionalMultipart, async (req, res) => {
   try {
-    const payload = { ...req.body };
-    if (payload.images || payload.imageUrl || payload.image) {
-      payload.images = normalizeProductImages(payload.images, payload.imageUrl || payload.image);
-    }
+    const payload = parseProductPayload(req);
     const product = new Product(payload);
     const createdProduct = await product.save();
     res.status(201).json({ success: true, data: createdProduct });
   } catch (error) {
+    console.error('Error creating product:', error);
     res.status(400).json({ success: false, message: error.message });
   }
 });
 
 // @route   PUT /api/products/:id
-// @desc    Update product details / price / stock (Admin)
-router.put('/:id', protectAdmin, async (req, res) => {
+// @desc    Update product details / price / stock (Admin - Supports JSON & FormData)
+router.put('/:id', protectAdmin, handleOptionalMultipart, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
 
@@ -183,16 +318,13 @@ router.put('/:id', protectAdmin, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    const payload = { ...req.body };
-    if (payload.images || payload.imageUrl || payload.image) {
-      payload.images = normalizeProductImages(payload.images, payload.imageUrl || payload.image);
-    }
-
+    const payload = parseProductPayload(req);
     Object.assign(product, payload);
     const updatedProduct = await product.save();
 
     res.json({ success: true, data: updatedProduct });
   } catch (error) {
+    console.error('Error updating product:', error);
     res.status(400).json({ success: false, message: error.message });
   }
 });
@@ -209,9 +341,11 @@ router.put('/:id/toggle-stock', protectAdmin, async (req, res) => {
 
     product.inStock = !product.inStock;
     // Also toggle variants stock
-    product.variants.forEach((v) => {
-      v.inStock = product.inStock;
-    });
+    if (Array.isArray(product.variants)) {
+      product.variants.forEach((v) => {
+        v.inStock = product.inStock;
+      });
+    }
 
     const updatedProduct = await product.save();
     res.json({ success: true, data: updatedProduct });

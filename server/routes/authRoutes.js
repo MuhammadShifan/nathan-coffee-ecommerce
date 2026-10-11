@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
@@ -5,7 +6,7 @@ import { protectUser } from '../middleware/auth.js';
 
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'Nathan_coffee_super_secret_jwt_key_2026_Thanjavur_thanjavur';
+const JWT_SECRET = process.env.JWT_SECRET || 'nadhan_coffee_super_secret_jwt_key_2026_coimbatore_thanjavur';
 
 // In-memory OTP storage for development & simulation
 // Format: mobileNumber -> { otp: '1234', expiresAt: timestamp }

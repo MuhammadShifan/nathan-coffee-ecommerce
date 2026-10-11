@@ -55,13 +55,13 @@ const CheckoutPage = () => {
         email: user.email || prev.email,
         ...(user.addresses && user.addresses.length > 0
           ? {
-              doorNo: user.addresses[0].doorNo || prev.doorNo,
-              street: user.addresses[0].street || prev.street,
-              landmark: user.addresses[0].landmark || prev.landmark,
-              city: user.addresses[0].city || prev.city,
-              state: user.addresses[0].state || prev.state,
-              pincode: user.addresses[0].pincode || prev.pincode,
-            }
+            doorNo: user.addresses[0].doorNo || prev.doorNo,
+            street: user.addresses[0].street || prev.street,
+            landmark: user.addresses[0].landmark || prev.landmark,
+            city: user.addresses[0].city || prev.city,
+            state: user.addresses[0].state || prev.state,
+            pincode: user.addresses[0].pincode || prev.pincode,
+          }
           : {}),
       }));
     }
@@ -128,7 +128,7 @@ const CheckoutPage = () => {
             customer_name: formData.name,
             customer_phone: formData.phone,
             user_id: user?._id || '',
-            brand: 'Nathan Coffee Mart',
+            brand: 'Nathan Coffee ',
           },
         });
 
@@ -281,7 +281,7 @@ const CheckoutPage = () => {
   return (
     <>
       <SEOMeta
-        title="Secure Checkout - Nathan Coffee Mart"
+        title="Secure Checkout - Nathan Coffee "
         description="Fast and secure Razorpay payment checkout for Nathan Pure Filter Coffee Powder with all-India shipping."
         canonicalUrl="https://Nathancoffee.com/checkout"
         includeLocalBusiness={false}
@@ -543,11 +543,10 @@ const CheckoutPage = () => {
                 <div className="space-y-3">
                   {/* Razorpay Option */}
                   <label
-                    className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === 'razorpay'
+                    className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'razorpay'
                         ? 'border-brand-pink-600 bg-brand-pink-50/50 shadow-sm'
                         : 'border-brand-coffee-200 hover:border-brand-pink-300'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <input
@@ -579,11 +578,10 @@ const CheckoutPage = () => {
 
                   {/* Cash on Delivery Option */}
                   <label
-                    className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === 'cod'
+                    className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'cod'
                         ? 'border-brand-pink-600 bg-brand-pink-50/50 shadow-sm'
                         : 'border-brand-coffee-200 hover:border-brand-pink-300'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <input

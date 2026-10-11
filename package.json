@@ -1,7 +1,7 @@
 {
-  "name": "Nathan-coffee-mart-monorepo",
+  "name": "Nathan-coffee--monorepo",
   "version": "1.0.0",
-  "description": "Nathan Coffee Mart - E-Commerce MERN Platform",
+  "description": "Nathan Coffee  - E-Commerce MERN Platform",
   "scripts": {
     "dev": "concurrently -n \"SERVER,CLIENT\" -c \"magenta,yellow\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "npm run dev --prefix server",
@@ -20,6 +20,6 @@
     "thanjavur coffee",
     "mern ecommerce"
   ],
-  "author": "Nathan Coffee Mart",
+  "author": "Nathan Coffee ",
   "license": "ISC"
 }

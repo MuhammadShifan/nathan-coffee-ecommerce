@@ -163,7 +163,7 @@ const MyOrdersPage = () => {
   return (
     <>
       <SEOMeta
-        title="My Orders & Order History - Nathan Coffee Mart"
+        title="My Orders & Order History - Nathan Coffee "
         description="View and track your Nathan Coffee filter coffee orders, shipping statuses, and order history."
       />
 

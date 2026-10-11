@@ -1,7 +1,7 @@
 {
   "name": "Nathan-coffee-server",
   "version": "1.0.0",
-  "description": "Backend API forNathan Coffee Mart e-commerce",
+  "description": "Backend API forNathan Coffee  e-commerce",
   "main": "server.js",
   "type": "module",
   "scripts": {

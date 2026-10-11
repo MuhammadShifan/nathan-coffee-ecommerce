@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
         if (token) {
           localStorage.setItem('Nathan_admin_token', token);
           localStorage.setItem('admin_token', token);
+          localStorage.setItem('adminToken', token);
         }
         setAdminLoading(false);
         return { success: true, data: adminData };
@@ -47,6 +48,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('Nathan_admin_info');
     localStorage.removeItem('Nathan_admin_token');
     localStorage.removeItem('admin_token');
+    localStorage.removeItem('adminToken');
   };
 
   // ----------------------------------------------------

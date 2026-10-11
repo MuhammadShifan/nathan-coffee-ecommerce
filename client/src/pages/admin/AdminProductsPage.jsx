@@ -11,8 +11,15 @@ import {
   Sparkles,
   RefreshCw,
   Image as ImageIcon,
+  AlertTriangle,
 } from 'lucide-react';
-import api from '../../services/api';
+import api, {
+  createProduct,
+  updateProduct,
+  toggleProductStock,
+  deleteProduct,
+  getAdminToken,
+} from '../../services/api';
 import AdminLayout from '../../components/AdminLayout';
 import ImageDropzone from '../../components/ImageDropzone';
 import { defaultProductsData } from '../../data/defaultProducts';
@@ -20,6 +27,7 @@ import { defaultProductsData } from '../../data/defaultProducts';
 const AdminProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -62,24 +70,22 @@ const AdminProductsPage = () => {
 
   const showFeedback = (msg, type = 'success') => {
     setFeedback({ msg, type });
-    setTimeout(() => setFeedback(null), 3000);
+    setTimeout(() => setFeedback(null), 4000);
   };
 
   const handleStockToggle = async (productId, currentStatus) => {
     try {
-      const res = await api.put(`/api/products/${productId}/toggle-stock`);
+      const res = await toggleProductStock(productId);
       if (res.data.success) {
         setProducts((prev) =>
           prev.map((p) => (p._id === productId ? res.data.data : p))
         );
-        showFeedback(`Stock status updated to ${!currentStatus ? 'In Stock' : 'Out of Stock'}`);
+        showFeedback(`Stock status updated to ${!currentStatus ? 'In Stock' : 'Out of Stock'}`, 'success');
       }
     } catch (err) {
-      // Local optimistic update
-      setProducts((prev) =>
-        prev.map((p) => (p._id === productId ? { ...p, inStock: !currentStatus } : p))
-      );
-      showFeedback('Stock status toggled locally', 'success');
+      console.error('Error toggling stock status:', err);
+      const errMsg = err.response?.data?.message || 'Failed to update stock status on server';
+      showFeedback(errMsg, 'error');
     }
   };
 
@@ -91,7 +97,7 @@ const AdminProductsPage = () => {
           : v
       );
 
-      const res = await api.put(`/api/products/${product._id}`, {
+      const res = await updateProduct(product._id, {
         variants: updatedVariants,
       });
 
@@ -99,11 +105,12 @@ const AdminProductsPage = () => {
         setProducts((prev) =>
           prev.map((p) => (p._id === product._id ? res.data.data : p))
         );
-        showFeedback(`Pricing updated for ${product.title} (${variantWeight})`);
+        showFeedback(`Pricing updated for ${product.title} (${variantWeight})`, 'success');
       }
     } catch (err) {
       console.error('Error updating price:', err);
-      showFeedback('Price updated successfully');
+      const errMsg = err.response?.data?.message || 'Error updating product price';
+      showFeedback(errMsg, 'error');
     }
   };
 
@@ -111,14 +118,15 @@ const AdminProductsPage = () => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const res = await api.delete(`/api/products/${productId}`);
+      const res = await deleteProduct(productId);
       if (res.data.success) {
         setProducts((prev) => prev.filter((p) => p._id !== productId));
-        showFeedback('Product deleted successfully');
+        showFeedback('Product deleted successfully', 'success');
       }
     } catch (err) {
-      setProducts((prev) => prev.filter((p) => p._id !== productId));
-      showFeedback('Product removed');
+      console.error('Error deleting product:', err);
+      const errMsg = err.response?.data?.message || 'Failed to delete product';
+      showFeedback(errMsg, 'error');
     }
   };
 
@@ -157,29 +165,37 @@ const AdminProductsPage = () => {
       price: product.variants?.[0]?.price || product.price || 299,
       weight: product.variants?.[0]?.weight || '250g',
       images: productImages,
-      inStock: product.inStock,
+      inStock: product.inStock !== false,
     });
     setModalOpen(true);
   };
 
   const handleModalSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
+
+    const token = getAdminToken();
+    if (!token) {
+      showFeedback('Admin session not found or expired. Please log in again.', 'error');
+      setSaving(false);
+      return;
+    }
 
     const normalizedImages = Array.isArray(formData.images) && formData.images.length > 0
       ? formData.images
       : ['/images/250g front.png'];
 
     const productPayload = {
-      title: formData.title,
-      tamilTitle: formData.tamilTitle,
+      title: formData.title.trim(),
+      tamilTitle: formData.tamilTitle?.trim() || '',
       slug:
-        formData.slug ||
+        formData.slug?.trim() ||
         formData.title
           .toLowerCase()
           .replace(/[^\w ]+/g, '')
           .replace(/ +/g, '-'),
-      shortDescription: formData.shortDescription,
-      description: formData.description || formData.shortDescription,
+      shortDescription: formData.shortDescription.trim(),
+      description: formData.description?.trim() || formData.shortDescription.trim(),
       category: formData.category,
       inStock: formData.inStock,
       images: normalizedImages,
@@ -196,25 +212,36 @@ const AdminProductsPage = () => {
 
     try {
       if (editingProduct) {
-        const res = await api.put(`/api/products/${editingProduct._id}`, productPayload);
+        const res = await updateProduct(editingProduct._id, productPayload);
         if (res.data.success) {
           setProducts((prev) =>
             prev.map((p) => (p._id === editingProduct._id ? res.data.data : p))
           );
-          showFeedback('Product updated successfully!');
+          showFeedback('Product updated successfully!', 'success');
+          setModalOpen(false);
+        } else {
+          showFeedback(res.data.message || 'Failed to update product', 'error');
         }
       } else {
-        const res = await api.post('/api/products', productPayload);
+        const res = await createProduct(productPayload);
         if (res.data.success) {
           setProducts((prev) => [res.data.data, ...prev]);
-          showFeedback('New product added successfully!');
+          showFeedback('New product added successfully!', 'success');
+          setModalOpen(false);
+        } else {
+          showFeedback(res.data.message || 'Failed to create product', 'error');
         }
       }
-      setModalOpen(false);
     } catch (err) {
       console.error('Error saving product:', err);
-      showFeedback('Product saved');
-      setModalOpen(false);
+      const errMsg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        'Error saving product to server';
+      showFeedback(errMsg, 'error');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -252,11 +279,10 @@ const AdminProductsPage = () => {
         {/* Feedback Alert */}
         {feedback && (
           <div
-            className={`p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2 ${
-              feedback.type === 'success'
-                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                : 'bg-rose-50 text-rose-800 border border-rose-200'
-            }`}
+            className={`p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2 ${feedback.type === 'success'
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+              : 'bg-rose-50 text-rose-800 border border-rose-200'
+              }`}
           >
             <CheckCircle className="w-4 h-4 text-emerald-600" />
             <span>{feedback.msg}</span>
@@ -350,16 +376,14 @@ const AdminProductsPage = () => {
                       <td className="p-4">
                         <button
                           onClick={() => handleStockToggle(product._id, product.inStock)}
-                          className={`px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all ${
-                            product.inStock !== false
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
-                              : 'bg-rose-100 text-rose-800 border border-rose-300 hover:bg-rose-200'
-                          }`}
+                          className={`px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all ${product.inStock !== false
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
+                            : 'bg-rose-100 text-rose-800 border border-rose-300 hover:bg-rose-200'
+                            }`}
                         >
                           <span
-                            className={`w-2 h-2 rounded-full ${
-                              product.inStock !== false ? 'bg-emerald-500' : 'bg-rose-500'
-                            }`}
+                            className={`w-2 h-2 rounded-full ${product.inStock !== false ? 'bg-emerald-500' : 'bg-rose-500'
+                              }`}
                           />
                           <span>{product.inStock !== false ? 'In Stock' : 'Out of Stock'}</span>
                         </button>
@@ -427,7 +451,7 @@ const AdminProductsPage = () => {
                     type="text"
                     value={formData.tamilTitle}
                     onChange={(e) => setFormData({ ...formData, tamilTitle: e.target.value })}
-                    placeholder="e.g. நாடன் தூய ஃபில்டர் காபித்தூள்"
+                    placeholder="e.g. நாதன் தூய ஃபில்டர் காபித்தூள்"
                     className="w-full px-3.5 py-2 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900 font-tamil"
                   />
                 </div>
@@ -522,9 +546,18 @@ const AdminProductsPage = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl font-bold flex items-center gap-1.5"
+                    disabled={saving}
+                    className="px-5 py-2 bg-brand-pink-600 hover:bg-brand-pink-700 disabled:opacity-50 text-white rounded-xl font-bold flex items-center gap-1.5 transition-all"
                   >
-                    <Save className="w-4 h-4" /> Save Product
+                    {saving ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" /> Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" /> Save Product
+                      </>
+                    )}
                   </button>
                 </div>
               </form>

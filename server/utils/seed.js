@@ -26,8 +26,8 @@ const seedDatabase = async () => {
     console.log(`✅ Seeded ${createdProducts.length} Products`);
 
     // Seed Master Admin
-    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@Nathancoffee.com').toLowerCase();
-    const adminPassword = process.env.ADMIN_PASSWORD || 'Nathan@2026';
+    const adminEmail = (process.env.ADMIN_EMAIL || 'nathan@gmail.com').toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD || '12345678';
 
     const admin = await Admin.create({
       name: 'Nathan Master Admin',

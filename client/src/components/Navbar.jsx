@@ -77,9 +77,6 @@ const Navbar = () => {
             <span className="sm:hidden whitespace-nowrap">100% Pure Filter Coffee</span>
           </div>
           <div className="flex items-center gap-4 text-xs flex-shrink-0">
-            <span className="hidden md:flex items-center gap-1 text-brand-yellow-300 whitespace-nowrap">
-              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" /> Free Delivery on ₹500+
-            </span>
             <a
               href="tel:+91 6383 805 976"
               className="flex items-center gap-1.5 hover:text-brand-yellow-300 transition-colors font-semibold whitespace-nowrap"
@@ -122,7 +119,7 @@ const Navbar = () => {
                 <span className="font-bold text-sm sm:text-2xl text-brand-coffee-950">COFFEE</span>
               </div>
               <span className="hidden sm:flex items-center gap-1 text-xs font-semibold tracking-wider text-brand-coffee-700 uppercase -mt-0.5 font-tamil whitespace-nowrap">
-                நாடன் காப்பி மார்ட் <span className="text-brand-pink-500">•</span> <span>Since 1950</span>
+                <span className="text-brand-pink-500">•</span> <span>Since 1950</span>
               </span>
             </div>
           </Link>
