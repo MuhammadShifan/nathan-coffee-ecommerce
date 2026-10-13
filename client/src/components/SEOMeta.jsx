@@ -112,9 +112,15 @@ const SEOMeta = ({
         '@type': 'AggregateOffer',
         url: `${siteUrl}/shop#${productData.slug || ''}`,
         priceCurrency: 'INR',
-        lowPrice: productData.variants?.[0]?.price || 240,
-        highPrice: productData.variants?.[productData.variants.length - 1]?.price || 1100,
-        offerCount: productData.variants?.length || 3,
+        lowPrice:
+          productData.variants && productData.variants.length > 0
+            ? Math.min(...productData.variants.map((v) => Number(v.price) || 0))
+            : 240,
+        highPrice:
+          productData.variants && productData.variants.length > 0
+            ? Math.max(...productData.variants.map((v) => Number(v.price) || 0))
+            : 1100,
+        offerCount: productData.variants?.length || 1,
         availability: 'https://schema.org/InStock',
         itemCondition: 'https://schema.org/NewCondition',
         seller: {

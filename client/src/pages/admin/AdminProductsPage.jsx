@@ -12,13 +12,18 @@ import {
   RefreshCw,
   Image as ImageIcon,
   AlertTriangle,
+  Upload,
+  GripVertical,
 } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import api, {
   createProduct,
   updateProduct,
   toggleProductStock,
   deleteProduct,
+  reorderProducts,
   getAdminToken,
+  uploadProductImages,
 } from '../../services/api';
 import AdminLayout from '../../components/AdminLayout';
 import ImageDropzone from '../../components/ImageDropzone';
@@ -31,6 +36,7 @@ const AdminProductsPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [feedback, setFeedback] = useState(null);
+  const [uploadingVariantIndex, setUploadingVariantIndex] = useState(null);
 
   // Form state for new / edit product
   const [formData, setFormData] = useState({
@@ -40,9 +46,9 @@ const AdminProductsPage = () => {
     shortDescription: '',
     description: '',
     category: 'pure_coffee',
-    mrp: 340,
-    price: 299,
-    weight: '250g',
+    variants: [
+      { weight: '250g', price: 299, mrp: 340, image: '/images/250g front.png' },
+    ],
     images: ['/images/250g front.png', '/images/250g back.png'],
     inStock: true,
   });
@@ -51,14 +57,14 @@ const AdminProductsPage = () => {
     setLoading(true);
     try {
       const res = await api.get('/api/products');
-      if (res.data.success && res.data.data) {
+      if (res.data.success && Array.isArray(res.data.data)) {
         setProducts(res.data.data);
       } else {
-        setProducts(defaultProductsData);
+        setProducts([]);
       }
     } catch (err) {
       console.error('Error fetching products:', err);
-      setProducts(defaultProductsData);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -89,6 +95,38 @@ const AdminProductsPage = () => {
     }
   };
 
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
+    if (result.destination.index === result.source.index) return;
+
+    // 1. Immediately reorder local React state for instantaneous visual feedback
+    const reordered = Array.from(products);
+    const [movedProduct] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, movedProduct);
+
+    setProducts(reordered);
+
+    // 2. Persist new sequence to backend API
+    try {
+      const productIds = reordered.map((p) => p._id || p.id || p.slug);
+      const res = await reorderProducts(productIds);
+      if (res.data.success) {
+        showFeedback('Product order saved! Public storefront updated.', 'success');
+        if (Array.isArray(res.data.data)) {
+          setProducts(res.data.data);
+        }
+      } else {
+        showFeedback(res.data.message || 'Failed to update product order', 'error');
+        fetchProducts();
+      }
+    } catch (err) {
+      console.error('Error saving reordered products:', err);
+      const errMsg = err.response?.data?.message || 'Failed to save product order to server';
+      showFeedback(errMsg, 'error');
+      fetchProducts();
+    }
+  };
+
   const handleQuickPriceUpdate = async (product, variantWeight, newPrice, newMrp) => {
     try {
       const updatedVariants = product.variants.map((v) =>
@@ -114,20 +152,87 @@ const AdminProductsPage = () => {
     }
   };
 
-  const handleDeleteProduct = async (productId) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
+  const handleDeleteProduct = async (product) => {
+    const idOrSlug = product._id || product.slug || product.id;
+    if (!idOrSlug) return;
+
+    if (!window.confirm(`Are you sure you want to permanently delete "${product.title}"? This will remove it from the store and database.`)) return;
 
     try {
-      const res = await deleteProduct(productId);
+      const res = await deleteProduct(idOrSlug);
       if (res.data.success) {
-        setProducts((prev) => prev.filter((p) => p._id !== productId));
-        showFeedback('Product deleted successfully', 'success');
+        setProducts((prev) =>
+          prev.filter(
+            (p) =>
+              p._id !== idOrSlug &&
+              p.slug !== idOrSlug &&
+              p.id !== idOrSlug &&
+              (res.data.deletedId ? p._id !== res.data.deletedId : true) &&
+              (res.data.deletedSlug ? p.slug !== res.data.deletedSlug : true)
+          )
+        );
+        showFeedback(`"${product.title}" permanently removed from database!`, 'success');
+      } else {
+        showFeedback(res.data.message || 'Failed to delete product', 'error');
       }
     } catch (err) {
       console.error('Error deleting product:', err);
-      const errMsg = err.response?.data?.message || 'Failed to delete product';
+      const errMsg = err.response?.data?.message || 'Failed to delete product from database';
       showFeedback(errMsg, 'error');
     }
+  };
+
+  const handleAddVariant = () => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: [
+        ...prev.variants,
+        { weight: '', price: '', mrp: '', image: '' },
+      ],
+    }));
+  };
+
+  const handleVariantChange = (index, field, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.variants];
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+      return { ...prev, variants: updated };
+    });
+  };
+
+  const handleVariantImageUpload = async (index, file) => {
+    if (!file) return;
+    setUploadingVariantIndex(index);
+    try {
+      const data = new FormData();
+      data.append('image', file);
+      const res = await uploadProductImages(data);
+      if (res.data.success && res.data.url) {
+        handleVariantChange(index, 'image', res.data.url);
+        showFeedback(`Image uploaded for variant ${formData.variants[index]?.weight || `#${index + 1}`}!`, 'success');
+      } else {
+        showFeedback(res.data.message || 'Failed to upload variant image', 'error');
+      }
+    } catch (err) {
+      console.error('Error uploading variant image:', err);
+      showFeedback(err.response?.data?.message || 'Error uploading variant image', 'error');
+    } finally {
+      setUploadingVariantIndex(null);
+    }
+  };
+
+  const handleRemoveVariant = (index) => {
+    if (formData.variants.length <= 1) {
+      showFeedback('A product must have at least one variant', 'error');
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.filter((_, idx) => idx !== index),
+    }));
   };
 
   const openAddModal = () => {
@@ -139,9 +244,9 @@ const AdminProductsPage = () => {
       shortDescription: '',
       description: '',
       category: 'pure_coffee',
-      mrp: 340,
-      price: 299,
-      weight: '250g',
+      variants: [
+        { weight: '250g', price: 299, mrp: 340, image: '/images/250g front.png' },
+      ],
       images: ['/images/250g front.png', '/images/250g back.png'],
       inStock: true,
     });
@@ -154,6 +259,24 @@ const AdminProductsPage = () => {
       ? product.images.map((img) => (typeof img === 'object' && img?.url ? img.url : img)).filter(Boolean)
       : [product.image || '/images/250g front.png'];
 
+    const initialVariants = Array.isArray(product.variants) && product.variants.length > 0
+      ? product.variants.map((v) => ({
+          weight: v.weight || '',
+          price: v.price ?? '',
+          mrp: v.mrp ?? '',
+          image: v.image || v.imageUrl || '',
+          inStock: v.inStock !== false,
+        }))
+      : [
+          {
+            weight: product.weight || product.selectedWeight || '250g',
+            price: product.price || 299,
+            mrp: product.mrp || 340,
+            image: product.image || (product.images && product.images[0]) || '',
+            inStock: true,
+          },
+        ];
+
     setFormData({
       title: product.title,
       tamilTitle: product.tamilTitle || '',
@@ -161,9 +284,7 @@ const AdminProductsPage = () => {
       shortDescription: product.shortDescription,
       description: product.description,
       category: product.category || 'pure_coffee',
-      mrp: product.variants?.[0]?.mrp || product.mrp || 340,
-      price: product.variants?.[0]?.price || product.price || 299,
-      weight: product.variants?.[0]?.weight || '250g',
+      variants: initialVariants,
       images: productImages,
       inStock: product.inStock !== false,
     });
@@ -180,6 +301,35 @@ const AdminProductsPage = () => {
       setSaving(false);
       return;
     }
+
+    if (!formData.variants || formData.variants.length === 0) {
+      showFeedback('Please add at least one product variant', 'error');
+      setSaving(false);
+      return;
+    }
+
+    for (let i = 0; i < formData.variants.length; i++) {
+      const v = formData.variants[i];
+      if (!v.weight || !v.weight.trim()) {
+        showFeedback(`Variant #${i + 1} is missing a weight (e.g. '100g', '250g', '750g')`, 'error');
+        setSaving(false);
+        return;
+      }
+      if (v.price === '' || isNaN(v.price) || Number(v.price) <= 0) {
+        showFeedback(`Variant "${v.weight}" must have a valid selling price greater than 0`, 'error');
+        setSaving(false);
+        return;
+      }
+    }
+
+    const cleanedVariants = formData.variants.map((v) => ({
+      weight: v.weight.trim(),
+      price: Number(v.price),
+      mrp: Number(v.mrp) || Number(v.price),
+      image: (v.image || '').trim(),
+      inStock: v.inStock !== false,
+      sku: `NC-${v.weight.toUpperCase().replace(/[^A-Z0-9]/g, '')}-${Date.now().toString().slice(-4)}`,
+    }));
 
     const normalizedImages = Array.isArray(formData.images) && formData.images.length > 0
       ? formData.images
@@ -199,15 +349,8 @@ const AdminProductsPage = () => {
       category: formData.category,
       inStock: formData.inStock,
       images: normalizedImages,
-      variants: [
-        {
-          weight: formData.weight,
-          price: Number(formData.price),
-          mrp: Number(formData.mrp),
-          inStock: formData.inStock,
-          sku: `NC-${formData.weight.toUpperCase()}-${Date.now().toString().slice(-4)}`,
-        },
-      ],
+      variants: cleanedVariants,
+      selectedWeight: cleanedVariants[0]?.weight || '250g',
     };
 
     try {
@@ -251,9 +394,13 @@ const AdminProductsPage = () => {
         {/* Top Control Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-brand-coffee-200 shadow-sm">
           <div>
-            <h2 className="text-xl font-extrabold text-brand-coffee-950">Product Inventory & Pricing</h2>
-            <p className="text-xs text-brand-coffee-500">
-              Manage live retail MRP, selling discounts, stock availability, and variations.
+            <h2 className="text-xl font-extrabold text-brand-coffee-950">Product Inventory & Custom Ordering</h2>
+            <p className="text-xs text-brand-coffee-500 flex items-center gap-1.5 flex-wrap mt-0.5">
+              <span>Manage live retail pricing & stock. Drag</span>
+              <span className="inline-flex items-center gap-0.5 font-bold text-brand-pink-700 bg-brand-pink-50 px-1.5 py-0.5 rounded border border-brand-pink-200">
+                <GripVertical className="w-3.5 h-3.5" /> Grip
+              </span>
+              <span>to rearrange how products appear on the public store.</span>
             </p>
           </div>
 
@@ -289,35 +436,103 @@ const AdminProductsPage = () => {
           </div>
         )}
 
-        {/* Products Table Card */}
+        {/* Products Table Card with Drag-and-Drop Reordering */}
         <div className="bg-white rounded-3xl border border-brand-coffee-200 shadow-md overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-brand-coffee-900">
-              <thead className="bg-brand-coffee-50/70 border-b border-brand-coffee-100 text-[11px] font-extrabold uppercase text-brand-coffee-600">
-                <tr>
-                  <th className="p-4">Product Image</th>
-                  <th className="p-4">Title & Details</th>
-                  <th className="p-4">Category</th>
-                  <th className="p-4">Available Variants</th>
-                  <th className="p-4">Online Price (₹)</th>
-                  <th className="p-4">Stock Status</th>
-                  <th className="p-4 text-center">Manage Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-brand-coffee-100 font-medium">
-                {products.map((product) => {
-                  const productImages = Array.isArray(product.images) && product.images.length > 0
-                    ? product.images.map((img) => (typeof img === 'object' && img?.url ? img.url : img)).filter(Boolean)
-                    : [product.image || '/images/250g front.png'];
-                  const primaryImg = productImages[0] || '/images/250g front.png';
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <table className="w-full text-left text-xs text-brand-coffee-900">
+                <thead className="bg-brand-coffee-50/70 border-b border-brand-coffee-100 text-[11px] font-extrabold uppercase text-brand-coffee-600">
+                  <tr>
+                    <th className="p-4 w-14 text-center">Order</th>
+                    <th className="p-4">Product Image</th>
+                    <th className="p-4">Title & Details</th>
+                    <th className="p-4">Category</th>
+                    <th className="p-4">Available Variants</th>
+                    <th className="p-4">Online Price (₹)</th>
+                    <th className="p-4">Stock Status</th>
+                    <th className="p-4 text-center">Manage Actions</th>
+                  </tr>
+                </thead>
+                <Droppable droppableId="admin-products-droppable">
+                  {(droppableProvided) => (
+                    <tbody
+                      ref={droppableProvided.innerRef}
+                      {...droppableProvided.droppableProps}
+                      className="divide-y divide-brand-coffee-100 font-medium"
+                    >
+                      {products.length === 0 ? (
+                        <tr>
+                          <td colSpan="8" className="p-12 text-center text-brand-coffee-500 bg-white">
+                            <div className="flex flex-col items-center justify-center space-y-3">
+                              <Package className="w-12 h-12 text-brand-coffee-300" />
+                              <div>
+                                <p className="font-bold text-sm text-brand-coffee-900">No products in the catalog</p>
+                                <p className="text-xs text-brand-coffee-500 mt-0.5">
+                                  All products have been removed. Click "+ Add New Product" to create one.
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={openAddModal}
+                                className="px-4 py-2 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+                              >
+                                + Add New Product
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        products.map((product, index) => {
+                          const productImages = Array.isArray(product.images) && product.images.length > 0
+                            ? product.images.map((img) => (typeof img === 'object' && img?.url ? img.url : img)).filter(Boolean)
+                            : [product.image || '/images/250g front.png'];
+                          const primaryImg = productImages[0] || '/images/250g front.png';
 
-                  return (
-                    <tr key={product._id || product.slug} className="hover:bg-brand-pink-50/20 transition-colors">
-                      {/* Product Thumbnail with Multi-image Badge */}
-                      <td className="p-4">
-                        <div className="relative w-16 h-16 bg-brand-coffee-50 rounded-xl p-1 border border-brand-coffee-200 flex items-center justify-center flex-shrink-0 group">
-                          <img
-                            src={primaryImg}
+                          const draggableId = String(product._id || product.slug || product.id || index);
+
+                          return (
+                            <Draggable
+                              key={draggableId}
+                              draggableId={draggableId}
+                              index={index}
+                            >
+                              {(dragProvided, snapshot) => (
+                                <tr
+                                  ref={dragProvided.innerRef}
+                                  {...dragProvided.draggableProps}
+                                  style={{
+                                    ...dragProvided.draggableProps.style,
+                                    ...(snapshot.isDragging
+                                      ? { display: 'table', tableLayout: 'fixed', width: '100%' }
+                                      : {}),
+                                  }}
+                                  className={`transition-colors ${
+                                    snapshot.isDragging
+                                      ? 'bg-brand-pink-50/95 shadow-2xl ring-2 ring-brand-pink-500 z-50'
+                                      : 'hover:bg-brand-pink-50/20'
+                                  }`}
+                                >
+                                  {/* Drag Handle & Order Sequence Badge */}
+                                  <td className="p-4 w-14 text-center">
+                                    <div className="flex items-center justify-center gap-1.5">
+                                      <div
+                                        {...dragProvided.dragHandleProps}
+                                        className="p-1 rounded-lg text-brand-coffee-400 hover:text-brand-pink-600 hover:bg-brand-pink-50 cursor-grab active:cursor-grabbing transition-colors"
+                                        title="Click and drag to reorder products"
+                                      >
+                                        <GripVertical className="w-4 h-4" />
+                                      </div>
+                                      <span className="text-[10px] font-black text-brand-coffee-600 bg-brand-coffee-100 px-1.5 py-0.5 rounded border border-brand-coffee-200">
+                                        {index + 1}
+                                      </span>
+                                    </div>
+                                  </td>
+
+                                  {/* Product Thumbnail with Multi-image Badge */}
+                                  <td className="p-4">
+                                    <div className="relative w-16 h-16 bg-brand-coffee-50 rounded-xl p-1 border border-brand-coffee-200 flex items-center justify-center flex-shrink-0 group">
+                                      <img
+                                        src={primaryImg}
                             alt={product.title}
                             className="w-full h-full object-contain"
                             onError={(e) => {
@@ -350,26 +565,52 @@ const AdminProductsPage = () => {
 
                       {/* Variants & Weights */}
                       <td className="p-4">
-                        <div className="flex flex-wrap gap-1.5">
-                          {product.variants?.map((v) => (
-                            <span
-                              key={v.weight}
-                              className="text-[11px] bg-brand-coffee-100 px-2 py-0.5 rounded-md font-bold text-brand-coffee-800"
-                            >
-                              {v.weight}
+                        <div className="flex flex-wrap gap-1.5 max-w-xs">
+                          {Array.isArray(product.variants) && product.variants.length > 0 ? (
+                            product.variants.map((v, vIdx) => (
+                              <span
+                                key={v?.weight || vIdx}
+                                className="inline-flex items-center gap-1.5 text-[11px] bg-brand-coffee-100 px-2 py-0.5 rounded-md font-bold text-brand-coffee-800 border border-brand-coffee-200"
+                              >
+                                {v?.image && (
+                                  <img
+                                    src={v.image}
+                                    alt={v.weight || 'Variant'}
+                                    className="w-3.5 h-3.5 rounded object-contain bg-white flex-shrink-0"
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                    }}
+                                  />
+                                )}
+                                <span>{v?.weight || 'Pack'}: ₹{v?.price ?? product.price ?? 299}</span>
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[11px] bg-brand-coffee-100 px-2 py-0.5 rounded-md font-bold text-brand-coffee-800 border border-brand-coffee-200">
+                              {product.weight || product.selectedWeight || '250g'}: ₹{product.price || 299}
                             </span>
-                          )) || <span className="text-[11px]">250g / 500g</span>}
+                          )}
                         </div>
                       </td>
 
                       {/* Price & MRP */}
                       <td className="p-4 font-bold text-brand-coffee-950">
-                        <div className="text-sm font-black text-brand-pink-700">
-                          ₹{product.variants?.[0]?.price || product.price || 299}
-                        </div>
-                        <div className="text-[10px] text-brand-coffee-400 line-through">
-                          MRP: ₹{product.variants?.[0]?.mrp || product.mrp || 340}
-                        </div>
+                        {(() => {
+                          const vars = Array.isArray(product.variants) && product.variants.length > 0 ? product.variants : [];
+                          const prices = vars.map((v) => Number(v?.price) || 0).filter((p) => p > 0);
+                          const lowest = prices.length > 0 ? Math.min(...prices) : product.price || 299;
+                          const highest = prices.length > 0 ? Math.max(...prices) : lowest;
+                          return (
+                            <div>
+                              <div className="text-sm font-black text-brand-pink-700">
+                                ₹{lowest} {highest > lowest ? <span className="text-xs text-brand-coffee-600 font-normal">to ₹{highest}</span> : ''}
+                              </div>
+                              <div className="text-[10px] text-brand-coffee-500 font-medium">
+                                {vars.length} variant{vars.length !== 1 ? 's' : ''} configured
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </td>
 
                       {/* Stock Switch Toggle */}
@@ -400,7 +641,7 @@ const AdminProductsPage = () => {
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            onClick={() => handleDeleteProduct(product._id)}
+                            onClick={() => handleDeleteProduct(product)}
                             className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
                             title="Delete Product"
                           >
@@ -409,12 +650,19 @@ const AdminProductsPage = () => {
                         </div>
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                  )}
+                </Draggable>
+              );
+            })
+          )}
+          {droppableProvided.placeholder}
+        </tbody>
+      )}
+    </Droppable>
+  </table>
+</DragDropContext>
+</div>
+</div>
 
         {/* Modal: Add / Edit Product */}
         {modalOpen && (
@@ -456,52 +704,192 @@ const AdminProductsPage = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-brand-coffee-800 mb-1">Online Price (₹) *</label>
-                    <input
-                      type="number"
-                      required
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-brand-coffee-800 mb-1">Retail MRP (₹) *</label>
-                    <input
-                      type="number"
-                      required
-                      value={formData.mrp}
-                      onChange={(e) => setFormData({ ...formData, mrp: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900"
-                    />
-                  </div>
+                {/* Category Selection */}
+                <div>
+                  <label className="block font-bold text-brand-coffee-800 mb-1">Category *</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900 bg-white"
+                  >
+                    <option value="pure_coffee">Pure Coffee (0% Chicory)</option>
+                    <option value="chicory_blend">Chicory Blend (80:20)</option>
+                    <option value="special_roast">Special Roast</option>
+                  </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-brand-coffee-800 mb-1">Weight Variant</label>
-                    <select
-                      value={formData.weight}
-                      onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900"
+                {/* Dynamic Variants & Pricing Section */}
+                <div className="bg-brand-coffee-50/70 p-4 rounded-2xl border border-brand-coffee-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-extrabold text-brand-coffee-950 text-xs flex items-center gap-1.5">
+                        <Package className="w-4 h-4 text-brand-pink-600" />
+                        Weight Variants & Dynamic Pricing *
+                      </h4>
+                      <p className="text-[11px] text-brand-coffee-600">
+                        Add weights (e.g., '100g', '250g', '750g') with specific selling price & MRP.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddVariant}
+                      className="px-3 py-1.5 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl font-bold text-[11px] shadow-sm flex items-center gap-1 transition-all hover:scale-105"
                     >
-                      <option value="250g">250g Pouch</option>
-                      <option value="500g">500g Pouch</option>
-                      <option value="1kg">1kg Master Pack</option>
-                    </select>
+                      <Plus className="w-3.5 h-3.5" />
+                      Add Variant
+                    </button>
                   </div>
-                  <div>
-                    <label className="block font-bold text-brand-coffee-800 mb-1">Category</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900"
-                    >
-                      <option value="pure_coffee">Pure Coffee (0% Chicory)</option>
-                      <option value="chicory_blend">Chicory Blend (80:20)</option>
-                    </select>
+
+                  <div className="space-y-3">
+                    {formData.variants.map((variant, index) => (
+                      <div
+                        key={index}
+                        className="bg-white p-3.5 rounded-2xl border border-brand-coffee-200 shadow-xs space-y-3 transition-all hover:border-brand-pink-300"
+                      >
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                          <div className="flex-1">
+                            <label className="block text-[10px] font-extrabold text-brand-coffee-700 uppercase tracking-wider mb-0.5">
+                              Weight (e.g. 100g, 250g, 1kg) *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. 250g or 100g"
+                              value={variant.weight}
+                              onChange={(e) => handleVariantChange(index, 'weight', e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-950 text-xs font-semibold"
+                            />
+                          </div>
+
+                          <div className="w-full sm:w-28">
+                            <label className="block text-[10px] font-extrabold text-brand-coffee-700 uppercase tracking-wider mb-0.5">
+                              Price (₹) *
+                            </label>
+                            <input
+                              type="number"
+                              required
+                              min="1"
+                              placeholder="299"
+                              value={variant.price}
+                              onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-950 text-xs font-semibold"
+                            />
+                          </div>
+
+                          <div className="w-full sm:w-28">
+                            <label className="block text-[10px] font-extrabold text-brand-coffee-700 uppercase tracking-wider mb-0.5">
+                              MRP (₹) *
+                            </label>
+                            <input
+                              type="number"
+                              required
+                              min="1"
+                              placeholder="340"
+                              value={variant.mrp}
+                              onChange={(e) => handleVariantChange(index, 'mrp', e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-950 text-xs font-semibold"
+                            />
+                          </div>
+
+                          <div className="flex items-end justify-end sm:pt-4">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveVariant(index)}
+                              disabled={formData.variants.length <= 1}
+                              className={`p-2 rounded-lg transition-colors ${
+                                formData.variants.length <= 1
+                                  ? 'text-brand-coffee-300 cursor-not-allowed bg-brand-coffee-50'
+                                  : 'text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50'
+                              }`}
+                              title={formData.variants.length <= 1 ? 'Minimum 1 variant required' : 'Remove variant'}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Variant-Specific Image Upload Bar */}
+                        <div className="pt-2.5 border-t border-brand-coffee-100 flex flex-wrap items-center justify-between gap-3 bg-brand-coffee-50/60 p-2.5 rounded-xl">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {variant.image ? (
+                              <div className="relative group w-12 h-12 rounded-lg bg-white border border-brand-coffee-200 p-1 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                                <img
+                                  src={variant.image}
+                                  alt={`Variant ${variant.weight || index}`}
+                                  className="w-full h-full object-contain"
+                                  onError={(e) => {
+                                    e.target.src = '/images/250g front.png';
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleVariantChange(index, 'image', '')}
+                                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-xs hover:bg-rose-700"
+                                  title="Remove variant image"
+                                >
+                                  <X className="w-2.5 h-2.5" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="w-12 h-12 rounded-lg border-2 border-dashed border-brand-coffee-300 bg-white flex items-center justify-center flex-shrink-0 text-brand-coffee-400">
+                                <ImageIcon className="w-5 h-5 text-brand-coffee-400" />
+                              </div>
+                            )}
+
+                            <div className="min-w-0">
+                              <div className="text-[11px] font-extrabold text-brand-coffee-950 flex items-center gap-1.5">
+                                <span>Variant Image ({variant.weight || `#${index + 1}`})</span>
+                                {variant.image && (
+                                  <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">
+                                    Assigned
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[10px] text-brand-coffee-600 truncate max-w-xs">
+                                {variant.image
+                                  ? variant.image
+                                  : 'Specific pack image shown when customer selects this size.'}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <label
+                              htmlFor={`variant-image-file-${index}`}
+                              className={`px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                                uploadingVariantIndex === index
+                                  ? 'bg-brand-coffee-100 text-brand-coffee-400 border-brand-coffee-200 pointer-events-none'
+                                  : 'bg-white hover:bg-brand-pink-50 text-brand-pink-700 border-brand-pink-300 shadow-2xs hover:border-brand-pink-400'
+                              }`}
+                            >
+                              {uploadingVariantIndex === index ? (
+                                <>
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand-pink-600" />
+                                  <span>Uploading...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="w-3.5 h-3.5 text-brand-pink-600" />
+                                  <span>{variant.image ? 'Change Image' : 'Upload Image'}</span>
+                                </>
+                              )}
+                            </label>
+                            <input
+                              id={`variant-image-file-${index}`}
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={uploadingVariantIndex === index}
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  handleVariantImageUpload(index, e.target.files[0]);
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 

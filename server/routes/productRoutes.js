@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -90,9 +91,9 @@ export const defaultProductsData = [
     category: 'pure_coffee',
     images: ['/images/250g front.png', '/images/250g back.png'],
     variants: [
-      { weight: '250g', mrp: 340, price: 299, inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
-      { weight: '500g', mrp: 680, price: 580, inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
-      { weight: '1kg', mrp: 1360, price: 1100, inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
+      { weight: '250g', mrp: 340, price: 299, image: '/images/250g front.png', inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
+      { weight: '500g', mrp: 680, price: 580, image: '/images/500g fornt.png', inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
+      { weight: '1kg', mrp: 1360, price: 1100, image: '/images/250g front.png', inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
     ],
     selectedWeight: '250g',
     rating: 4.9,
@@ -115,9 +116,9 @@ export const defaultProductsData = [
     category: 'pure_coffee',
     images: ['/images/500g fornt.png', '/images/500g back.png'],
     variants: [
-      { weight: '500g', mrp: 680, price: 580, inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
-      { weight: '250g', mrp: 340, price: 299, inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
-      { weight: '1kg', mrp: 1360, price: 1100, inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
+      { weight: '500g', mrp: 680, price: 580, image: '/images/500g fornt.png', inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
+      { weight: '250g', mrp: 340, price: 299, image: '/images/250g front.png', inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
+      { weight: '1kg', mrp: 1360, price: 1100, image: '/images/500g fornt.png', inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
     ],
     selectedWeight: '500g',
     rating: 5.0,
@@ -140,9 +141,9 @@ export const defaultProductsData = [
     category: 'chicory_blend',
     images: ['/images/chicory powder.jpg', '/images/250g back.png'],
     variants: [
-      { weight: '250g', mrp: 280, price: 240, inStock: true, stockCount: 200, sku: 'NC-250G-CHIC' },
-      { weight: '500g', mrp: 540, price: 450, inStock: true, stockCount: 160, sku: 'NC-500G-CHIC' },
-      { weight: '1kg', mrp: 1050, price: 850, inStock: true, stockCount: 90, sku: 'NC-1KG-CHIC' },
+      { weight: '250g', mrp: 280, price: 240, image: '/images/chicory powder.jpg', inStock: true, stockCount: 200, sku: 'NC-250G-CHIC' },
+      { weight: '500g', mrp: 540, price: 450, image: '/images/chicory powder.jpg', inStock: true, stockCount: 160, sku: 'NC-500G-CHIC' },
+      { weight: '1kg', mrp: 1050, price: 850, image: '/images/chicory powder.jpg', inStock: true, stockCount: 90, sku: 'NC-1KG-CHIC' },
     ],
     selectedWeight: '250g',
     rating: 4.8,
@@ -220,34 +221,54 @@ const parseProductPayload = (req) => {
     }
   }
 
-  // If variants not provided but price / mrp / weight are provided, build variant
+  // If variants array provided, sanitize each entry
+  if (Array.isArray(body.variants) && body.variants.length > 0) {
+    body.variants = body.variants
+      .map((v) => ({
+        weight: String(v.weight || '').trim(),
+        price: Number(v.price) || 0,
+        mrp: Number(v.mrp) || Number(v.price) || 0,
+        image: String(v.image || v.imageUrl || '').trim(),
+        inStock: v.inStock !== false && v.inStock !== 'false',
+        stockCount: Number(v.stockCount) || 100,
+        sku: v.sku || `NC-${String(v.weight || '').toUpperCase().replace(/[^A-Z0-9]/g, '')}-${Date.now().toString().slice(-4)}`,
+      }))
+      .filter((v) => v.weight && v.price > 0);
+  }
+
+  // If variants not provided or empty but price / mrp / weight are provided, build variant
   if ((!body.variants || !Array.isArray(body.variants) || body.variants.length === 0) && (body.price || body.mrp)) {
-    const weight = body.weight || body.selectedWeight || '250g';
+    const weight = String(body.weight || body.selectedWeight || '250g').trim();
+    const fallbackImg = Array.isArray(body.images) && body.images.length > 0 ? body.images[0] : (body.image || '');
     body.variants = [
       {
         weight,
         price: Number(body.price || 299),
         mrp: Number(body.mrp || 340),
+        image: fallbackImg,
         inStock: body.inStock !== false,
+        stockCount: 100,
         sku: `NC-${weight.toUpperCase()}-${Date.now().toString().slice(-4)}`,
       },
     ];
+  }
+
+  // Sync selectedWeight
+  if (Array.isArray(body.variants) && body.variants.length > 0) {
+    const matched = body.variants.some((v) => v.weight === body.selectedWeight);
+    if (!matched) {
+      body.selectedWeight = body.variants[0].weight;
+    }
   }
 
   return body;
 };
 
 // @route   GET /api/products
-// @desc    Get all products (public)
+// @desc    Get all products (public - sorted by sortOrder ascending)
 router.get('/', async (req, res) => {
   try {
-    let products = await Product.find({}).sort({ createdAt: -1 });
-
-    if (!products || products.length === 0) {
-      // Auto-populate if empty
-      await Product.insertMany(defaultProductsData);
-      products = await Product.find({}).sort({ createdAt: -1 });
-    }
+    const products = await Product.find({}).sort({ sortOrder: 1, createdAt: -1 });
 
     res.json({
       success: true,
@@ -256,11 +277,10 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching products:', error);
-    res.json({
-      success: true,
-      count: defaultProductsData.length,
-      data: defaultProductsData,
-      fromFallback: true,
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch products',
+      data: [],
     });
   }
 });
@@ -270,21 +290,16 @@ router.get('/', async (req, res) => {
 router.get('/:idOrSlug', async (req, res) => {
   try {
     const { idOrSlug } = req.params;
-    let product;
+    let product = null;
 
-    if (idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
+    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
       product = await Product.findById(idOrSlug);
-    } else {
+    }
+    if (!product) {
       product = await Product.findOne({ slug: idOrSlug });
     }
 
     if (!product) {
-      const fallback = defaultProductsData.find(
-        (p) => p.slug === idOrSlug || p.title.toLowerCase().includes(idOrSlug.toLowerCase())
-      );
-      if (fallback) {
-        return res.json({ success: true, data: fallback });
-      }
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
@@ -305,6 +320,62 @@ router.post('/', protectAdmin, handleOptionalMultipart, async (req, res) => {
   } catch (error) {
     console.error('Error creating product:', error);
     res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+// @route   PUT /api/products/reorder
+// @desc    Bulk update product sortOrder based on new array order (Admin)
+router.put('/reorder', protectAdmin, async (req, res) => {
+  try {
+    const { productIds } = req.body;
+    const ids = Array.isArray(productIds)
+      ? productIds
+      : Array.isArray(req.body)
+      ? req.body
+      : Array.isArray(req.body?.order)
+      ? req.body.order
+      : null;
+
+    if (!ids || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an array of product IDs to reorder',
+      });
+    }
+
+    const bulkOps = ids
+      .map((id, index) => {
+        const targetId = typeof id === 'object' && id !== null ? (id._id || id.id || id.slug) : id;
+        if (!targetId) return null;
+        return {
+          updateOne: {
+            filter: {
+              $or: [
+                ...(mongoose.Types.ObjectId.isValid(targetId) ? [{ _id: targetId }] : []),
+                { slug: String(targetId) },
+              ],
+            },
+            update: { $set: { sortOrder: index } },
+          },
+        };
+      })
+      .filter((op) => op && op.updateOne.filter.$or.length > 0);
+
+    if (bulkOps.length > 0) {
+      await Product.bulkWrite(bulkOps);
+    }
+
+    const updatedProducts = await Product.find({}).sort({ sortOrder: 1, createdAt: -1 });
+
+    res.json({
+      success: true,
+      message: 'Product sort order updated successfully',
+      count: updatedProducts.length,
+      data: updatedProducts,
+    });
+  } catch (error) {
+    console.error('Error reordering products:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -354,19 +425,43 @@ router.put('/:id/toggle-stock', protectAdmin, async (req, res) => {
   }
 });
 
-// @route   DELETE /api/products/:id
-// @desc    Delete a product (Admin)
-router.delete('/:id', protectAdmin, async (req, res) => {
+// @route   DELETE /api/products/:idOrSlug
+// @desc    Permanently delete a product (Admin)
+router.delete('/:idOrSlug', protectAdmin, async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const { idOrSlug } = req.params;
+    let product = null;
 
+    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
+      product = await Product.findById(idOrSlug);
+    }
     if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
+      product = await Product.findOne({ slug: idOrSlug });
+    }
+    if (!product) {
+      product = await Product.findOne({
+        $or: [{ _id: idOrSlug }, { slug: idOrSlug.toLowerCase() }],
+      }).catch(() => null);
     }
 
-    await Product.deleteOne({ _id: req.params.id });
-    res.json({ success: true, message: 'Product removed successfully' });
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found in database' });
+    }
+
+    const deletedId = product._id;
+    const deletedSlug = product.slug;
+    await Product.deleteOne({ _id: deletedId });
+
+    console.log(`[Product Removed] Successfully deleted "${product.title}" (${deletedId}) from database.`);
+
+    res.json({
+      success: true,
+      message: 'Product permanently removed from database',
+      deletedId,
+      deletedSlug,
+    });
   } catch (error) {
+    console.error('Error deleting product:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

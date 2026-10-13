@@ -17,14 +17,14 @@ const ShopPage = () => {
     const fetchProducts = async () => {
       try {
         const res = await api.get('/api/products');
-        if (res.data.success && res.data.data?.length > 0) {
+        if (res.data.success && Array.isArray(res.data.data)) {
           setProducts(res.data.data);
         } else {
-          setProducts(defaultProductsData);
+          setProducts([]);
         }
       } catch (err) {
-        console.warn('Using default products on shop page:', err.message);
-        setProducts(defaultProductsData);
+        console.warn('Using empty products list due to API issue:', err.message);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -41,11 +41,20 @@ const ShopPage = () => {
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    const priceA = a.variants?.[0]?.price || a.price || 0;
-    const priceB = b.variants?.[0]?.price || b.price || 0;
+    const getLowestPrice = (prod) => {
+      if (Array.isArray(prod.variants) && prod.variants.length > 0) {
+        return Math.min(...prod.variants.map((v) => Number(v.price) || 0));
+      }
+      return Number(prod.price) || 0;
+    };
+    const priceA = getLowestPrice(a);
+    const priceB = getLowestPrice(b);
     if (sortBy === 'price-low') return priceA - priceB;
     if (sortBy === 'price-high') return priceB - priceA;
     if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+    const orderA = typeof a.sortOrder === 'number' ? a.sortOrder : 0;
+    const orderB = typeof b.sortOrder === 'number' ? b.sortOrder : 0;
+    if (orderA !== orderB) return orderA - orderB;
     return 0;
   });
 
@@ -168,6 +177,14 @@ const ShopPage = () => {
                 <div className="h-10 bg-brand-coffee-100 rounded-xl" />
               </div>
             ))}
+          </div>
+        ) : sortedProducts.length === 0 ? (
+          <div className="w-full py-16 text-center bg-white rounded-3xl border border-brand-coffee-200 p-8 space-y-3">
+            <Coffee className="w-12 h-12 text-brand-coffee-400 mx-auto" />
+            <h3 className="text-base font-extrabold text-brand-coffee-950">No Products Available</h3>
+            <p className="text-xs text-brand-coffee-600 max-w-sm mx-auto">
+              No products are currently available in this category. Please check back shortly.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">

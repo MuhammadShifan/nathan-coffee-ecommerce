@@ -34,14 +34,14 @@ const HomePage = () => {
     const fetchProducts = async () => {
       try {
         const res = await api.get('/api/products');
-        if (res.data.success && res.data.data?.length > 0) {
+        if (res.data.success && Array.isArray(res.data.data)) {
           setProducts(res.data.data);
         } else {
-          setProducts(defaultProductsData);
+          setProducts([]);
         }
       } catch (err) {
-        console.warn('Using default products due to API connect:', err.message);
-        setProducts(defaultProductsData);
+        console.warn('Error fetching products from API:', err.message);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -252,27 +252,6 @@ const HomePage = () => {
             {products.map((product) => (
               <ProductCard key={product._id || product.slug} product={product} />
             ))}
-          </div>
-
-          {/* Value Callout Banner */}
-          <div className="mt-8 sm:mt-12 p-5 sm:p-8 rounded-3xl bg-gradient-to-r from-brand-coffee-950 via-brand-coffee-900 to-brand-pink-950 text-white border-2 border-brand-pink-600/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 w-full">
-            <div className="space-y-2 text-center md:text-left">
-              <span className="bg-brand-yellow-400 text-brand-coffee-950 text-xs font-black px-2.5 py-1 rounded-full uppercase">
-                Free Shipping Special
-              </span>
-              <h3 className="text-lg sm:text-2xl font-bold">
-                Order 2 or More Packs & Get FREE Home Delivery Across India!
-              </h3>
-              <p className="text-xs sm:text-sm text-brand-coffee-200">
-                Freshly roasted in small batches and dispatched directly within 24 hours.
-              </p>
-            </div>
-            <Link
-              to="/shop"
-              className="w-full md:w-auto text-center px-8 py-3.5 bg-brand-yellow-400 hover:bg-brand-yellow-500 text-brand-coffee-950 font-black text-sm rounded-xl shadow-lg transition-all hover:scale-105 active:scale-95 flex-shrink-0"
-            >
-              Order Combo Now
-            </Link>
           </div>
         </section>
 

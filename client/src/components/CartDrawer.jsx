@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -21,18 +21,17 @@ const CartDrawer = () => {
   const { isUserAuthenticated, openAuthModal } = useAuth();
   const navigate = useNavigate();
 
-  const freeShippingThreshold = 500;
-  const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
-  const freeShippingProgress = Math.min(100, (subtotal / freeShippingThreshold) * 100);
-
   const handleCheckoutRedirect = () => {
     setIsCartOpen(false);
+    try {
+      sessionStorage.removeItem('Nathan_buy_now_item');
+    } catch (e) {}
     if (!isUserAuthenticated) {
       openAuthModal(() => {
-        navigate('/checkout');
+        navigate('/checkout', { state: { buyNowItem: null } });
       });
     } else {
-      navigate('/checkout');
+      navigate('/checkout', { state: { buyNowItem: null } });
     }
   };
 
@@ -80,28 +79,6 @@ const CartDrawer = () => {
                 </button>
               </div>
 
-              {/* Free Shipping Meter */}
-              <div className="px-5 py-3 bg-brand-yellow-50 border-b border-brand-yellow-200/60 text-xs">
-                {subtotal >= freeShippingThreshold ? (
-                  <div className="flex items-center gap-1.5 text-emerald-700 font-bold">
-                    <Sparkles className="w-4 h-4 text-emerald-600" />
-                    <span>🎉 You unlocked FREE Delivery across India!</span>
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between font-semibold text-brand-coffee-800">
-                      <span>Add ₹{remainingForFreeShipping} more for FREE Delivery</span>
-                      <span className="font-extrabold text-brand-pink-700">{Math.round(freeShippingProgress)}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-brand-yellow-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-brand-pink-600 to-brand-yellow-500 rounded-full transition-all duration-300"
-                        style={{ width: `${freeShippingProgress}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
 
               {/* Cart Items List */}
               <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">

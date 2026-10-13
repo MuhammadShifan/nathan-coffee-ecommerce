@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ShieldCheck,
@@ -25,9 +25,50 @@ import { openRazorpayModal } from '../services/razorpay';
 import SEOMeta from '../components/SEOMeta';
 
 const CheckoutPage = () => {
-  const { cartItems, subtotal, shippingFee, grandTotal, clearCart } = useCart();
+  const location = useLocation();
+  const { cartItems, subtotal: cartSubtotal, clearCart } = useCart();
   const { user, isUserAuthenticated, openAuthModal, logoutUser } = useAuth();
   const navigate = useNavigate();
+
+  // Resolve Buy Now item independently from location.state or sessionStorage
+  const [buyNowItem, setBuyNowItem] = useState(() => {
+    if (location.state?.buyNowItem) {
+      return location.state.buyNowItem;
+    }
+    if (location.state?.buyNowItem === null) {
+      return null;
+    }
+    try {
+      const saved = sessionStorage.getItem('Nathan_buy_now_item');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    if (location.state?.buyNowItem) {
+      setBuyNowItem(location.state.buyNowItem);
+      try {
+        sessionStorage.setItem('Nathan_buy_now_item', JSON.stringify(location.state.buyNowItem));
+      } catch (e) {}
+    } else if (location.state?.buyNowItem === null) {
+      setBuyNowItem(null);
+      try {
+        sessionStorage.removeItem('Nathan_buy_now_item');
+      } catch (e) {}
+    }
+  }, [location.state]);
+
+  const isBuyNow = Boolean(buyNowItem);
+  const checkoutItems = isBuyNow ? [buyNowItem] : cartItems;
+
+  const subtotal = isBuyNow
+    ? buyNowItem.price * buyNowItem.quantity
+    : cartSubtotal;
+
+  const shippingFee = subtotal >= 500 || subtotal === 0 ? 0 : 40;
+  const grandTotal = subtotal + shippingFee;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -69,10 +110,10 @@ const CheckoutPage = () => {
 
   // If guest lands on checkout with items, auto-prompt auth modal
   useEffect(() => {
-    if (!isUserAuthenticated && cartItems.length > 0) {
+    if (!isUserAuthenticated && checkoutItems.length > 0) {
       openAuthModal();
     }
-  }, [isUserAuthenticated, cartItems.length]);
+  }, [isUserAuthenticated, checkoutItems.length]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -110,8 +151,8 @@ const CheckoutPage = () => {
       return;
     }
 
-    if (cartItems.length === 0) {
-      setErrorMessage('Your cart is empty. Please add coffee powder before checking out.');
+    if (checkoutItems.length === 0) {
+      setErrorMessage('Your checkout is empty. Please add coffee powder before checking out.');
       return;
     }
 
@@ -171,7 +212,7 @@ const CheckoutPage = () => {
                       pincode: formData.pincode,
                     },
                   },
-                  items: cartItems.map((i) => ({
+                  items: checkoutItems.map((i) => ({
                     productId: i.productId,
                     title: i.title,
                     weight: i.weight,
@@ -189,7 +230,13 @@ const CheckoutPage = () => {
               });
 
               if (verifyRes.data.success) {
-                clearCart();
+                if (isBuyNow) {
+                  try {
+                    sessionStorage.removeItem('Nathan_buy_now_item');
+                  } catch (e) {}
+                } else {
+                  clearCart();
+                }
                 navigate(`/order-success/${verifyRes.data.orderId}`, {
                   state: { order: verifyRes.data.order },
                 });
@@ -199,7 +246,13 @@ const CheckoutPage = () => {
               }
             } catch (err) {
               console.error('Verification error:', err);
-              clearCart();
+              if (isBuyNow) {
+                try {
+                  sessionStorage.removeItem('Nathan_buy_now_item');
+                } catch (e) {}
+              } else {
+                clearCart();
+              }
               const simulatedId = `NC-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
               navigate(`/order-success/${simulatedId}`);
             }
@@ -226,7 +279,7 @@ const CheckoutPage = () => {
               pincode: formData.pincode,
             },
           },
-          items: cartItems.map((i) => ({
+          items: checkoutItems.map((i) => ({
             productId: i.productId,
             title: i.title,
             weight: i.weight,
@@ -244,7 +297,13 @@ const CheckoutPage = () => {
         });
 
         if (codRes.data.success) {
-          clearCart();
+          if (isBuyNow) {
+            try {
+              sessionStorage.removeItem('Nathan_buy_now_item');
+            } catch (e) {}
+          } else {
+            clearCart();
+          }
           navigate(`/order-success/${codRes.data.data.orderId}`, {
             state: { order: codRes.data.data },
           });
@@ -257,13 +316,13 @@ const CheckoutPage = () => {
     }
   };
 
-  if (cartItems.length === 0) {
+  if (checkoutItems.length === 0) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 text-center space-y-6">
         <div className="w-24 h-24 rounded-full bg-brand-pink-50 border-2 border-dashed border-brand-pink-300 flex items-center justify-center text-4xl mx-auto">
           ☕
         </div>
-        <h1 className="text-2xl font-bold text-brand-coffee-950">Your Cart is Empty</h1>
+        <h1 className="text-2xl font-bold text-brand-coffee-950">Your Checkout is Empty</h1>
         <p className="text-xs sm:text-sm text-brand-coffee-600 max-w-md mx-auto">
           You haven't selected any coffee powder yet. Browse our freshly roasted range to continue.
         </p>
@@ -638,17 +697,24 @@ const CheckoutPage = () => {
           <div className="lg:col-span-5 w-full">
             <div className="bg-white p-4 sm:p-8 rounded-3xl border border-brand-coffee-200 shadow-xl space-y-4 sm:space-y-6 lg:sticky lg:top-24 w-full">
               <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-brand-coffee-100">
-                <h2 className="text-base sm:text-lg font-bold text-brand-coffee-950 flex items-center gap-2">
-                  <ShoppingBag className="w-5 h-5 text-brand-pink-600 flex-shrink-0" /> Order Summary
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-bold text-brand-coffee-950 flex items-center gap-2">
+                    <ShoppingBag className="w-5 h-5 text-brand-pink-600 flex-shrink-0" /> Order Summary
+                  </h2>
+                  {isBuyNow && (
+                    <span className="text-[10px] font-extrabold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                      Express Direct Order
+                    </span>
+                  )}
+                </div>
                 <span className="text-xs font-semibold text-brand-coffee-500">
-                  {cartItems.length} item{cartItems.length > 1 ? 's' : ''}
+                  {checkoutItems.length} item{checkoutItems.length > 1 ? 's' : ''}
                 </span>
               </div>
 
-              {/* Cart Items List */}
+              {/* Cart / Buy Now Items List */}
               <div className="space-y-3.5 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
-                {cartItems.map((item) => (
+                {checkoutItems.map((item) => (
                   <div
                     key={item.itemKey}
                     className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-brand-coffee-50/70 border border-brand-coffee-100"

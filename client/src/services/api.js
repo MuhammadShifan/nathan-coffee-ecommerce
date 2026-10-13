@@ -291,4 +291,22 @@ export const deleteProduct = async (productId, customOptions = {}) => {
   });
 };
 
+/**
+ * Bulk reorder products sortOrder
+ */
+export const reorderProducts = async (productIds, customOptions = {}) => {
+  const adminToken = getAdminToken();
+  const headers = {
+    ...(customOptions.headers || {}),
+  };
+  if (adminToken) {
+    headers.Authorization = `Bearer ${adminToken}`;
+  }
+
+  return api.put('/api/products/reorder', { productIds }, {
+    ...customOptions,
+    headers,
+  });
+};
+
 export default api;

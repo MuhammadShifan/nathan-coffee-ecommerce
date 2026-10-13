@@ -36,15 +36,21 @@ export const CartProvider = ({ children }) => {
     setTimeout(() => setCartBadgePulse(false), 800);
   };
 
-  const addToCart = (product, selectedWeight = '250g', quantity = 1, openDrawer = true) => {
-    // Find matching variant
-    const variant = product.variants?.find((v) => v.weight === selectedWeight) || {
-      weight: selectedWeight,
-      price: product.price || 299,
-      mrp: product.mrp || 340,
-    };
+  const addToCart = (product, selectedWeight, quantity = 1, openDrawer = true) => {
+    const defaultWeight = product.selectedWeight || product.variants?.[0]?.weight || '250g';
+    const targetWeight = selectedWeight || defaultWeight;
 
-    const itemKey = `${product._id || product.slug}-${selectedWeight}`;
+    // Find matching variant
+    const variant =
+      product.variants?.find((v) => v.weight === targetWeight) ||
+      product.variants?.[0] || {
+        weight: targetWeight,
+        price: Number(product.price) || 299,
+        mrp: Number(product.mrp) || 340,
+      };
+
+    const effectiveWeight = variant.weight || targetWeight;
+    const itemKey = `${product._id || product.slug}-${effectiveWeight}`;
 
     setCartItems((prevItems) => {
       const existingIndex = prevItems.findIndex((item) => item.itemKey === itemKey);
@@ -53,7 +59,9 @@ export const CartProvider = ({ children }) => {
         updated[existingIndex].quantity += quantity;
         return updated;
       } else {
+        const variantImage = variant.image || variant.imageUrl;
         const primaryImage =
+          variantImage ||
           (Array.isArray(product.images) && product.images.length > 0
             ? (typeof product.images[0] === 'object' && product.images[0]?.url ? product.images[0].url : product.images[0])
             : product.image) || '/images/250g front.png';
@@ -64,9 +72,9 @@ export const CartProvider = ({ children }) => {
             itemKey,
             productId: product._id || product.slug,
             title: product.title,
-            weight: selectedWeight,
-            price: variant.price,
-            mrp: variant.mrp,
+            weight: effectiveWeight,
+            price: Number(variant.price),
+            mrp: Number(variant.mrp || variant.price),
             quantity: quantity,
             image: primaryImage,
             slug: product.slug,
@@ -76,7 +84,7 @@ export const CartProvider = ({ children }) => {
     });
 
     triggerBadgeAnimation();
-    showToast(`Added "${product.title} (${selectedWeight})" to your cart! ☕`);
+    showToast(`Added "${product.title} (${effectiveWeight})" to your cart! ☕`);
 
     if (openDrawer) {
       setIsCartOpen(true);

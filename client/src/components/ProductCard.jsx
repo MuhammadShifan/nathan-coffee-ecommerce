@@ -10,15 +10,27 @@ const ProductCard = ({ product }) => {
   const { isUserAuthenticated, openAuthModal } = useAuth();
   const navigate = useNavigate();
 
-  // Find default or first variant
+  const variants = Array.isArray(product.variants) && product.variants.length > 0
+    ? product.variants
+    : [
+        {
+          weight: product.weight || product.selectedWeight || '250g',
+          price: product.price || 299,
+          mrp: product.mrp || 340,
+        },
+      ];
+
+  const lowestPrice = Math.min(...variants.map((v) => Number(v.price) || 0));
+  const lowestPriceVariant = variants.find((v) => Number(v.price) === lowestPrice) || variants[0];
+
   const [selectedWeight, setSelectedWeight] = useState(
-    product.selectedWeight || (product.variants && product.variants[0]?.weight) || '250g'
+    () => product.selectedWeight || lowestPriceVariant?.weight || variants[0]?.weight || '250g'
   );
   const [isHovered, setIsHovered] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
 
-  const currentVariant = product.variants?.find((v) => v.weight === selectedWeight) || {
+  const currentVariant = variants.find((v) => v.weight === selectedWeight) || lowestPriceVariant || {
     weight: selectedWeight,
     price: product.price || 299,
     mrp: product.mrp || 340,
@@ -30,7 +42,7 @@ const ProductCard = ({ product }) => {
     : [product.image || '/images/250g front.png'];
 
   const hasMultipleImages = images.length > 1;
-  const primaryImage = images[0] || '/images/250g front.png';
+  const primaryImage = currentVariant.image || currentVariant.imageUrl || images[0] || '/images/250g front.png';
   const secondaryImage = images[1] || primaryImage;
 
   const discountPercent = currentVariant.mrp > currentVariant.price
@@ -44,19 +56,42 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = (e) => {
     e.stopPropagation();
     setIsAdding(true);
-    addToCart(product, selectedWeight, 1, true);
+    addToCart(product, currentVariant.weight, 1, true);
     setTimeout(() => setIsAdding(false), 600);
   };
 
   const handleBuyNow = (e) => {
     e.stopPropagation();
-    addToCart(product, selectedWeight, 1, false);
+    const targetWeight = currentVariant.weight || '250g';
+    const variantImage = currentVariant.image || currentVariant.imageUrl;
+    const primaryImage =
+      variantImage ||
+      (Array.isArray(product.images) && product.images.length > 0
+        ? (typeof product.images[0] === 'object' && product.images[0]?.url ? product.images[0].url : product.images[0])
+        : product.image) || '/images/250g front.png';
+
+    const buyNowItem = {
+      itemKey: `${product._id || product.slug}-${targetWeight}`,
+      productId: product._id || product.slug,
+      title: product.title,
+      weight: targetWeight,
+      price: Number(currentVariant.price),
+      mrp: Number(currentVariant.mrp || currentVariant.price),
+      quantity: 1,
+      image: primaryImage,
+      slug: product.slug,
+    };
+
+    try {
+      sessionStorage.setItem('Nathan_buy_now_item', JSON.stringify(buyNowItem));
+    } catch (err) {}
+
     if (!isUserAuthenticated) {
       openAuthModal(() => {
-        navigate('/checkout');
+        navigate('/checkout', { state: { buyNowItem } });
       });
     } else {
-      navigate('/checkout');
+      navigate('/checkout', { state: { buyNowItem } });
     }
   };
 
@@ -212,18 +247,18 @@ const ProductCard = ({ product }) => {
 
           {/* Weight Variant Selector */}
           <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-brand-coffee-100">
-            <label className="text-[10px] sm:text-[11px] font-bold text-brand-coffee-700 uppercase tracking-wider block mb-1.5">
-              Select Pack Size:
-            </label>
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-              {(product.variants && product.variants.length > 0
-                ? product.variants
-                : [
-                    { weight: '250g', price: 299, mrp: 340 },
-                    { weight: '500g', price: 580, mrp: 680 },
-                    { weight: '1kg', price: 1100, mrp: 1360 },
-                  ]
-              ).map((variant) => {
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-[10px] sm:text-[11px] font-bold text-brand-coffee-700 uppercase tracking-wider block">
+                Select Pack Size:
+              </label>
+              {variants.length > 1 && (
+                <span className="text-[10px] text-brand-pink-700 font-bold bg-brand-pink-50 px-1.5 py-0.5 rounded border border-brand-pink-200">
+                  Starts at ₹{lowestPrice}
+                </span>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              {variants.map((variant) => {
                 const isSelected = selectedWeight === variant.weight;
                 return (
                   <button
@@ -232,8 +267,9 @@ const ProductCard = ({ product }) => {
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedWeight(variant.weight);
+                      setActiveImageIndex(null);
                     }}
-                    className={`py-1.5 px-1 sm:px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all border text-center ${
+                    className={`py-1.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all border text-center flex-1 min-w-[65px] ${
                       isSelected
                         ? 'bg-brand-pink-600 text-white border-brand-pink-600 shadow-sm ring-2 ring-brand-yellow-400'
                         : 'bg-brand-coffee-50 text-brand-coffee-800 border-brand-coffee-200 hover:border-brand-pink-300'
@@ -254,13 +290,20 @@ const ProductCard = ({ product }) => {
         <div className="pt-2 border-t border-brand-coffee-100" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-baseline justify-between mb-2.5 sm:mb-3">
             <div>
-              <span className="text-xl sm:text-2xl font-extrabold text-brand-coffee-950">
-                ₹{currentVariant.price}
-              </span>
-              {currentVariant.mrp > currentVariant.price && (
-                <span className="ml-1.5 sm:ml-2 text-xs text-brand-coffee-400 line-through">
-                  ₹{currentVariant.mrp}
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl sm:text-2xl font-extrabold text-brand-coffee-950">
+                  ₹{currentVariant.price}
                 </span>
+                {currentVariant.mrp > currentVariant.price && (
+                  <span className="text-xs text-brand-coffee-400 line-through">
+                    ₹{currentVariant.mrp}
+                  </span>
+                )}
+              </div>
+              {variants.length > 1 && currentVariant.price !== lowestPrice && (
+                <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
+                  Starting from ₹{lowestPrice}
+                </div>
               )}
             </div>
             <span className="text-[10px] sm:text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
