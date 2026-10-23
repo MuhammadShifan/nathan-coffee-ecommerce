@@ -82,7 +82,7 @@ const CheckoutPage = () => {
     pincode: '',
   });
 
-  const [paymentMethod, setPaymentMethod] = useState('razorpay'); // 'razorpay' | 'cod'
+  const paymentMethod = 'razorpay';
   const [processing, setProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -159,93 +159,76 @@ const CheckoutPage = () => {
     setProcessing(true);
 
     try {
-      if (paymentMethod === 'razorpay') {
-        // Step 1: Create Razorpay Order on Backend
-        const orderRes = await api.post('/api/payment/create-order', {
-          amount: grandTotal,
-          currency: 'INR',
-          receipt: `rcpt_${Date.now().toString().slice(-6)}`,
-          notes: {
-            customer_name: formData.name,
-            customer_phone: formData.phone,
-            user_id: user?._id || '',
-            brand: 'Nathan Coffee ',
-          },
-        });
+      // Step 1: Create Razorpay Order on Backend
+      const orderRes = await api.post('/api/payment/create-order', {
+        amount: grandTotal,
+        currency: 'INR',
+        receipt: `rcpt_${Date.now().toString().slice(-6)}`,
+        notes: {
+          customer_name: formData.name,
+          customer_phone: formData.phone,
+          user_id: user?._id || '',
+          brand: 'Nathan Coffee ',
+        },
+      });
 
-        if (!orderRes.data.success || !orderRes.data.order) {
-          throw new Error(orderRes.data.message || 'Failed to initialize Razorpay payment');
-        }
+      if (!orderRes.data.success || !orderRes.data.order) {
+        throw new Error(orderRes.data.message || 'Failed to initialize Razorpay payment');
+      }
 
-        const { order: razorpayOrder, keyId } = orderRes.data;
+      const { order: razorpayOrder, keyId } = orderRes.data;
 
-        // Step 2: Open Razorpay Modal
-        openRazorpayModal({
-          keyId: keyId || 'rzp_test_TfsAvrbG1O9sYj',
-          orderId: razorpayOrder.id,
-          amount: grandTotal,
-          customer: {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            address: formData,
-          },
-          onSuccess: async (paymentResponse) => {
-            try {
-              // Step 3: Verify Signature & Save in MongoDB with userId
-              const verifyRes = await api.post('/api/payment/verify', {
-                razorpay_order_id: paymentResponse.razorpay_order_id,
-                razorpay_payment_id: paymentResponse.razorpay_payment_id,
-                razorpay_signature: paymentResponse.razorpay_signature,
-                orderDetails: {
-                  userId: user?._id || undefined,
-                  customer: {
-                    name: formData.name,
-                    email: formData.email,
-                    phone: formData.phone,
-                    address: {
-                      doorNo: formData.doorNo,
-                      street: formData.street,
-                      landmark: formData.landmark,
-                      city: formData.city,
-                      state: formData.state,
-                      pincode: formData.pincode,
-                    },
-                  },
-                  items: checkoutItems.map((i) => ({
-                    productId: i.productId,
-                    title: i.title,
-                    weight: i.weight,
-                    price: i.price,
-                    quantity: i.quantity,
-                    image: i.image,
-                  })),
-                  pricing: {
-                    subtotal,
-                    shippingFee,
-                    discount: 0,
-                    totalAmount: grandTotal,
+      // Step 2: Open Razorpay Modal
+      openRazorpayModal({
+        keyId: keyId || 'rzp_test_TfsAvrbG1O9sYj',
+        orderId: razorpayOrder.id,
+        amount: grandTotal,
+        customer: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData,
+        },
+        onSuccess: async (paymentResponse) => {
+          try {
+            // Step 3: Verify Signature & Save in MongoDB with userId
+            const verifyRes = await api.post('/api/payment/verify', {
+              razorpay_order_id: paymentResponse.razorpay_order_id,
+              razorpay_payment_id: paymentResponse.razorpay_payment_id,
+              razorpay_signature: paymentResponse.razorpay_signature,
+              orderDetails: {
+                userId: user?._id || undefined,
+                customer: {
+                  name: formData.name,
+                  email: formData.email,
+                  phone: formData.phone,
+                  address: {
+                    doorNo: formData.doorNo,
+                    street: formData.street,
+                    landmark: formData.landmark,
+                    city: formData.city,
+                    state: formData.state,
+                    pincode: formData.pincode,
                   },
                 },
-              });
+                items: checkoutItems.map((i) => ({
+                  productId: i.productId,
+                  title: i.title,
+                  weight: i.weight,
+                  price: i.price,
+                  quantity: i.quantity,
+                  image: i.image,
+                })),
+                pricing: {
+                  subtotal,
+                  shippingFee,
+                  discount: 0,
+                  totalAmount: grandTotal,
+                },
+              },
+            });
 
-              if (verifyRes.data.success) {
-                if (isBuyNow) {
-                  try {
-                    sessionStorage.removeItem('Nathan_buy_now_item');
-                  } catch (e) {}
-                } else {
-                  clearCart();
-                }
-                navigate(`/order-success/${verifyRes.data.orderId}`, {
-                  state: { order: verifyRes.data.order },
-                });
-              } else {
-                setErrorMessage(verifyRes.data.message || 'Payment verification failed');
-                setProcessing(false);
-              }
-            } catch (err) {
-              console.error('Verification error:', err);
+            if (verifyRes.data.success) {
               if (isBuyNow) {
                 try {
                   sessionStorage.removeItem('Nathan_buy_now_item');
@@ -253,62 +236,31 @@ const CheckoutPage = () => {
               } else {
                 clearCart();
               }
-              const simulatedId = `NC-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-              navigate(`/order-success/${simulatedId}`);
+              navigate(`/order-success/${verifyRes.data.orderId}`, {
+                state: { order: verifyRes.data.order },
+              });
+            } else {
+              setErrorMessage(verifyRes.data.message || 'Payment verification failed');
+              setProcessing(false);
             }
-          },
-          onFailure: (err) => {
-            setErrorMessage(err.description || err.message || 'Payment was cancelled or failed. Please retry.');
-            setProcessing(false);
-          },
-        });
-      } else {
-        // COD / Direct Order Flow with userId attached
-        const codRes = await api.post('/api/orders', {
-          userId: user?._id || undefined,
-          customer: {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            address: {
-              doorNo: formData.doorNo,
-              street: formData.street,
-              landmark: formData.landmark,
-              city: formData.city,
-              state: formData.state,
-              pincode: formData.pincode,
-            },
-          },
-          items: checkoutItems.map((i) => ({
-            productId: i.productId,
-            title: i.title,
-            weight: i.weight,
-            price: i.price,
-            quantity: i.quantity,
-            image: i.image,
-          })),
-          pricing: {
-            subtotal,
-            shippingFee,
-            discount: 0,
-            totalAmount: grandTotal,
-          },
-          paymentMethod: 'cod',
-        });
-
-        if (codRes.data.success) {
-          if (isBuyNow) {
-            try {
-              sessionStorage.removeItem('Nathan_buy_now_item');
-            } catch (e) {}
-          } else {
-            clearCart();
+          } catch (err) {
+            console.error('Verification error:', err);
+            if (isBuyNow) {
+              try {
+                sessionStorage.removeItem('Nathan_buy_now_item');
+              } catch (e) {}
+            } else {
+              clearCart();
+            }
+            const simulatedId = `NC-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+            navigate(`/order-success/${simulatedId}`);
           }
-          navigate(`/order-success/${codRes.data.data.orderId}`, {
-            state: { order: codRes.data.data },
-          });
-        }
-      }
+        },
+        onFailure: (err) => {
+          setErrorMessage(err.description || err.message || 'Payment was cancelled or failed. Please retry.');
+          setProcessing(false);
+        },
+      });
     } catch (error) {
       console.error('Checkout processing error:', error);
       setErrorMessage(error.message || 'Failed to process order. Please try again.');
@@ -600,21 +552,18 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Razorpay Option */}
-                  <label
-                    className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'razorpay'
-                        ? 'border-brand-pink-600 bg-brand-pink-50/50 shadow-sm'
-                        : 'border-brand-coffee-200 hover:border-brand-pink-300'
-                      }`}
+                  {/* Razorpay Online Payment Option */}
+                  <div
+                    className="flex items-center justify-between p-4 rounded-2xl border-2 border-brand-pink-600 bg-brand-pink-50/50 shadow-sm"
                   >
                     <div className="flex items-center gap-3">
                       <input
                         type="radio"
                         name="paymentMethod"
                         value="razorpay"
-                        checked={paymentMethod === 'razorpay'}
-                        onChange={() => setPaymentMethod('razorpay')}
-                        className="text-brand-pink-600 focus:ring-brand-pink-500 w-4 h-4"
+                        checked={true}
+                        readOnly
+                        className="text-brand-pink-600 focus:ring-brand-pink-500 w-4 h-4 cursor-default"
                       />
                       <div>
                         <div className="flex items-center gap-2">
@@ -633,34 +582,7 @@ const CheckoutPage = () => {
                     <div className="text-xs font-black text-brand-pink-600 bg-white px-2.5 py-1 rounded-lg border border-brand-pink-200 shadow-xs">
                       100% SECURE
                     </div>
-                  </label>
-
-                  {/* Cash on Delivery Option */}
-                  <label
-                    className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'cod'
-                        ? 'border-brand-pink-600 bg-brand-pink-50/50 shadow-sm'
-                        : 'border-brand-coffee-200 hover:border-brand-pink-300'
-                      }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="cod"
-                        checked={paymentMethod === 'cod'}
-                        onChange={() => setPaymentMethod('cod')}
-                        className="text-brand-pink-600 focus:ring-brand-pink-500 w-4 h-4"
-                      />
-                      <div>
-                        <span className="text-sm font-bold text-brand-coffee-950">
-                          Cash on Delivery (COD)
-                        </span>
-                        <p className="text-xs text-brand-coffee-600 mt-0.5">
-                          Pay in cash or UPI when your coffee arrives at your doorstep
-                        </p>
-                      </div>
-                    </div>
-                  </label>
+                  </div>
                 </div>
 
                 {/* Razorpay Trust Badge */}
@@ -684,9 +606,7 @@ const CheckoutPage = () => {
                     ? 'Connecting to Secure Gateway...'
                     : !isUserAuthenticated
                       ? 'Login with Mobile to Complete Order'
-                      : paymentMethod === 'razorpay'
-                        ? `Pay ₹${grandTotal} with Razorpay`
-                        : `Confirm COD Order (₹${grandTotal})`}
+                      : `Pay ₹${grandTotal} with Razorpay`}
                 </span>
                 <ArrowRight className="w-4 h-4" />
               </button>

@@ -99,7 +99,7 @@ const AdminDashboardPage = () => {
               </h3>
               <p className="text-[11px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Verified Razorpay & COD Sales
+                Verified Razorpay Online Sales
               </p>
             </div>
           </div>

@@ -38,7 +38,7 @@ const SEOMeta = ({
     email: 'info@Nathancoffee.com',
     priceRange: '₹₹',
     currenciesAccepted: 'INR',
-    paymentAccepted: 'Cash, Credit Card, Debit Card, UPI, Net Banking, Razorpay',
+    paymentAccepted: 'Credit Card, Debit Card, UPI, Net Banking, Razorpay',
     address: [
       {
         '@type': 'PostalAddress',

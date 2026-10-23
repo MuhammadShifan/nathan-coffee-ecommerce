@@ -6,11 +6,18 @@ import { protectAdmin, protectUser, protectUserOptional } from '../middleware/au
 const router = express.Router();
 
 // @route   POST /api/orders
-// @desc    Create new customer order (COD or Direct)
+// @desc    Create new customer order (Direct/Online only)
 // @access  Public / Authenticated
 router.post('/', protectUserOptional, async (req, res) => {
   try {
-    const { customer, items, pricing, paymentMethod = 'cod', userId } = req.body;
+    const { customer, items, pricing, paymentMethod = 'razorpay', userId } = req.body;
+
+    if (paymentMethod === 'cod') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cash on Delivery (COD) is not available. Please pay securely online via Razorpay.',
+      });
+    }
 
     if (!items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'No order items' });
