@@ -196,7 +196,7 @@ const HomePage = () => {
                           </span>
                           <span className="text-xs font-extrabold text-brand-coffee-950 truncate">Pure Filter Blend</span>
                         </div>
-                        <p className="text-[10px] sm:text-[11px] text-brand-coffee-700 truncate">₹299 for 250g Kraft Zip Pack</p>
+                        <p className="text-[10px] sm:text-[11px] text-brand-coffee-700 truncate">₹399 for 250g Kraft Zip Pack</p>
                       </div>
                       <Link
                         to="/shop"
@@ -210,8 +210,8 @@ const HomePage = () => {
 
                   {/* Stamp Badge */}
                   <div className="absolute -top-3 sm:-top-4 -right-2 sm:-right-4 bg-brand-yellow-400 text-brand-coffee-950 p-2.5 sm:p-3 rounded-2xl shadow-xl border-2 border-white ring-2 ring-brand-yellow-500 font-extrabold text-xs text-center rotate-6">
-                    <p className="font-black text-xs sm:text-sm">₹299</p>
-                    <p className="text-[9px] sm:text-[10px] uppercase font-bold">Starting Price</p>
+                    <p className="font-black text-xs sm:text-sm">₹399</p>
+                    <p className="text-[9px] sm:text-[10px] uppercase font-bold">Pure 250g Pack</p>
                   </div>
                 </motion.div>
               </div>

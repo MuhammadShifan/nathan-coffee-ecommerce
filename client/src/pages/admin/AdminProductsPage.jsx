@@ -47,7 +47,7 @@ const AdminProductsPage = () => {
     description: '',
     category: 'pure_coffee',
     variants: [
-      { weight: '250g', price: 299, mrp: 340, image: '/images/250g front.png' },
+      { weight: '250g', price: 399, mrp: 450, image: '/images/250g front.png' },
     ],
     images: ['/images/250g front.png', '/images/250g back.png'],
     inStock: true,
@@ -245,7 +245,7 @@ const AdminProductsPage = () => {
       description: '',
       category: 'pure_coffee',
       variants: [
-        { weight: '250g', price: 299, mrp: 340, image: '/images/250g front.png' },
+        { weight: '250g', price: 399, mrp: 450, image: '/images/250g front.png' },
       ],
       images: ['/images/250g front.png', '/images/250g back.png'],
       inStock: true,
@@ -270,8 +270,8 @@ const AdminProductsPage = () => {
       : [
           {
             weight: product.weight || product.selectedWeight || '250g',
-            price: product.price || 299,
-            mrp: product.mrp || 340,
+            price: product.price || 399,
+            mrp: product.mrp || 450,
             image: product.image || (product.images && product.images[0]) || '',
             inStock: true,
           },
@@ -582,12 +582,12 @@ const AdminProductsPage = () => {
                                     }}
                                   />
                                 )}
-                                <span>{v?.weight || 'Pack'}: ₹{v?.price ?? product.price ?? 299}</span>
+                                <span>{v?.weight || 'Pack'}: ₹{v?.price ?? product.price ?? 399}</span>
                               </span>
                             ))
                           ) : (
                             <span className="text-[11px] bg-brand-coffee-100 px-2 py-0.5 rounded-md font-bold text-brand-coffee-800 border border-brand-coffee-200">
-                              {product.weight || product.selectedWeight || '250g'}: ₹{product.price || 299}
+                              {product.weight || product.selectedWeight || '250g'}: ₹{product.price || 399}
                             </span>
                           )}
                         </div>
@@ -598,7 +598,7 @@ const AdminProductsPage = () => {
                         {(() => {
                           const vars = Array.isArray(product.variants) && product.variants.length > 0 ? product.variants : [];
                           const prices = vars.map((v) => Number(v?.price) || 0).filter((p) => p > 0);
-                          const lowest = prices.length > 0 ? Math.min(...prices) : product.price || 299;
+                          const lowest = prices.length > 0 ? Math.min(...prices) : product.price || 399;
                           const highest = prices.length > 0 ? Math.max(...prices) : lowest;
                           return (
                             <div>
@@ -769,7 +769,7 @@ const AdminProductsPage = () => {
                               type="number"
                               required
                               min="1"
-                              placeholder="299"
+                              placeholder="399"
                               value={variant.price}
                               onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
                               className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-950 text-xs font-semibold"

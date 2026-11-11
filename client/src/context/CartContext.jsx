@@ -45,8 +45,8 @@ export const CartProvider = ({ children }) => {
       product.variants?.find((v) => v.weight === targetWeight) ||
       product.variants?.[0] || {
         weight: targetWeight,
-        price: Number(product.price) || 299,
-        mrp: Number(product.mrp) || 340,
+        price: Number(product.price) || 399,
+        mrp: Number(product.mrp) || 450,
       };
 
     const effectiveWeight = variant.weight || targetWeight;
@@ -116,8 +116,8 @@ export const CartProvider = ({ children }) => {
   // Calculations
   const totalItemsCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  // Free delivery over ₹500, else ₹40 standard delivery charge
-  const shippingFee = subtotal >= 500 || subtotal === 0 ? 0 : 40;
+  // Standard delivery charge of ₹40 when cart has items
+  const shippingFee = subtotal === 0 ? 0 : 40;
   const grandTotal = subtotal + shippingFee;
 
   return (

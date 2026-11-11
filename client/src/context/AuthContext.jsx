@@ -130,12 +130,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
-   * Request OTP for a 10-digit mobile number
+   * Request OTP for a 10-digit mobile number via 2Factor
    */
-  const sendOtp = async (mobileNumber) => {
+  const sendOtp = async (phoneNumber) => {
     setUserLoading(true);
     try {
-      const res = await api.post('/api/auth/send-otp', { mobileNumber });
+      const res = await api.post('/api/auth/send-otp', {
+        phoneNumber,
+        mobileNumber: phoneNumber,
+      });
       setUserLoading(false);
       return res.data;
     } catch (error) {
@@ -146,15 +149,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
-   * Verify Firebase token and log the user in
+   * Verify OTP via 2Factor and log the user in
    */
-  const verifyOtp = async (firebaseToken, extraData = {}) => {
+  const verifyOtp = async (phoneNumber, otp, sessionId) => {
     setUserLoading(true);
     try {
-      const payload = typeof firebaseToken === 'object'
-        ? firebaseToken
-        : { firebaseToken, ...extraData };
-      const res = await api.post('/api/auth/verifyOTP', payload);
+      const payload = typeof phoneNumber === 'object'
+        ? phoneNumber
+        : { phoneNumber, otp, sessionId };
+      const res = await api.post('/api/auth/verify-otp', payload);
 
       if (res.data.success && res.data.token) {
         const receivedUser = res.data.user;

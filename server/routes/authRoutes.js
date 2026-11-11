@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import express from 'express';
+import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Order from '../models/Order.js';
 import { protectUser } from '../middleware/auth.js';
-import { auth } from '../config/firebaseAdmin.js';
 
 const router = express.Router();
 
@@ -13,129 +13,214 @@ const JWT_SECRET = process.env.JWT_SECRET || 'nadhan_coffee_super_secret_jwt_key
 // Helper to sanitize & extract 10-digit mobile number
 const formatMobileNumber = (rawNumber) => {
   if (!rawNumber) return '';
-  // Remove all non-digits
   const digitsOnly = String(rawNumber).replace(/\D/g, '');
-  // Extract last 10 digits
   return digitsOnly.slice(-10);
 };
 
-// @route   POST /api/auth/verify-otp (and /verifyOTP)
-// @desc    Verify Firebase ID token, login/create user & return backend JWT token
+// @route   POST /api/auth/send-otp
+// @desc    Send SMS OTP using 2Factor.in AUTOGEN API
 // @access  Public
-const verifyOTP = async (req, res) => {
+const sendOTP = async (req, res) => {
   try {
-    const { firebaseToken, token: fallbackToken, name, email } = req.body;
-    const idToken = firebaseToken || fallbackToken;
-
-    if (!idToken) {
-      return res.status(400).json({
-        success: false,
-        message: 'Firebase authentication token is required',
-      });
-    }
-
-    // Verify the Firebase ID token
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const phoneNumber = decodedToken.phone_number;
-
-    if (!phoneNumber) {
-      return res.status(400).json({
-        success: false,
-        message: 'No phone number associated with this Firebase account',
-      });
-    }
-
-    // Sanitize to 10-digit mobile number
-    const cleanNumber = formatMobileNumber(phoneNumber);
+    const { phoneNumber, mobileNumber } = req.body;
+    const cleanNumber = formatMobileNumber(phoneNumber || mobileNumber);
 
     if (!cleanNumber || cleanNumber.length !== 10) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid phone number format in Firebase token',
+        message: 'Please provide a valid 10-digit Indian mobile number',
       });
     }
 
-    // Find existing user or create a new one
-    let user = await User.findOne({ mobileNumber: cleanNumber });
-
-    if (!user) {
-      user = new User({
-        mobileNumber: cleanNumber,
-        name: name || '',
-        email: email || '',
-        role: 'user',
-        lastLogin: new Date(),
+    const apiKey = process.env.TWO_FACTOR_API_KEY;
+    if (!apiKey) {
+      console.error('❌ TWO_FACTOR_API_KEY is not defined in environment variables');
+      return res.status(500).json({
+        success: false,
+        message: 'SMS service is currently unavailable. Please check server configuration.',
       });
-      await user.save();
-      console.log(`✨ [AUTH] New customer account created via Firebase Phone Auth: +91 ${cleanNumber}`);
-    } else {
-      user.lastLogin = new Date();
-      if (name && !user.name) user.name = name;
-      if (email && !user.email) user.email = email;
-      await user.save();
-      console.log(`🔓 [AUTH] Customer verified via Firebase Phone Auth & logged in: +91 ${cleanNumber}`);
     }
 
-    // Auto-link any past orders placed with this mobile number that are missing userId
-    try {
-      await Order.updateMany(
-        {
-          $and: [
-            {
-              $or: [
-                { 'customer.phone': { $regex: cleanNumber + '$' } },
-                { 'customer.phone': cleanNumber },
-              ],
-            },
-            {
-              $or: [
-                { userId: { $exists: false } },
-                { userId: null },
-              ],
-            },
-          ],
-        },
-        { $set: { userId: user._id } }
-      );
-    } catch (linkErr) {
-      console.warn('Failed to auto-link past orders on login:', linkErr.message);
+    // Call 2Factor.in AUTOGEN endpoint
+    const url = `https://2factor.in/API/V1/${apiKey}/SMS/${cleanNumber}/AUTOGEN`;
+    console.log(`📡 [2Factor] Sending OTP to +91 ${cleanNumber}`);
+
+    const response = await axios.get(url, { timeout: 10000 });
+
+    if (response.data && response.data.Status === 'Success') {
+      const sessionId = response.data.Details;
+      console.log(`✅ [2Factor] OTP sent successfully. SessionId: ${sessionId}`);
+
+      return res.json({
+        success: true,
+        message: `OTP sent successfully to +91 ${cleanNumber}`,
+        sessionId: sessionId,
+      });
     }
 
-    // Generate backend JWT token (valid for 30 days)
-    const backendJwt = jwt.sign(
-      {
-        id: user._id,
-        mobileNumber: user.mobileNumber,
-        role: user.role,
-      },
-      JWT_SECRET,
-      { expiresIn: '30d' }
-    );
-
-    return res.json({
-      success: true,
-      message: 'Phone number verified successfully!',
-      token: backendJwt,
-      user: {
-        _id: user._id,
-        mobileNumber: user.mobileNumber,
-        name: user.name,
-        email: user.email,
-        addresses: user.addresses || [],
-        role: user.role,
-        createdAt: user.createdAt,
-      },
+    // Handle 2Factor error response
+    console.warn('⚠️ [2Factor] Send OTP Error:', response.data);
+    return res.status(400).json({
+      success: false,
+      message: response.data?.Details || 'Failed to send OTP. Please try again.',
     });
   } catch (error) {
-    console.error('Verify Firebase Token Error:', error);
-    return res.status(401).json({
+    const errMsg = error.response?.data?.Details || error.response?.data?.message || error.message;
+    console.error('❌ [2Factor] Send OTP Exception:', errMsg);
+
+    return res.status(error.response?.status || 500).json({
       success: false,
-      message: error.message || 'Firebase authentication failed',
-      error: error.message,
+      message: errMsg || 'Failed to send OTP via SMS',
     });
   }
 };
 
+// @route   POST /api/auth/verify-otp
+// @desc    Verify SMS OTP using 2Factor.in VERIFY API & login/create user
+// @access  Public
+const verifyOTP = async (req, res) => {
+  try {
+    const { phoneNumber, mobileNumber, otp, otpCode, sessionId } = req.body;
+    const cleanNumber = formatMobileNumber(phoneNumber || mobileNumber);
+    const code = String(otp || otpCode || '').trim();
+
+    if (!cleanNumber || cleanNumber.length !== 10) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid 10-digit Indian mobile number',
+      });
+    }
+
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Session ID is required to verify OTP. Please request a new OTP.',
+      });
+    }
+
+    if (!code || code.length < 4) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter the complete OTP sent to your phone',
+      });
+    }
+
+    const apiKey = process.env.TWO_FACTOR_API_KEY;
+    if (!apiKey) {
+      console.error('❌ TWO_FACTOR_API_KEY is not defined in environment variables');
+      return res.status(500).json({
+        success: false,
+        message: 'SMS service configuration missing on server',
+      });
+    }
+
+    // Call 2Factor.in VERIFY endpoint
+    const url = `https://2factor.in/API/V1/${apiKey}/SMS/VERIFY/${sessionId}/${code}`;
+    console.log(`📡 [2Factor] Verifying OTP for sessionId: ${sessionId}`);
+
+    const response = await axios.get(url, { timeout: 10000 });
+
+    if (response.data && response.data.Details === 'OTP Matched') {
+      console.log(`✅ [2Factor] OTP matched successfully for +91 ${cleanNumber}`);
+
+      // Find existing user or create a new user
+      let user = await User.findOne({ mobileNumber: cleanNumber });
+
+      if (!user) {
+        user = new User({
+          mobileNumber: cleanNumber,
+          role: 'user',
+          lastLogin: new Date(),
+        });
+        await user.save();
+        console.log(`✨ [AUTH] New customer account created: +91 ${cleanNumber}`);
+      } else {
+        user.lastLogin = new Date();
+        await user.save();
+        console.log(`🔓 [AUTH] Customer verified & logged in: +91 ${cleanNumber}`);
+      }
+
+      // Auto-link any past orders placed with this mobile number that are missing userId
+      try {
+        await Order.updateMany(
+          {
+            $and: [
+              {
+                $or: [
+                  { 'customer.phone': { $regex: cleanNumber + '$' } },
+                  { 'customer.phone': cleanNumber },
+                ],
+              },
+              {
+                $or: [
+                  { userId: { $exists: false } },
+                  { userId: null },
+                ],
+              },
+            ],
+          },
+          { $set: { userId: user._id } }
+        );
+      } catch (linkErr) {
+        console.warn('Failed to auto-link past orders on login:', linkErr.message);
+      }
+
+      // Generate backend JWT token (valid for 30 days)
+      const token = jwt.sign(
+        {
+          id: user._id,
+          mobileNumber: user.mobileNumber,
+          role: user.role,
+        },
+        JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+
+      return res.json({
+        success: true,
+        message: 'OTP verified successfully',
+        token,
+        user: {
+          _id: user._id,
+          mobileNumber: user.mobileNumber,
+          name: user.name,
+          email: user.email,
+          addresses: user.addresses || [],
+          role: user.role,
+          createdAt: user.createdAt,
+        },
+      });
+    }
+
+    // If 2Factor responds with something other than 'OTP Matched'
+    const failDetail = response.data?.Details || 'Invalid OTP';
+    console.warn(`⚠️ [2Factor] Verification rejected:`, failDetail);
+
+    return res.status(400).json({
+      success: false,
+      message: failDetail === 'OTP Mismatched' ? 'Incorrect OTP. Please check and retry.' : failDetail,
+    });
+  } catch (error) {
+    const errMsg = error.response?.data?.Details || error.response?.data?.message || error.message;
+    console.error('❌ [2Factor] Verify OTP Exception:', errMsg);
+
+    const isMismatch = String(errMsg).toLowerCase().includes('mismatch') || String(errMsg).toLowerCase().includes('incorrect');
+    const isExpired = String(errMsg).toLowerCase().includes('expire');
+
+    return res.status(400).json({
+      success: false,
+      message: isMismatch
+        ? 'Incorrect verification code. Please check and re-enter.'
+        : isExpired
+        ? 'The OTP has expired. Please request a new one.'
+        : errMsg || 'OTP verification failed',
+    });
+  }
+};
+
+// Route definitions (with aliases for standard conventions)
+router.post('/send-otp', sendOTP);
+router.post('/sendOTP', sendOTP);
 router.post('/verify-otp', verifyOTP);
 router.post('/verifyOTP', verifyOTP);
 
@@ -173,7 +258,6 @@ router.put('/profile', protectUser, async (req, res) => {
     if (email !== undefined) user.email = email;
 
     if (address) {
-      // Add or update primary address
       if (!user.addresses) user.addresses = [];
       user.addresses.unshift({
         doorNo: address.doorNo || '',
@@ -184,7 +268,6 @@ router.put('/profile', protectUser, async (req, res) => {
         pincode: address.pincode || '',
         isDefault: true,
       });
-      // Keep only up to 5 recent addresses
       user.addresses = user.addresses.slice(0, 5);
     }
 

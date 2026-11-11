@@ -147,7 +147,7 @@ router.get('/orders/stats/summary', protectAdmin, async (req, res) => {
     const paidOrders = await Order.find({ 'payment.status': 'paid' });
     const totalRevenue = paidOrders.reduce((sum, order) => sum + (order.pricing?.totalAmount || 0), 0);
     const activeProducts = await Product.countDocuments({ inStock: true });
-    const pendingOrders = await Order.countDocuments({ orderStatus: 'processing' });
+    const pendingOrders = await Order.countDocuments({ orderStatus: { $in: ['Placed', 'processing'] } });
     const dispatchedOrders = await Order.countDocuments({ orderStatus: 'dispatched' });
     const deliveredOrders = await Order.countDocuments({ orderStatus: 'delivered' });
 

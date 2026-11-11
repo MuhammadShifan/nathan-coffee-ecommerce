@@ -138,6 +138,7 @@ const AdminOrdersPage = () => {
 
   const filterTabs = [
     { key: 'all', label: 'All Orders' },
+    { key: 'Placed', label: 'Placed' },
     { key: 'processing', label: 'Processing' },
     { key: 'dispatched', label: 'Dispatched' },
     { key: 'delivered', label: 'Delivered' },
@@ -365,7 +366,11 @@ const AdminOrdersPage = () => {
                                 : 'bg-amber-100 text-amber-800 border border-amber-200'
                             }`}
                           >
-                            {order.payment?.method === 'cod' ? 'COD' : (order.payment?.method === 'cashfree' ? 'Cashfree' : (order.payment?.method || 'Online'))}: {order.payment?.status || 'pending'}
+                            {order.paymentMethod === 'COD' || order.payment?.method === 'cod'
+                              ? 'COD'
+                              : order.paymentMethod === 'Prepaid' || order.payment?.method === 'cashfree'
+                                ? 'Prepaid (Cashfree)'
+                                : order.payment?.method || 'Online'}: {order.payment?.status || 'pending'}
                           </span>
 
                           <div className="flex items-center gap-1">
@@ -381,7 +386,7 @@ const AdminOrdersPage = () => {
 
                         {/* Total Amount */}
                         <td className="p-4 font-black text-brand-coffee-950 text-sm">
-                          ₹{order.pricing?.totalAmount || 0}
+                          ₹{order.finalTotal ?? order.pricing?.totalAmount ?? 0}
                         </td>
 
                         {/* Status Dropdown & Update Button */}
@@ -392,6 +397,7 @@ const AdminOrdersPage = () => {
                               onChange={(e) => handleStatusSelectChange(order._id, e.target.value)}
                               className="bg-brand-coffee-50 border border-brand-coffee-200 text-brand-coffee-900 text-xs font-bold rounded-lg px-2 py-1 focus:ring-1 focus:ring-brand-pink-500 focus:outline-none"
                             >
+                              <option value="Placed">Placed</option>
                               <option value="processing">Processing</option>
                               <option value="dispatched">Dispatched</option>
                               <option value="delivered">Delivered</option>

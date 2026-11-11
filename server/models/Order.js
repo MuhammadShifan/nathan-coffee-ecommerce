@@ -62,9 +62,30 @@ const orderSchema = new mongoose.Schema(
     items: [orderItemSchema],
     pricing: {
       subtotal: { type: Number, required: true },
-      shippingFee: { type: Number, default: 0 },
+      shippingFee: { type: Number, default: 40 },
+      codFee: { type: Number, default: 0 },
       discount: { type: Number, default: 0 },
       totalAmount: { type: Number, required: true },
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['Prepaid', 'COD'],
+      default: 'Prepaid',
+    },
+    deliveryCharge: {
+      type: Number,
+      default: 40,
+      min: 0,
+    },
+    codFee: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    finalTotal: {
+      type: Number,
+      required: true,
+      min: 0,
     },
     payment: {
       status: {
@@ -87,8 +108,8 @@ const orderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: ['processing', 'dispatched', 'delivered', 'cancelled'],
-      default: 'processing',
+      enum: ['Placed', 'processing', 'dispatched', 'delivered', 'cancelled'],
+      default: 'Placed',
     },
     trackingNumber: {
       type: String,

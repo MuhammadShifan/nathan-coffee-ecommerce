@@ -78,7 +78,9 @@ const OrderSuccessPage = () => {
 
           <div className="space-y-2">
             <span className="bg-emerald-100 text-emerald-800 text-xs font-black uppercase px-3 py-1 rounded-full border border-emerald-300">
-              Payment & Order Successful
+              {order?.paymentMethod === 'COD' || order?.payment?.method === 'cod'
+                ? 'Cash on Delivery Order Placed'
+                : 'Payment & Order Successful'}
             </span>
             <h1 className="text-2xl sm:text-4xl font-extrabold text-brand-coffee-950">
               Thank You for Your Order!
@@ -145,7 +147,11 @@ const OrderSuccessPage = () => {
                 ✓
               </div>
               <p className="text-xs font-extrabold text-emerald-900">Order Placed</p>
-              <p className="text-[10px] text-emerald-700">Payment Verified</p>
+              <p className="text-[10px] text-emerald-700">
+                {order?.paymentMethod === 'COD' || order?.payment?.method === 'cod'
+                  ? 'Pay Cash on Delivery'
+                  : 'Payment Verified'}
+              </p>
             </div>
 
             <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
@@ -169,7 +175,7 @@ const OrderSuccessPage = () => {
                 🏠
               </div>
               <p className="text-xs font-bold text-brand-coffee-900">Door Delivery</p>
-              <p className="text-[10px] text-brand-coffee-600">Across India</p>
+              <p className="text-[10px] text-brand-coffee-600">Across Tamil Nadu</p>
             </div>
           </div>
         </div>
@@ -209,12 +215,24 @@ const OrderSuccessPage = () => {
                 </p>
                 <p>
                   <strong>Payment Method:</strong>{' '}
-                  <span className="capitalize">{order.payment?.method === 'cashfree' ? 'Cashfree Payments' : (order.payment?.method || 'Cashfree Online')}</span>
+                  <span>
+                    {order.paymentMethod === 'COD' || order.payment?.method === 'cod'
+                      ? 'Cash on Delivery (COD)'
+                      : 'Online Payment (Prepaid • Cashfree)'}
+                  </span>
                 </p>
                 <p>
                   <strong>Payment Status:</strong>{' '}
-                  <span className="text-emerald-700 font-extrabold uppercase">
-                    {order.payment?.status || 'Paid'}
+                  <span
+                    className={`font-extrabold uppercase ${
+                      order.payment?.status === 'paid' ? 'text-emerald-700' : 'text-amber-700'
+                    }`}
+                  >
+                    {order.payment?.status === 'paid'
+                      ? 'Paid'
+                      : order.paymentMethod === 'COD' || order.payment?.method === 'cod'
+                        ? 'Pay on Delivery'
+                        : order.payment?.status || 'Pending'}
                   </span>
                 </p>
                 {(order.payment?.cfPaymentId || order.payment?.razorpayPaymentId) && (
@@ -251,10 +269,37 @@ const OrderSuccessPage = () => {
                   ))}
                 </div>
 
+                <div className="pt-3 border-t border-brand-coffee-100 space-y-1.5 text-xs text-brand-coffee-700">
+                  {order.pricing?.subtotal !== undefined && (
+                    <div className="flex justify-between">
+                      <span>Subtotal:</span>
+                      <span className="font-bold text-brand-coffee-900">₹{order.pricing.subtotal}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span>Delivery Charge:</span>
+                    <span className="font-bold text-brand-coffee-900">
+                      ₹{order.deliveryCharge ?? order.pricing?.shippingFee ?? 40}
+                    </span>
+                  </div>
+                  {(order.codFee > 0 || order.paymentMethod === 'COD' || order.payment?.method === 'cod') && (
+                    <div className="flex justify-between">
+                      <span>COD Handling Fee:</span>
+                      <span className="font-bold text-amber-800">
+                        ₹{order.codFee ?? order.pricing?.codFee ?? 40}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
                 <div className="pt-3 border-t-2 border-brand-coffee-200 flex justify-between text-sm font-black text-brand-coffee-950">
-                  <span>Grand Total Paid:</span>
+                  <span>
+                    {order.paymentMethod === 'COD' || order.payment?.method === 'cod'
+                      ? 'Final Payable (COD):'
+                      : 'Grand Total Paid:'}
+                  </span>
                   <span className="text-brand-pink-600 text-base">
-                    ₹{order.pricing?.totalAmount || 299}
+                    ₹{order.finalTotal ?? order.pricing?.totalAmount ?? 439}
                   </span>
                 </div>
               </div>

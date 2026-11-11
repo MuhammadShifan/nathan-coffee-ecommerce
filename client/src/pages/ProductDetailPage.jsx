@@ -273,16 +273,16 @@ const ProductDetailPage = () => {
     : [
         {
           weight: product?.weight || product?.selectedWeight || '250g',
-          price: product?.price || 299,
-          mrp: product?.mrp || 340,
+          price: product?.price || 399,
+          mrp: product?.mrp || 450,
           inStock: true,
         },
       ];
 
   const currentVariant = variants.find((v) => v.weight === selectedWeight) || variants[0] || {
     weight: selectedWeight,
-    price: product?.price || 299,
-    mrp: product?.mrp || 340,
+    price: product?.price || 399,
+    mrp: product?.mrp || 450,
     inStock: true,
   };
 

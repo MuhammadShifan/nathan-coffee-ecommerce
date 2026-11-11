@@ -2,24 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Phone,
   ShieldCheck,
-  CheckCircle2,
   AlertCircle,
   RefreshCw,
   ArrowRight,
   Edit2,
   Lock,
 } from 'lucide-react';
-import { auth } from '../firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import api from '../services/api';
 
 /**
  * PhoneAuth Component
- * Takes an Indian mobile number (+91), implements invisible RecaptchaVerifier,
- * sends SMS OTP via Firebase Phone Auth, and verifies the OTP with the backend.
+ * Takes an Indian mobile number (+91), uses 2Factor.in SMS OTP API,
+ * and verifies the OTP with the backend to receive the authentication JWT.
  *
  * @param {Object} props
- * @param {Function} [props.onSuccess] - Callback when verification succeeds: (data: { token, user, firebaseToken, phoneNumber }) => void
+ * @param {Function} [props.onSuccess] - Callback when verification succeeds: (data: { token, user, phoneNumber }) => void
  * @param {Function} [props.onCancel] - Optional cancel callback
  * @param {string} [props.initialPhone] - Pre-filled 10-digit phone
  * @param {string} [props.title] - Custom title
@@ -38,13 +35,13 @@ const PhoneAuth = ({
   const [mobileNumber, setMobileNumber] = useState(
     initialPhone ? initialPhone.replace(/\D/g, '').slice(-10) : ''
   );
+  const [sessionId, setSessionId] = useState('');
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
   const [errorMessage, setErrorMessage] = useState('');
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const phoneInputRef = useRef(null);
   const inputRefs = [
@@ -56,40 +53,8 @@ const PhoneAuth = ({
     useRef(null),
   ];
 
-  // Safely cleanup reCAPTCHA
-  const resetRecaptcha = () => {
-    if (typeof window !== 'undefined' && window.recaptchaVerifier) {
-      try {
-        window.recaptchaVerifier.clear();
-      } catch (e) {
-        // ignore
-      }
-      window.recaptchaVerifier = null;
-    }
-  };
-
-  // Setup invisible RecaptchaVerifier
-  const setupRecaptcha = () => {
-    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'phone-auth-recaptcha-container', {
-        size: 'invisible',
-        callback: () => {
-          // reCAPTCHA solved
-        },
-        'expired-callback': () => {
-          setErrorMessage('Security verification expired. Please send OTP again.');
-        },
-      });
-    }
-    return window.recaptchaVerifier;
-  };
-
-  // Focus input on mount & reset recaptcha on unmount
   useEffect(() => {
     phoneInputRef.current?.focus();
-    return () => {
-      resetRecaptcha();
-    };
   }, []);
 
   // Resend Countdown Timer
@@ -109,7 +74,6 @@ const PhoneAuth = ({
     return () => clearInterval(timer);
   }, [step, resendTimer]);
 
-  // Handle phone input formatting (digits only, max 10)
   const handlePhoneChange = (e) => {
     const rawVal = e.target.value.replace(/\D/g, '');
     if (rawVal.length <= 10) {
@@ -118,7 +82,7 @@ const PhoneAuth = ({
     }
   };
 
-  // Step 1: Send SMS OTP
+  // Step 1: Send SMS OTP via 2Factor.in
   const handleSendOtp = async (e) => {
     e?.preventDefault();
     setErrorMessage('');
@@ -130,35 +94,27 @@ const PhoneAuth = ({
 
     setSendingOtp(true);
     try {
-      const appVerifier = setupRecaptcha();
-      const formattedPhoneNumber = `+91${mobileNumber}`;
+      const res = await api.post('/api/auth/send-otp', {
+        phoneNumber: mobileNumber,
+        mobileNumber: mobileNumber,
+      });
 
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier);
-      setConfirmationResult(confirmation);
+      if (res.data && res.data.success && res.data.sessionId) {
+        setSessionId(res.data.sessionId);
+        setStep('otp');
+        setResendTimer(30);
+        setCanResend(false);
 
-      setStep('otp');
-      setResendTimer(30);
-      setCanResend(false);
-
-      setTimeout(() => {
-        inputRefs[0].current?.focus();
-      }, 150);
-    } catch (err) {
-      console.error('Firebase signInWithPhoneNumber Error:', err);
-      resetRecaptcha();
-
-      let friendlyMsg = 'Failed to send SMS OTP. Please check your network and try again.';
-      if (err.code === 'auth/invalid-phone-number') {
-        friendlyMsg = 'Invalid mobile number. Please check the 10-digit number.';
-      } else if (err.code === 'auth/too-many-requests') {
-        friendlyMsg = 'Too many attempts. Please wait a few moments before trying again.';
-      } else if (err.code === 'auth/quota-exceeded') {
-        friendlyMsg = 'Daily SMS quota exceeded. Please try again tomorrow or contact support.';
-      } else if (err.message) {
-        friendlyMsg = err.message;
+        setTimeout(() => {
+          inputRefs[0].current?.focus();
+        }, 150);
+      } else {
+        setErrorMessage(res.data?.message || 'Failed to send OTP. Please try again.');
       }
-
-      setErrorMessage(friendlyMsg);
+    } catch (err) {
+      console.error('2Factor Send OTP Error:', err);
+      const msg = err.response?.data?.message || err.message || 'Failed to send SMS OTP. Please check your connection.';
+      setErrorMessage(msg);
     } finally {
       setSendingOtp(false);
     }
@@ -172,12 +128,10 @@ const PhoneAuth = ({
     setOtpValues(newOtp);
     setErrorMessage('');
 
-    // Advance focus
     if (char && index < 5) {
       inputRefs[index + 1].current?.focus();
     }
 
-    // Auto-verify when 6th digit entered
     const joined = newOtp.join('');
     if (joined.length === 6 && index === 5 && char) {
       handleVerifyOtp(joined);
@@ -207,7 +161,7 @@ const PhoneAuth = ({
     }
   };
 
-  // Step 2: Verify OTP
+  // Step 2: Verify OTP via 2Factor.in
   const handleVerifyOtp = async (otpToVerify) => {
     const code = otpToVerify || otpValues.join('');
     if (code.length !== 6) {
@@ -215,7 +169,7 @@ const PhoneAuth = ({
       return;
     }
 
-    if (!confirmationResult) {
+    if (!sessionId) {
       setErrorMessage('Verification session expired. Please request a new OTP.');
       return;
     }
@@ -224,23 +178,17 @@ const PhoneAuth = ({
     setVerifyingOtp(true);
 
     try {
-      // 1. Verify OTP code using Firebase Client SDK
-      const credential = await confirmationResult.confirm(code);
-      const firebaseUser = credential.user;
-
-      // 2. Obtain Firebase ID Token
-      const firebaseToken = await firebaseUser.getIdToken();
-
-      // 3. Post to backend to verify and link with MongoDB User model
-      const res = await api.post('/api/auth/verifyOTP', {
-        firebaseToken,
+      const res = await api.post('/api/auth/verify-otp', {
+        phoneNumber: mobileNumber,
+        mobileNumber: mobileNumber,
+        otp: code,
+        sessionId: sessionId,
       });
 
-      if (res.data && res.data.success) {
+      if (res.data && res.data.success && res.data.token) {
         const token = res.data.token;
         const user = res.data.user;
 
-        // Save backend session tokens
         if (token) {
           localStorage.setItem('Nathan_user_token', token);
         }
@@ -252,26 +200,16 @@ const PhoneAuth = ({
           onSuccess({
             token,
             user,
-            firebaseToken,
             phoneNumber: `+91${mobileNumber}`,
           });
         }
       } else {
-        setErrorMessage(res.data?.message || 'Server verification failed');
+        setErrorMessage(res.data?.message || 'Verification failed. Incorrect OTP.');
       }
     } catch (err) {
-      console.error('Firebase OTP Verification Error:', err);
-      let friendlyMsg = 'Invalid verification code. Please check and retry.';
-      if (err.code === 'auth/invalid-verification-code') {
-        friendlyMsg = 'Incorrect 6-digit code. Please check your SMS and re-enter.';
-      } else if (err.code === 'auth/code-expired') {
-        friendlyMsg = 'Verification code has expired. Please click Resend OTP.';
-      } else if (err.response?.data?.message) {
-        friendlyMsg = err.response.data.message;
-      } else if (err.message) {
-        friendlyMsg = err.message;
-      }
-      setErrorMessage(friendlyMsg);
+      console.error('2Factor OTP Verification Error:', err);
+      const msg = err.response?.data?.message || err.message || 'Invalid or expired OTP. Please try again.';
+      setErrorMessage(msg);
     } finally {
       setVerifyingOtp(false);
     }
@@ -279,9 +217,6 @@ const PhoneAuth = ({
 
   const content = (
     <div className="space-y-5">
-      {/* Invisible reCAPTCHA container required by Firebase */}
-      <div id="phone-auth-recaptcha-container"></div>
-
       <div className="space-y-1">
         <h3 className="text-lg sm:text-xl font-bold text-brand-coffee-950 flex items-center gap-2">
           <Phone className="w-5 h-5 text-brand-pink-600" />
@@ -325,7 +260,7 @@ const PhoneAuth = ({
             </div>
             <p className="text-[11px] text-brand-coffee-500 mt-1.5 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>We'll send an official Firebase 6-digit SMS OTP</span>
+              <span>Instant 6-digit SMS OTP via 2Factor.in</span>
             </p>
           </div>
 
@@ -455,4 +390,3 @@ const PhoneAuth = ({
 };
 
 export default PhoneAuth;
-

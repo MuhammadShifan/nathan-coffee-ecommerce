@@ -150,11 +150,11 @@ productSchema.pre('validate', function (next) {
 });
 
 productSchema.virtual('price').get(function () {
-  return this.variants && this.variants.length > 0 ? this.variants[0].price : 299;
+  return this.variants && this.variants.length > 0 ? this.variants[0].price : 399;
 });
 
 productSchema.virtual('mrp').get(function () {
-  return this.variants && this.variants.length > 0 ? this.variants[0].mrp : 340;
+  return this.variants && this.variants.length > 0 ? this.variants[0].mrp : 450;
 });
 
 productSchema.virtual('weightVariant').get(function () {

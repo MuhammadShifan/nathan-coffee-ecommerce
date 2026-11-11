@@ -203,6 +203,14 @@ const MyOrdersPage = () => {
             <span>Cancelled</span>
           </span>
         );
+      case 'Placed':
+      case 'placed':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Order Placed</span>
+          </span>
+        );
       case 'processing':
       default:
         return (
@@ -215,17 +223,17 @@ const MyOrdersPage = () => {
   };
 
   // Payment Badge Helper
-  const getPaymentBadge = (payment) => {
-    if (payment?.method === 'cod') {
+  const getPaymentBadge = (payment, paymentMethod) => {
+    if (paymentMethod === 'COD' || payment?.method === 'cod') {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-          💵 Cash on Delivery ({payment?.status === 'paid' ? 'Paid' : 'Pending'})
+          💵 Cash on Delivery ({payment?.status === 'paid' ? 'Paid' : 'Pay on Delivery'})
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-        💳 Paid Online ({payment?.method === 'cashfree' ? 'Cashfree' : (payment?.method || 'Online')})
+        💳 Paid Online ({paymentMethod === 'Prepaid' ? 'Prepaid • Cashfree' : (payment?.method === 'cashfree' ? 'Cashfree' : (payment?.method || 'Online'))})
       </span>
     );
   };
@@ -321,7 +329,7 @@ const MyOrdersPage = () => {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap pt-0.5">
-              {getPaymentBadge(order.payment)}
+              {getPaymentBadge(order.payment, order.paymentMethod)}
               {order.trackingNumber && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 text-blue-800 border border-blue-200">
                   🚚 Tracking: <strong>{order.trackingNumber}</strong>
@@ -401,7 +409,7 @@ const MyOrdersPage = () => {
                 Grand Total
               </span>
               <span className="text-lg sm:text-xl font-black text-brand-pink-700">
-                ₹{order.pricing?.totalAmount || 0}
+                ₹{order.finalTotal ?? order.pricing?.totalAmount ?? 0}
               </span>
             </div>
 

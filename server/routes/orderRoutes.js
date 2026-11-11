@@ -1,22 +1,114 @@
 import express from 'express';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
-import User from '../models/User.js';
 import { protectAdmin, protectUser, protectUserOptional } from '../middleware/auth.js';
+import { defaultProductsData } from './productRoutes.js';
+import { createCashfreeOrder } from '../utils/cashfreeClient.js';
+import {
+  isPrepaidPaymentMethod,
+  isValidTamilNaduPincode,
+  resolveAuthoritativeCart,
+  calculateCheckoutTotals,
+} from '../utils/pricing.js';
+import {
+  generateNathanOrderId,
+  generateTrackingNumber,
+  resolveEffectiveUserId,
+} from '../utils/orderHelpers.js';
 
 const router = express.Router();
 
+// @route   POST /api/orders/checkout
+// @desc    Validate Tamil Nadu pincode & cart totals server-side and create Cashfree Prepaid order
+// @access  Public / Authenticated
+router.post('/checkout', protectUserOptional, async (req, res) => {
+  try {
+    const { customer, items, paymentMethod: rawPaymentMethod, returnUrl } = req.body;
+
+    if (!isPrepaidPaymentMethod(rawPaymentMethod)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cash on Delivery (COD) is not available. Only Online Payment (Prepaid) is accepted.',
+      });
+    }
+
+    // Security check: restrict delivery strictly to Tamil Nadu pincodes (60xxxx - 64xxxx)
+    const incomingPincode = String(customer?.address?.pincode ?? req.body.pincode ?? '').trim();
+    if (!isValidTamilNaduPincode(incomingPincode)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Delivery restricted to Tamil Nadu only.',
+      });
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No order items provided for checkout.',
+      });
+    }
+
+    // Recompute authoritative cart items and Prepaid total strictly on backend (₹399 product + ₹40 delivery = ₹439)
+    const { verifiedItems, subtotal } = await resolveAuthoritativeCart(items, defaultProductsData);
+    const totals = calculateCheckoutTotals(subtotal);
+
+    const origin = req.headers.origin || `${req.protocol}://${req.get('host')}`;
+    const { orderData } = await createCashfreeOrder({
+      amount: totals.finalTotal,
+      currency: 'INR',
+      customer,
+      reqUser: req.user,
+      orderNote: 'Nathan Coffee Pure Filter Coffee Prepaid Order',
+      returnUrl,
+      origin,
+    });
+
+    return res.json({
+      success: true,
+      paymentMethod: 'Prepaid',
+      message: 'Cashfree prepaid order initialized successfully',
+      payment_session_id: orderData.payment_session_id,
+      paymentSessionId: orderData.payment_session_id,
+      orderId: orderData.order_id,
+      cfOrderId: orderData.cf_order_id,
+      orderAmount: orderData.order_amount,
+      pricing: {
+        subtotal: totals.subtotal,
+        deliveryCharge: totals.deliveryCharge,
+        finalTotal: totals.finalTotal,
+      },
+      items: verifiedItems,
+    });
+  } catch (error) {
+    const cfErrorData = error.response?.data;
+    console.error('Checkout Error:', cfErrorData || error.message);
+    return res.status(error.response?.status || 500).json({
+      success: false,
+      message: cfErrorData?.message || error.message || 'Failed to process checkout order',
+      error: cfErrorData || error.message,
+    });
+  }
+});
+
 // @route   POST /api/orders
-// @desc    Create new customer order (Direct/Online only)
+// @desc    Create new Prepaid customer order (Tamil Nadu only)
 // @access  Public / Authenticated
 router.post('/', protectUserOptional, async (req, res) => {
   try {
-    const { customer, items, pricing, paymentMethod = 'cashfree', userId } = req.body;
+    const { customer, items, paymentMethod: rawPaymentMethod, userId } = req.body;
 
-    if (paymentMethod === 'cod') {
+    if (!isPrepaidPaymentMethod(rawPaymentMethod)) {
       return res.status(400).json({
         success: false,
-        message: 'Cash on Delivery (COD) is not available. Please pay securely online via Cashfree Payments.',
+        message: 'Cash on Delivery (COD) is not available. Only Online Payment (Prepaid) is accepted.',
+      });
+    }
+
+    const incomingPincode = String(customer?.address?.pincode ?? req.body.pincode ?? '').trim();
+    if (!isValidTamilNaduPincode(incomingPincode)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Delivery restricted to Tamil Nadu only.',
       });
     }
 
@@ -24,32 +116,37 @@ router.post('/', protectUserOptional, async (req, res) => {
       return res.status(400).json({ success: false, message: 'No order items' });
     }
 
-    const generatedOrderId = `NC-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const { verifiedItems, subtotal } = await resolveAuthoritativeCart(items, defaultProductsData);
+    const totals = calculateCheckoutTotals(subtotal);
 
-    // Resolve userId from authenticated user or request payload
-    let effectiveUserId = req.user?._id || (userId && String(userId).match(/^[0-9a-fA-F]{24}$/) ? userId : undefined);
-
-    // If userId not provided, check if user exists with matching customer phone
-    const cleanCustomerPhone = customer?.phone ? String(customer.phone).replace(/\D/g, '').slice(-10) : '';
-    if (!effectiveUserId && cleanCustomerPhone && cleanCustomerPhone.length === 10) {
-      const existingUser = await User.findOne({ mobileNumber: cleanCustomerPhone });
-      if (existingUser) {
-        effectiveUserId = existingUser._id;
-      }
-    }
+    const effectiveUserId = await resolveEffectiveUserId({
+      reqUser: req.user,
+      candidateUserId: userId,
+      customerPhone: customer?.phone,
+    });
 
     const order = new Order({
       userId: effectiveUserId,
-      orderId: generatedOrderId,
+      orderId: generateNathanOrderId(),
       customer,
-      items,
-      pricing,
+      items: verifiedItems,
+      pricing: {
+        subtotal: totals.subtotal,
+        shippingFee: totals.deliveryCharge,
+        codFee: 0,
+        discount: 0,
+        totalAmount: totals.finalTotal,
+      },
+      paymentMethod: 'Prepaid',
+      deliveryCharge: totals.deliveryCharge,
+      codFee: 0,
+      finalTotal: totals.finalTotal,
       payment: {
-        status: paymentMethod === 'cod' ? 'pending' : 'paid',
-        method: paymentMethod,
+        status: 'paid',
+        method: 'cashfree',
       },
       orderStatus: 'processing',
-      trackingNumber: `NCTRACK-${Math.floor(10000000 + Math.random() * 90000000)}`,
+      trackingNumber: generateTrackingNumber(),
     });
 
     const createdOrder = await order.save();
@@ -178,7 +275,7 @@ router.get('/stats/summary', protectAdmin, async (req, res) => {
     const paidOrders = await Order.find({ 'payment.status': 'paid' });
     const totalRevenue = paidOrders.reduce((sum, order) => sum + (order.pricing?.totalAmount || 0), 0);
     const activeProducts = await Product.countDocuments({ inStock: true });
-    const pendingOrders = await Order.countDocuments({ orderStatus: 'processing' });
+    const pendingOrders = await Order.countDocuments({ orderStatus: { $in: ['Placed', 'processing'] } });
     const dispatchedOrders = await Order.countDocuments({ orderStatus: 'dispatched' });
     const deliveredOrders = await Order.countDocuments({ orderStatus: 'delivered' });
 

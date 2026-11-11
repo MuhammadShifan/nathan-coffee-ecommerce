@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import {
   ShieldCheck,
@@ -17,12 +18,19 @@ import {
   User as UserIcon,
   LogOut,
   Edit2,
+  Loader2,
+  MapPin,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { initiateCashfreeCheckout } from '../services/cashfree';
 import SEOMeta from '../components/SEOMeta';
+
+const BASE_PRODUCT_PRICE = 399;
+const STANDARD_DELIVERY_CHARGE = 40;
+const INDIA_POST_PINCODE_API = 'https://api.postalpincode.in/pincode';
+const TAMIL_NADU_PINCODE_FALLBACK_REGEX = /^6[0-4][0-9]{4}$/;
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -51,24 +59,27 @@ const CheckoutPage = () => {
       setBuyNowItem(location.state.buyNowItem);
       try {
         sessionStorage.setItem('Nathan_buy_now_item', JSON.stringify(location.state.buyNowItem));
-      } catch (e) {}
+      } catch (e) { }
     } else if (location.state?.buyNowItem === null) {
       setBuyNowItem(null);
       try {
         sessionStorage.removeItem('Nathan_buy_now_item');
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [location.state]);
 
   const isBuyNow = Boolean(buyNowItem);
   const checkoutItems = isBuyNow ? [buyNowItem] : cartItems;
 
-  const subtotal = isBuyNow
-    ? buyNowItem.price * buyNowItem.quantity
-    : cartSubtotal;
+  // Prepaid-only (Cashfree Online Payment)
+  const paymentMethod = 'Prepaid';
 
-  const shippingFee = subtotal >= 500 || subtotal === 0 ? 0 : 40;
-  const grandTotal = subtotal + shippingFee;
+  const subtotal = checkoutItems.reduce(
+    (sum, item) => sum + (Number(item.price) || BASE_PRODUCT_PRICE) * (Number(item.quantity) || 1),
+    0
+  );
+  const deliveryCharge = checkoutItems.length > 0 ? STANDARD_DELIVERY_CHARGE : 0;
+  const finalTotal = subtotal + deliveryCharge;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -82,9 +93,37 @@ const CheckoutPage = () => {
     pincode: '',
   });
 
-  const paymentMethod = 'cashfree';
+  const [pincodeStatus, setPincodeStatus] = useState('idle'); // 'idle' | 'checking' | 'valid' | 'invalid'
+  const [pincodeInfo, setPincodeInfo] = useState('');
+  const [pincodeError, setPincodeError] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  const cleanPincode = formData.pincode.trim();
+  const isDeliveryUnavailable =
+    pincodeError ||
+    pincodeStatus === 'invalid' ||
+    pincodeStatus === 'checking' ||
+    (cleanPincode.length > 0 && pincodeStatus !== 'valid');
+
+  const completeOrderSuccess = (confirmedOrderId, confirmedOrder, replace = false) => {
+    try {
+      localStorage.setItem('Nathan_last_order_id', confirmedOrderId);
+      sessionStorage.removeItem('Nathan_pending_checkout');
+      if (isBuyNow) {
+        sessionStorage.removeItem('Nathan_buy_now_item');
+      }
+    } catch (e) { }
+
+    if (!isBuyNow) {
+      clearCart();
+    }
+
+    navigate(`/order-success/${confirmedOrderId}`, {
+      state: { order: confirmedOrder },
+      replace,
+    });
+  };
 
   // Check for Cashfree redirect callback in URL query params
   useEffect(() => {
@@ -97,7 +136,7 @@ const CheckoutPage = () => {
       try {
         const raw = sessionStorage.getItem('Nathan_pending_checkout');
         if (raw) savedOrderDetails = JSON.parse(raw);
-      } catch (e) {}
+      } catch (e) { }
 
       api
         .post('/api/payment/verify', {
@@ -106,16 +145,7 @@ const CheckoutPage = () => {
         })
         .then((res) => {
           if (res.data.success) {
-            try {
-              localStorage.setItem('Nathan_last_order_id', res.data.orderId);
-              sessionStorage.removeItem('Nathan_pending_checkout');
-              sessionStorage.removeItem('Nathan_buy_now_item');
-            } catch (e) {}
-            clearCart();
-            navigate(`/order-success/${res.data.orderId}`, {
-              state: { order: res.data.order },
-              replace: true,
-            });
+            completeOrderSuccess(res.data.orderId, res.data.order, true);
           } else {
             setErrorMessage(res.data.message || 'Cashfree payment verification failed');
             setProcessing(false);
@@ -131,22 +161,93 @@ const CheckoutPage = () => {
     }
   }, [location.search]);
 
+  // Real-time India Post API validation whenever a 6-digit pincode is entered
+  useEffect(() => {
+    if (!/^\d{6}$/.test(cleanPincode)) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isActive = true;
+
+    const verifyPincodeWithIndiaPost = async () => {
+      setPincodeStatus('checking');
+      setPincodeError(false);
+      setPincodeInfo('');
+
+      try {
+        const response = await axios.get(`${INDIA_POST_PINCODE_API}/${cleanPincode}`, {
+          signal: controller.signal,
+          timeout: 8000,
+        });
+
+        if (!isActive) return;
+
+        const apiResult = Array.isArray(response.data) ? response.data[0] : null;
+        const postOffices = Array.isArray(apiResult?.PostOffice) ? apiResult.PostOffice : [];
+        const primaryOffice = postOffices[0] || null;
+        const isTamilNadu = primaryOffice?.State?.trim() === 'Tamil Nadu';
+
+        if (apiResult?.Status === 'Success' && postOffices.length > 0 && isTamilNadu) {
+          const officeName = primaryOffice.Name || primaryOffice.District || cleanPincode;
+          const districtName =
+            primaryOffice.District && primaryOffice.District !== officeName
+              ? `, ${primaryOffice.District}`
+              : '';
+
+          setPincodeStatus('valid');
+          setPincodeError(false);
+          setPincodeInfo(`${officeName}${districtName}`);
+        } else {
+          setPincodeStatus('invalid');
+          setPincodeError(true);
+          setPincodeInfo('');
+        }
+      } catch (err) {
+        if (!isActive || axios.isCancel(err)) return;
+
+        console.warn('India Post API lookup failed, using Tamil Nadu range fallback:', err.message);
+        if (TAMIL_NADU_PINCODE_FALLBACK_REGEX.test(cleanPincode)) {
+          setPincodeStatus('valid');
+          setPincodeError(false);
+          setPincodeInfo('Tamil Nadu');
+        } else {
+          setPincodeStatus('invalid');
+          setPincodeError(true);
+          setPincodeInfo('');
+        }
+      }
+    };
+
+    verifyPincodeWithIndiaPost();
+
+    return () => {
+      isActive = false;
+      controller.abort();
+    };
+  }, [cleanPincode]);
+
   // Auto-fill user information if logged in
   useEffect(() => {
     if (isUserAuthenticated && user) {
+      const savedAddress = user.addresses && user.addresses.length > 0 ? user.addresses[0] : null;
+      const savedPin = savedAddress?.pincode
+        ? String(savedAddress.pincode).replace(/\D/g, '').slice(0, 6)
+        : '';
+
       setFormData((prev) => ({
         ...prev,
         phone: user.mobileNumber || prev.phone,
         name: user.name || prev.name,
         email: user.email || prev.email,
-        ...(user.addresses && user.addresses.length > 0
+        ...(savedAddress
           ? {
-            doorNo: user.addresses[0].doorNo || prev.doorNo,
-            street: user.addresses[0].street || prev.street,
-            landmark: user.addresses[0].landmark || prev.landmark,
-            city: user.addresses[0].city || prev.city,
-            state: user.addresses[0].state || prev.state,
-            pincode: user.addresses[0].pincode || prev.pincode,
+            doorNo: savedAddress.doorNo || prev.doorNo,
+            street: savedAddress.street || prev.street,
+            landmark: savedAddress.landmark || prev.landmark,
+            city: savedAddress.city || prev.city,
+            state: 'Tamil Nadu',
+            pincode: savedPin || prev.pincode,
           }
           : {}),
       }));
@@ -161,7 +262,30 @@ const CheckoutPage = () => {
   }, [isUserAuthenticated, checkoutItems.length]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'pincode') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 6);
+      setFormData((prev) => ({ ...prev, pincode: digitsOnly }));
+
+      if (digitsOnly.length < 6) {
+        setPincodeStatus('idle');
+        setPincodeError(false);
+        setPincodeInfo('');
+      }
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePincodeBlur = () => {
+    const trimmedPin = formData.pincode.trim();
+    if (trimmedPin.length > 0 && trimmedPin.length < 6) {
+      setPincodeStatus('invalid');
+      setPincodeError(true);
+      setPincodeInfo('');
+    }
   };
 
   const validateForm = () => {
@@ -173,8 +297,13 @@ const CheckoutPage = () => {
     if (!formData.doorNo.trim()) return 'Please enter door / house / flat number';
     if (!formData.street.trim()) return 'Please enter street name or area';
     if (!formData.city.trim()) return 'Please enter city';
-    if (!formData.pincode.trim() || formData.pincode.length !== 6)
-      return 'Please enter a valid 6-digit postal pincode';
+    if (pincodeStatus === 'checking') {
+      return 'Verifying your delivery pincode, please wait a moment.';
+    }
+    if (cleanPincode.length !== 6 || pincodeStatus !== 'valid' || pincodeError) {
+      setPincodeError(true);
+      return 'Delivery is currently available only for valid Tamil Nadu pincodes.';
+    }
     return null;
   };
 
@@ -207,6 +336,7 @@ const CheckoutPage = () => {
       // Build order details payload
       const orderDetailsPayload = {
         userId: user?._id || undefined,
+        paymentMethod,
         customer: {
           name: formData.name,
           email: formData.email,
@@ -224,79 +354,70 @@ const CheckoutPage = () => {
           productId: i.productId,
           title: i.title,
           weight: i.weight,
-          price: i.price,
-          quantity: i.quantity,
+          price: Number(i.price) || BASE_PRODUCT_PRICE,
+          quantity: Number(i.quantity) || 1,
           image: i.image,
         })),
         pricing: {
           subtotal,
-          shippingFee,
+          shippingFee: deliveryCharge,
+          codFee: 0,
           discount: 0,
-          totalAmount: grandTotal,
+          totalAmount: finalTotal,
         },
+        deliveryCharge,
+        codFee: 0,
+        finalTotal,
       };
 
-      // Persist pending checkout in sessionStorage in case of external gateway redirection
-      try {
-        sessionStorage.setItem('Nathan_pending_checkout', JSON.stringify(orderDetailsPayload));
-      } catch (e) {}
-
-      // Step 1: Create Cashfree Order on Backend (generates payment_session_id in sandbox)
-      const orderRes = await api.post('/api/payment/create-order', {
-        amount: grandTotal,
-        currency: 'INR',
-        customer: {
-          id: user?._id || undefined,
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-        },
-        orderNote: 'Nathan Coffee Pure Filter Coffee Order',
+      // Step 1: Validate Tamil Nadu pincode & totals server-side and create Prepaid Cashfree order
+      const checkoutRes = await api.post('/api/orders/checkout', {
+        ...orderDetailsPayload,
         returnUrl: `${window.location.origin}/checkout?cf_order_id={order_id}`,
       });
 
-      if (!orderRes.data.success || !orderRes.data.paymentSessionId) {
-        throw new Error(orderRes.data.message || 'Failed to initialize Cashfree payment order');
+      if (!checkoutRes.data.success) {
+        throw new Error(checkoutRes.data.message || 'Failed to process checkout order');
       }
 
-      const { paymentSessionId, orderId } = orderRes.data;
+      const paymentSessionId =
+        checkoutRes.data.payment_session_id || checkoutRes.data.paymentSessionId;
+      const cfMerchantOrderId = checkoutRes.data.orderId;
+
+      if (!paymentSessionId || !cfMerchantOrderId) {
+        throw new Error(checkoutRes.data.message || 'Failed to initialize Cashfree payment session');
+      }
+
+      // Sync authoritative backend pricing if needed and persist pending checkout for redirect fallback
+      try {
+        sessionStorage.setItem('Nathan_pending_checkout', JSON.stringify(orderDetailsPayload));
+      } catch (e) { }
 
       // Step 2: Open Cashfree Checkout Modal in sandbox mode
       await initiateCashfreeCheckout({
         paymentSessionId,
         redirectTarget: '_modal',
         mode: 'sandbox',
-        onSuccess: async (paymentDetails) => {
+        onSuccess: async () => {
           try {
             // Step 3: Verify Payment & Save confirmed order into MongoDB
             const verifyRes = await api.post('/api/payment/verify', {
-              orderId,
+              orderId: cfMerchantOrderId,
               orderDetails: orderDetailsPayload,
             });
 
             if (verifyRes.data.success) {
-              try {
-                localStorage.setItem('Nathan_last_order_id', verifyRes.data.orderId);
-                sessionStorage.removeItem('Nathan_pending_checkout');
-              } catch (e) {}
-
-              if (isBuyNow) {
-                try {
-                  sessionStorage.removeItem('Nathan_buy_now_item');
-                } catch (e) {}
-              } else {
-                clearCart();
-              }
-              navigate(`/order-success/${verifyRes.data.orderId}`, {
-                state: { order: verifyRes.data.order },
-              });
+              completeOrderSuccess(verifyRes.data.orderId, verifyRes.data.order);
             } else {
               setErrorMessage(verifyRes.data.message || 'Payment verification failed');
               setProcessing(false);
             }
           } catch (err) {
             console.error('Verification error:', err);
-            const msg = err.response?.data?.message || err.message || 'Payment verification failed. Please check your network or contact support.';
+            const msg =
+              err.response?.data?.message ||
+              err.message ||
+              'Payment verification failed. Please check your network or contact support.';
             setErrorMessage(msg);
             setProcessing(false);
           }
@@ -305,22 +426,21 @@ const CheckoutPage = () => {
           console.warn('Payment failed or modal closed:', err);
           // Check backend status in case payment was completed right before modal closed
           api
-            .get(`/api/payment/order-status/${orderId}`)
+            .get(`/api/payment/order-status/${cfMerchantOrderId}`)
             .then(async (statusRes) => {
               if (statusRes.data?.order?.order_status === 'PAID') {
                 const verifyRes = await api.post('/api/payment/verify', {
-                  orderId,
+                  orderId: cfMerchantOrderId,
                   orderDetails: orderDetailsPayload,
                 });
                 if (verifyRes.data.success) {
-                  clearCart();
-                  navigate(`/order-success/${verifyRes.data.orderId}`, {
-                    state: { order: verifyRes.data.order },
-                  });
+                  completeOrderSuccess(verifyRes.data.orderId, verifyRes.data.order);
                   return;
                 }
               }
-              setErrorMessage(err?.message || 'Payment was cancelled or could not be completed. Please retry.');
+              setErrorMessage(
+                err?.message || 'Payment was cancelled or could not be completed. Please retry.'
+              );
               setProcessing(false);
             })
             .catch(() => {
@@ -554,7 +674,7 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-brand-coffee-800 mb-1">
                       City *
@@ -565,14 +685,14 @@ const CheckoutPage = () => {
                       required
                       value={formData.city}
                       onChange={handleChange}
-                      placeholder="e.g. Thanjavur / Thanjavur"
+                      placeholder="e.g. Thanjavur / Chennai / Coimbatore"
                       className="w-full px-4 py-2.5 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-xs text-brand-coffee-900 bg-brand-coffee-50/50"
                     />
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-brand-coffee-800 mb-1">
-                      State *
+                      State (Tamil Nadu Only) *
                     </label>
                     <select
                       name="state"
@@ -581,30 +701,67 @@ const CheckoutPage = () => {
                       className="w-full px-4 py-2.5 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-xs text-brand-coffee-900 bg-brand-coffee-50/50"
                     >
                       <option value="Tamil Nadu">Tamil Nadu</option>
-                      <option value="Karnataka">Karnataka</option>
-                      <option value="Kerala">Kerala</option>
-                      <option value="Andhra Pradesh">Andhra Pradesh</option>
-                      <option value="Telangana">Telangana</option>
-                      <option value="Maharashtra">Maharashtra</option>
-                      <option value="Other States">Other Indian States</option>
                     </select>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-brand-coffee-800 mb-1">
-                      Pincode *
-                    </label>
+                <div>
+                  <label className="block text-xs font-bold text-brand-coffee-800 mb-1">
+                    Shipping Pincode
+                  </label>
+                  <div className="relative">
                     <input
                       type="text"
                       name="pincode"
+                      inputMode="numeric"
                       maxLength={6}
                       required
                       value={formData.pincode}
                       onChange={handleChange}
-                      placeholder="e.g. 641002"
-                      className="w-full px-4 py-2.5 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-xs text-brand-coffee-900 bg-brand-coffee-50/50"
+                      onBlur={handlePincodeBlur}
+                      placeholder="e.g. 613001"
+                      className={`w-full px-4 py-2.5 pr-10 rounded-xl border focus:ring-2 focus:outline-none text-xs text-brand-coffee-900 bg-brand-coffee-50/50 ${pincodeError
+                          ? 'border-red-500 focus:ring-red-400 bg-red-50/40'
+                          : pincodeStatus === 'valid'
+                            ? 'border-emerald-500 focus:ring-emerald-400 bg-emerald-50/30'
+                            : 'border-brand-coffee-200 focus:ring-brand-pink-500'
+                        }`}
                     />
+                    {pincodeStatus === 'checking' && (
+                      <Loader2 className="w-4 h-4 text-brand-pink-600 animate-spin absolute right-3 top-2.5" />
+                    )}
+                    {pincodeStatus === 'valid' && !pincodeError && (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 absolute right-3 top-2.5" />
+                    )}
                   </div>
+
+                  {pincodeStatus === 'checking' && (
+                    <p className="mt-1.5 text-xs font-medium text-brand-coffee-600 flex items-center gap-1.5">
+                      <span>Checking delivery availability for {cleanPincode}...</span>
+                    </p>
+                  )}
+
+                  {/* {pincodeStatus === 'valid' && !pincodeError && pincodeInfo && (
+                    <p className="mt-1.5 text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                      <span>Delivery available to {pincodeInfo}</span>
+                    </p>
+                  )} */}
+
+                  {pincodeError && (
+                    <p className="mt-1.5 text-xs font-semibold text-red-600 leading-snug" role="alert">
+                      Delivery not available for this location. Please contact{' '}
+                      <a
+                        href="https://wa.me/916383805976?text=Hi,%20I%20want%20to%20order%20Nathan%20Coffee%20but%20delivery%20is%20showing%20unavailable%20for%20my%20pincode."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline font-bold text-red-700 hover:text-red-800"
+                      >
+                        +91 63838 05976
+                      </a>{' '}
+                      on WhatsApp.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -620,61 +777,55 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Cashfree Online Payment Option */}
-                  <div
-                    className="flex items-center justify-between p-4 rounded-2xl border-2 border-brand-pink-600 bg-brand-pink-50/50 shadow-sm"
-                  >
-                    <div className="flex items-center gap-3">
+                  {/* Online Payment Only (Cashfree Payments) */}
+                  <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-brand-pink-600 bg-brand-pink-50/60 shadow-sm">
+                    <div className="flex items-start sm:items-center gap-3">
                       <input
                         type="radio"
                         name="paymentMethod"
-                        value="cashfree"
+                        value="Prepaid"
                         checked={true}
                         readOnly
-                        className="text-brand-pink-600 focus:ring-brand-pink-500 w-4 h-4 cursor-default"
+                        className="mt-1 sm:mt-0 text-brand-pink-600 focus:ring-brand-pink-500 w-4 h-4 cursor-default"
                       />
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-bold text-brand-coffee-950">
                             Online Payment (Cashfree Payments)
                           </span>
                           <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-md">
-                            RECOMMENDED
+                            PREPAID ONLY • 100% SECURE
                           </span>
                         </div>
                         <p className="text-xs text-brand-coffee-600 mt-0.5">
-                          Instant UPI (GPay, PhonePe, Paytm), Debit/Credit Cards, NetBanking & Wallets
+                          UPI (GPay, PhonePe, Paytm), Debit/Credit Cards & NetBanking via Cashfree
                         </p>
                       </div>
                     </div>
-                    <div className="text-xs font-black text-brand-pink-600 bg-white px-2.5 py-1 rounded-lg border border-brand-pink-200 shadow-xs">
-                      100% SECURE
+                    <div className="text-right flex-shrink-0 pl-2">
+                      <span className="text-sm font-black text-brand-pink-700">
+                        ₹{finalTotal}
+                      </span>
                     </div>
                   </div>
-                </div>
-
-                {/* Cashfree Trust Badge */}
-                <div className="p-3.5 rounded-2xl bg-brand-coffee-50 border border-brand-coffee-200 flex items-center gap-3 text-xs text-brand-coffee-700">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                  <span>
-                    <strong>100% Secure Payments:</strong> Powered by Cashfree Payments. End-to-end 256-bit SSL encrypted.
-                  </span>
                 </div>
               </div>
 
               {/* Submit / Pay Button */}
               <button
                 type="submit"
-                disabled={processing}
-                className="w-full py-4 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 text-white rounded-2xl font-black text-base shadow-xl shadow-brand-pink-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 ring-4 ring-brand-yellow-400/40 btn-shimmer"
+                disabled={processing || isDeliveryUnavailable}
+                className="w-full py-4 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 text-white rounded-2xl font-black text-base shadow-xl shadow-brand-pink-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ring-4 ring-brand-yellow-400/40 btn-shimmer"
               >
                 <Lock className="w-4 h-4" />
                 <span>
                   {processing
                     ? 'Connecting to Secure Gateway...'
-                    : !isUserAuthenticated
-                      ? 'Login with Mobile to Complete Order'
-                      : `Pay ₹${grandTotal} with Cashfree`}
+                    : pincodeStatus === 'checking'
+                      ? 'Verifying Pincode...'
+                      : !isUserAuthenticated
+                        ? 'Login with Mobile to Complete Order'
+                        : `Pay Now • ₹${finalTotal}`}
                 </span>
                 <ArrowRight className="w-4 h-4" />
               </button>
@@ -732,24 +883,18 @@ const CheckoutPage = () => {
               </div>
 
               {/* Price Calculation Breakdown */}
-              <div className="space-y-2 pt-4 border-t border-brand-coffee-100 text-xs text-brand-coffee-700">
+              <div className="space-y-2.5 pt-4 border-t border-brand-coffee-100 text-xs text-brand-coffee-700">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span className="font-bold text-brand-coffee-950">₹{subtotal}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Delivery Charges:</span>
-                  <span>
-                    {shippingFee === 0 ? (
-                      <span className="text-emerald-700 font-bold uppercase">FREE</span>
-                    ) : (
-                      `₹${shippingFee}`
-                    )}
-                  </span>
+                  <span>Delivery Charge:</span>
+                  <span className="font-bold text-brand-coffee-950">₹{deliveryCharge}</span>
                 </div>
                 <div className="flex justify-between text-base font-black text-brand-coffee-950 pt-3 border-t border-brand-coffee-200">
                   <span>Final Total:</span>
-                  <span className="text-brand-pink-600 text-lg">₹{grandTotal}</span>
+                  <span className="text-brand-pink-600 text-lg">₹{finalTotal}</span>
                 </div>
               </div>
 

@@ -11,12 +11,11 @@ import {
   AlertCircle,
   Edit2,
   RefreshCw,
+  Lock,
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { auth } from '../firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 const AuthModal = () => {
   const {
@@ -30,13 +29,13 @@ const AuthModal = () => {
 
   const [step, setStep] = useState('phone'); // 'phone' | 'otp'
   const [mobileNumber, setMobileNumber] = useState('');
+  const [sessionId, setSessionId] = useState('');
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
   const [errorMessage, setErrorMessage] = useState('');
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const inputRefs = [
     useRef(null),
@@ -48,48 +47,18 @@ const AuthModal = () => {
   ];
   const phoneInputRef = useRef(null);
 
-  // Cleanup reCAPTCHA helper
-  function resetRecaptcha() {
-    if (typeof window !== 'undefined' && window.recaptchaVerifier) {
-      try {
-        window.recaptchaVerifier.clear();
-      } catch (e) {
-        // ignore
-      }
-      window.recaptchaVerifier = null;
-    }
-  }
-
-  // Setup Firebase RecaptchaVerifier helper
-  function setupRecaptcha() {
-    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-        callback: () => {
-          // reCAPTCHA solved
-        },
-        'expired-callback': () => {
-          setErrorMessage('reCAPTCHA expired. Please try sending OTP again.');
-        },
-      });
-    }
-    return window.recaptchaVerifier;
-  }
-
-  // Initialize or clear state when modal open/closes
+  // Initialize or clear state when modal opens/closes
   useEffect(() => {
     if (isAuthModalOpen) {
       setStep('phone');
       setErrorMessage('');
       setOtpValues(['', '', '', '', '', '']);
-      setConfirmationResult(null);
+      setSessionId('');
       setResendTimer(30);
       setCanResend(false);
       setTimeout(() => {
         phoneInputRef.current?.focus();
       }, 100);
-    } else {
-      resetRecaptcha();
     }
   }, [isAuthModalOpen]);
 
@@ -110,13 +79,6 @@ const AuthModal = () => {
     return () => clearInterval(timer);
   }, [step, resendTimer]);
 
-  // Clean up reCAPTCHA on unmount
-  useEffect(() => {
-    return () => {
-      resetRecaptcha();
-    };
-  }, []);
-
   if (!isAuthModalOpen) return null;
 
   // Handle Phone input formatting (digits only, max 10)
@@ -128,46 +90,41 @@ const AuthModal = () => {
     }
   };
 
-  // Submit Phone Number -> Request OTP via Firebase SMS
+  // Step 1: Submit Phone Number -> Request OTP via 2Factor.in
   const handleSendOtpSubmit = async (e) => {
     e?.preventDefault();
     setErrorMessage('');
 
     if (!mobileNumber || mobileNumber.length !== 10) {
-      setErrorMessage('Please enter a valid 10-digit mobile number');
+      setErrorMessage('Please enter a valid 10-digit Indian mobile number');
       return;
     }
 
     setSendingOtp(true);
     try {
-      const appVerifier = setupRecaptcha();
-      const formattedPhoneNumber = `+91${mobileNumber}`;
+      const res = await api.post('/api/auth/send-otp', {
+        phoneNumber: mobileNumber,
+        mobileNumber: mobileNumber,
+      });
 
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier);
-      setConfirmationResult(confirmation);
+      if (res.data && res.data.success && res.data.sessionId) {
+        setSessionId(res.data.sessionId);
+        setStep('otp');
+        setResendTimer(30);
+        setCanResend(false);
+        showToast(`SMS OTP sent to +91 ${mobileNumber} 📲`, 'success');
 
-      setStep('otp');
-      setResendTimer(30);
-      setCanResend(false);
-      showToast(`SMS OTP sent to +91 ${mobileNumber} 📲`, 'success');
-
-      setTimeout(() => {
-        inputRefs[0].current?.focus();
-      }, 150);
-    } catch (err) {
-      console.error('Firebase signInWithPhoneNumber Error:', err);
-      resetRecaptcha();
-      let msg = 'Failed to send SMS OTP. Please check your number and try again.';
-      if (err.code === 'auth/invalid-phone-number') {
-        msg = 'Invalid mobile number. Please enter a valid 10-digit number.';
-      } else if (err.code === 'auth/too-many-requests') {
-        msg = 'Too many requests. Please wait a few moments before trying again.';
-      } else if (err.code === 'auth/quota-exceeded') {
-        msg = 'SMS quota exceeded for today. Please try again later.';
-      } else if (err.message) {
-        msg = err.message;
+        setTimeout(() => {
+          inputRefs[0].current?.focus();
+        }, 150);
+      } else {
+        setErrorMessage(res.data?.message || 'Failed to send OTP. Please try again.');
       }
+    } catch (err) {
+      console.error('2Factor Send OTP Error:', err);
+      const msg = err.response?.data?.message || err.message || 'Failed to send SMS OTP. Please check your connection.';
       setErrorMessage(msg);
+      showToast(msg, 'error');
     } finally {
       setSendingOtp(false);
     }
@@ -216,32 +173,28 @@ const AuthModal = () => {
     }
   };
 
-  // Submit OTP -> Verify with Firebase & backend
+  // Step 2: Submit OTP -> Verify via 2Factor.in with backend
   const triggerVerify = async (otpToVerify) => {
     const otpCode = otpToVerify || otpValues.join('');
     if (otpCode.length !== 6) {
-      setErrorMessage('Please enter the full 6-digit OTP');
+      setErrorMessage('Please enter the full 6-digit OTP code');
       return;
     }
 
-    if (!confirmationResult) {
+    if (!sessionId) {
       setErrorMessage('Session expired. Please request a new OTP.');
       return;
     }
 
     setErrorMessage('');
     setVerifyingOtp(true);
+
     try {
-      // 1. Confirm OTP with Firebase
-      const userCredential = await confirmationResult.confirm(otpCode);
-      const firebaseUser = userCredential.user;
-
-      // 2. Retrieve Firebase ID Token
-      const firebaseToken = await firebaseUser.getIdToken();
-
-      // 3. Make POST request to backend verifyOTP endpoint
-      const res = await api.post('/api/auth/verifyOTP', {
-        firebaseToken,
+      const res = await api.post('/api/auth/verify-otp', {
+        phoneNumber: mobileNumber,
+        mobileNumber: mobileNumber,
+        otp: otpCode,
+        sessionId: sessionId,
       });
 
       if (res.data && res.data.success && res.data.token) {
@@ -254,30 +207,23 @@ const AuthModal = () => {
           localStorage.setItem('Nathan_user_info', JSON.stringify(receivedUser));
         }
 
-        // 2. Update user's authenticated state
+        // 2. Update user's authenticated state in context
         if (typeof setUser === 'function') setUser(receivedUser);
         if (typeof setUserToken === 'function') setUserToken(receivedToken);
 
         // 3. Close the modal
         closeAuthModal();
 
-        showToast(`Welcome back, +91 ${mobileNumber}! ☕`, 'success');
+        showToast(`Welcome to Nathan Coffee, +91 ${mobileNumber}! ☕`, 'success');
       } else {
-        setErrorMessage(res.data?.message || 'Server verification failed');
+        setErrorMessage(res.data?.message || 'Verification failed. Incorrect OTP.');
+        showToast(res.data?.message || 'Invalid OTP', 'error');
       }
     } catch (err) {
-      console.error('OTP Verification Error:', err);
-      let msg = 'Invalid or expired verification code. Please try again.';
-      if (err.code === 'auth/invalid-verification-code') {
-        msg = 'Incorrect 6-digit verification code. Please check and re-enter.';
-      } else if (err.code === 'auth/code-expired') {
-        msg = 'The verification code has expired. Please resend a new OTP.';
-      } else if (err.response?.data?.message) {
-        msg = err.response.data.message;
-      } else if (err.message) {
-        msg = err.message;
-      }
+      console.error('2Factor Verify OTP Error:', err);
+      const msg = err.response?.data?.message || err.message || 'Invalid or expired OTP code. Please try again.';
       setErrorMessage(msg);
+      showToast(msg, 'error');
     } finally {
       setVerifyingOtp(false);
     }
@@ -286,9 +232,6 @@ const AuthModal = () => {
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        {/* Invisible reCAPTCHA container */}
-        <div id="recaptcha-container"></div>
-
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -308,7 +251,6 @@ const AuthModal = () => {
         >
           {/* Top Decorative Header */}
           <div className="bg-gradient-to-r from-brand-pink-700 via-brand-pink-600 to-brand-pink-800 p-6 text-white text-center relative overflow-hidden">
-            {/* Background glowing blur circles */}
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-yellow-400/20 rounded-full blur-xl pointer-events-none" />
             <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-pink-400/30 rounded-full blur-xl pointer-events-none" />
 
@@ -372,45 +314,34 @@ const AuthModal = () => {
                       ref={phoneInputRef}
                       id="mobile-input-modal"
                       type="tel"
-                      inputMode="numeric"
                       value={mobileNumber}
                       onChange={handlePhoneChange}
                       placeholder="98765 43210"
                       maxLength={10}
+                      required
                       autoComplete="tel"
-                      className="w-full pl-24 pr-4 py-3.5 bg-brand-coffee-50/50 border border-brand-coffee-200 focus:border-brand-pink-500 focus:bg-white rounded-2xl text-base font-bold text-brand-coffee-950 placeholder-brand-coffee-400 focus:outline-none focus:ring-2 focus:ring-brand-pink-500/20 transition-all tracking-wider"
+                      className="w-full pl-24 pr-4 py-3.5 rounded-2xl border-2 border-brand-coffee-200 focus:border-brand-pink-500 focus:ring-4 focus:ring-brand-pink-500/15 focus:outline-none text-base font-bold tracking-wider text-brand-coffee-950 bg-white placeholder-brand-coffee-300 transition-all shadow-inner"
                     />
                   </div>
-                  <p className="text-[11px] text-brand-coffee-500 mt-1.5">
-                    We'll send a 6-digit verification code via SMS to your mobile phone.
+                  <p className="text-[11px] text-brand-coffee-500 mt-2 flex items-center gap-1.5 font-medium">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span>Instant 6-digit SMS OTP via 2Factor.in</span>
                   </p>
                 </div>
 
-                {/* SMS Info Card */}
-                <div className="p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-start gap-2 text-xs text-amber-900">
-                  <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold">Instant SMS Verification:</span>
-                    <p className="text-[11px] text-amber-800 mt-0.5">
-                      Enter your 10-digit mobile number to receive your one-time code via SMS.
-                    </p>
-                  </div>
-                </div>
-
                 <button
-                  id="modal-send-otp-btn"
                   type="submit"
-                  disabled={mobileNumber.length !== 10 || sendingOtp}
-                  className="w-full py-3.5 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-pink-600/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] btn-shimmer"
+                  disabled={sendingOtp || mobileNumber.length !== 10}
+                  className="w-full py-4 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 disabled:opacity-50 text-white rounded-2xl font-black text-sm sm:text-base shadow-xl shadow-brand-pink-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] btn-shimmer ring-2 ring-brand-yellow-400/30"
                 >
                   {sendingOtp ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
                       <span>Sending SMS OTP...</span>
-                    </div>
+                    </>
                   ) : (
                     <>
-                      <span>Get OTP via SMS</span>
+                      <span>Get Verification Code</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -418,88 +349,109 @@ const AuthModal = () => {
               </form>
             )}
 
-            {/* STEP 2: OTP VERIFICATION */}
+            {/* STEP 2: 6-DIGIT OTP VERIFICATION */}
             {step === 'otp' && (
-              <div className="space-y-5">
-                {/* Mobile number chip with edit button */}
-                <div className="flex items-center justify-between p-2.5 bg-brand-coffee-50 rounded-xl border border-brand-coffee-200 text-xs">
-                  <div className="flex items-center gap-2 text-brand-coffee-800 font-semibold">
-                    <Phone className="w-3.5 h-3.5 text-brand-pink-600" />
-                    <span>+91 {mobileNumber}</span>
+              <div className="space-y-4">
+                {/* Active Phone Display + Change Action */}
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-brand-pink-50/70 border border-brand-pink-200 text-xs">
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-brand-pink-600" />
+                    <span className="text-brand-coffee-700 font-semibold">Sent to:</span>
+                    <span className="font-extrabold text-brand-pink-700 font-mono">+91 {mobileNumber}</span>
                   </div>
                   <button
+                    type="button"
                     onClick={() => {
                       setStep('phone');
                       setErrorMessage('');
+                      setOtpValues(['', '', '', '', '', '']);
+                      setTimeout(() => phoneInputRef.current?.focus(), 100);
                     }}
-                    className="flex items-center gap-1 text-brand-pink-600 hover:text-brand-pink-700 font-bold transition-colors"
+                    className="text-brand-pink-600 hover:text-brand-pink-800 font-bold flex items-center gap-1 hover:underline text-[11px]"
                   >
-                    <Edit2 className="w-3 h-3" /> Change
+                    <Edit2 className="w-3 h-3" />
+                    <span>Change</span>
                   </button>
                 </div>
 
-                {/* 6-digit Segmented OTP inputs */}
                 <div>
-                  <label className="block text-center text-xs font-bold text-brand-coffee-900 uppercase tracking-wider mb-3">
+                  <label className="block text-xs font-bold text-brand-coffee-900 uppercase tracking-wider mb-2 text-center">
                     Enter 6-Digit OTP Code
                   </label>
-                  <div className="flex justify-center gap-1.5 sm:gap-2.5" onPaste={handlePaste}>
+
+                  {/* Segmented OTP Input Grid */}
+                  <div
+                    className="flex items-center justify-center gap-2 sm:gap-2.5"
+                    onPaste={handlePaste}
+                  >
                     {otpValues.map((val, idx) => (
                       <input
                         key={idx}
                         ref={inputRefs[idx]}
-                        id={`otp-input-${idx}`}
-                        type="tel"
-                        maxLength={1}
+                        type="text"
                         inputMode="numeric"
+                        maxLength={1}
                         value={val}
                         onChange={(e) => handleOtpChange(idx, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(idx, e)}
-                        className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black text-brand-pink-700 bg-brand-coffee-50/70 border-2 border-brand-coffee-200 focus:border-brand-pink-600 focus:bg-white rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-brand-pink-500/20 transition-all shadow-sm"
+                        className="w-11 h-13 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl border-2 border-brand-coffee-200 focus:border-brand-pink-600 focus:ring-4 focus:ring-brand-pink-500/15 focus:outline-none text-brand-coffee-950 bg-brand-coffee-50/40 transition-all"
                       />
                     ))}
                   </div>
                 </div>
 
-                {/* Submit Verification Button */}
+                {/* Submit OTP Button */}
                 <button
-                  id="modal-verify-otp-btn"
                   type="button"
                   onClick={() => triggerVerify()}
-                  disabled={otpValues.join('').length !== 6 || verifyingOtp}
-                  className="w-full py-3.5 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-pink-600/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] btn-shimmer"
+                  disabled={verifyingOtp || otpValues.join('').length !== 6}
+                  className="w-full py-4 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 disabled:opacity-50 text-white rounded-2xl font-black text-sm sm:text-base shadow-xl shadow-brand-pink-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] btn-shimmer ring-2 ring-brand-yellow-400/30"
                 >
                   {verifyingOtp ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Verifying Code...</span>
-                    </div>
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Verifying with 2Factor...</span>
+                    </>
                   ) : (
                     <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Verify & Continue</span>
+                      <Lock className="w-4 h-4" />
+                      <span>Verify OTP & Log In</span>
                     </>
                   )}
                 </button>
 
                 {/* Resend OTP Section */}
-                <div className="flex items-center justify-between text-xs text-brand-coffee-600 pt-1">
-                  <span>Didn't receive SMS?</span>
+                <div className="text-center pt-2">
                   {canResend ? (
                     <button
+                      type="button"
                       onClick={handleSendOtpSubmit}
-                      className="font-bold text-brand-pink-600 hover:text-brand-pink-700 flex items-center gap-1 hover:underline"
+                      disabled={sendingOtp}
+                      className="text-xs font-bold text-brand-pink-600 hover:text-brand-pink-800 flex items-center justify-center gap-1.5 mx-auto hover:underline"
                     >
-                      <RefreshCw className="w-3 h-3" /> Resend OTP
+                      <RefreshCw className={`w-3.5 h-3.5 ${sendingOtp ? 'animate-spin' : ''}`} />
+                      <span>{sendingOtp ? 'Resending...' : 'Resend SMS OTP'}</span>
                     </button>
                   ) : (
-                    <span className="text-brand-coffee-500 font-medium">
-                      Resend in <strong className="text-brand-coffee-800 font-bold">{resendTimer}s</strong>
-                    </span>
+                    <p className="text-xs text-brand-coffee-500 font-medium">
+                      Resend code in <strong className="text-brand-coffee-800 font-bold">{resendTimer}s</strong>
+                    </p>
                   )}
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Footer Highlights */}
+          <div className="px-6 py-4 bg-brand-coffee-50 border-t border-brand-coffee-100 flex items-center justify-between text-[11px] text-brand-coffee-600">
+            <span className="flex items-center gap-1 font-semibold">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              100% Pure Coffee
+            </span>
+            <span className="flex items-center gap-1 font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5 text-brand-yellow-600" />
+              Verified Checkout
+            </span>
           </div>
         </motion.div>
       </div>

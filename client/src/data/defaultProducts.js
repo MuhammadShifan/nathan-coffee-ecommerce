@@ -15,7 +15,7 @@ export const defaultProductsData = [
     category: 'pure_coffee',
     images: ['/images/250g front.png', '/images/250g back.png'],
     variants: [
-      { weight: '250g', mrp: 340, price: 299, image: '/images/250g front.png', inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
+      { weight: '250g', mrp: 450, price: 399, image: '/images/250g front.png', inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
       { weight: '500g', mrp: 680, price: 580, image: '/images/500g fornt.png', inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
       { weight: '1kg', mrp: 1360, price: 1100, image: '/images/250g front.png', inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
     ],
@@ -42,7 +42,7 @@ export const defaultProductsData = [
     images: ['/images/500g fornt.png', '/images/500g back.png'],
     variants: [
       { weight: '500g', mrp: 680, price: 580, image: '/images/500g fornt.png', inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
-      { weight: '250g', mrp: 340, price: 299, image: '/images/250g front.png', inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
+      { weight: '250g', mrp: 450, price: 399, image: '/images/250g front.png', inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
       { weight: '1kg', mrp: 1360, price: 1100, image: '/images/500g fornt.png', inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
     ],
     selectedWeight: '500g',

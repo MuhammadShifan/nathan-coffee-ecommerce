@@ -68,6 +68,13 @@ const AdminDashboardPage = () => {
             Dispatched
           </span>
         );
+      case 'Placed':
+      case 'placed':
+        return (
+          <span className="bg-emerald-100 text-emerald-800 text-[11px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-300">
+            Placed
+          </span>
+        );
       case 'processing':
       default:
         return (
@@ -271,7 +278,7 @@ const AdminDashboardPage = () => {
 
                       {/* Amount */}
                       <td className="p-4 font-black text-brand-coffee-950 text-sm">
-                        ₹{order.pricing?.totalAmount}
+                        ₹{order.finalTotal ?? order.pricing?.totalAmount ?? 0}
                       </td>
 
                       {/* Payment */}
@@ -283,7 +290,7 @@ const AdminDashboardPage = () => {
                               : 'bg-amber-100 text-amber-800'
                           }`}
                         >
-                          {order.payment?.method || 'Cashfree'}: {order.payment?.status}
+                          {order.paymentMethod || order.payment?.method || 'Cashfree'}: {order.payment?.status}
                         </span>
                       </td>
 

@@ -1,27 +1,21 @@
 import express from 'express';
-import { Cashfree, CFEnvironment } from 'cashfree-pg';
 import Order from '../models/Order.js';
-import User from '../models/User.js';
 import { protectUserOptional } from '../middleware/auth.js';
+import { defaultProductsData } from './productRoutes.js';
+import { getCashfreeClient, createCashfreeOrder } from '../utils/cashfreeClient.js';
+import {
+  STANDARD_DELIVERY_CHARGE,
+  isValidTamilNaduPincode,
+  resolveAuthoritativeCart,
+  calculateCheckoutTotals,
+} from '../utils/pricing.js';
+import {
+  generateNathanOrderId,
+  generateTrackingNumber,
+  resolveEffectiveUserId,
+} from '../utils/orderHelpers.js';
 
 const router = express.Router();
-
-/**
- * Initialize Cashfree PG SDK Instance
- * Defaults to SANDBOX unless CASHFREE_ENV is explicitly 'PRODUCTION'
- */
-const getCashfreeClient = () => {
-  const appId = process.env.CASHFREE_APP_ID || '';
-  const secretKey = process.env.CASHFREE_SECRET_KEY || '';
-  const isProduction = (process.env.CASHFREE_ENV || 'SANDBOX').toUpperCase() === 'PRODUCTION';
-  const environment = isProduction ? CFEnvironment.PRODUCTION : CFEnvironment.SANDBOX;
-
-  if (!appId || !secretKey) {
-    console.warn('⚠️ [Cashfree] CASHFREE_APP_ID or CASHFREE_SECRET_KEY is not defined in environment variables.');
-  }
-
-  return new Cashfree(environment, appId, secretKey);
-};
 
 // @route   GET /api/payment/config
 // @desc    Get Cashfree public config / environment
@@ -38,52 +32,43 @@ router.get('/config', (req, res) => {
 // @access  Public / Authenticated
 router.post('/create-order', protectUserOptional, async (req, res) => {
   try {
-    const { amount, currency = 'INR', customer, orderNote, returnUrl } = req.body;
+    const { amount, items, currency = 'INR', customer, pincode, orderNote, returnUrl } = req.body;
 
-    if (!amount || Number(amount) <= 0) {
+    // If delivery pincode is supplied on direct create-order calls, enforce Tamil Nadu restriction
+    const incomingPincode = customer?.address?.pincode ?? pincode;
+    if (incomingPincode !== undefined && !isValidTamilNaduPincode(incomingPincode)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Delivery restricted to Tamil Nadu only.',
+      });
+    }
+
+    let orderAmount = Number(Number(amount).toFixed(2));
+
+    // When items are provided, compute authoritative Prepaid total server-side
+    if (Array.isArray(items) && items.length > 0) {
+      const { subtotal } = await resolveAuthoritativeCart(items, defaultProductsData);
+      const totals = calculateCheckoutTotals(subtotal);
+      orderAmount = totals.finalTotal;
+    }
+
+    if (!orderAmount || orderAmount <= 0) {
       return res.status(400).json({
         success: false,
         message: 'Invalid order amount. Amount must be greater than 0.',
       });
     }
 
-    const cleanAmount = Number(Number(amount).toFixed(2));
-
-    // Sanitize customer details for Cashfree API requirements
-    const rawPhone = customer?.phone || req.user?.mobileNumber || '';
-    const cleanPhone = String(rawPhone).replace(/\D/g, '').slice(-10) || '9999999999';
-
-    const rawCustomerId = customer?.id || req.user?._id || `cust_${cleanPhone}_${Date.now().toString().slice(-4)}`;
-    const cleanCustomerId = String(rawCustomerId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 50) || `cust_${Date.now()}`;
-
-    const customerName = (customer?.name || req.user?.name || 'Customer').trim();
-    const customerEmail = (customer?.email || req.user?.email || `customer_${cleanPhone}@Nathancoffee.com`).trim();
-
-    // Unique merchant order ID for Cashfree (max 50 chars, alphanumeric, _ and -)
-    const cfMerchantOrderId = `order_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
-
     const origin = req.headers.origin || `${req.protocol}://${req.get('host')}`;
-    const defaultReturnUrl = `${origin}/checkout?cf_order_id={order_id}`;
-
-    const orderPayload = {
-      order_id: cfMerchantOrderId,
-      order_amount: cleanAmount,
-      order_currency: currency,
-      customer_details: {
-        customer_id: cleanCustomerId,
-        customer_phone: cleanPhone,
-        customer_name: customerName,
-        customer_email: customerEmail,
-      },
-      order_meta: {
-        return_url: returnUrl || defaultReturnUrl,
-      },
-      order_note: orderNote || 'Nathan Coffee Pure Filter Coffee Order',
-    };
-
-    const cashfree = getCashfreeClient();
-    const cfResponse = await cashfree.PGCreateOrder(orderPayload);
-    const orderData = cfResponse.data;
+    const { orderData } = await createCashfreeOrder({
+      amount: orderAmount,
+      currency,
+      customer,
+      reqUser: req.user,
+      orderNote,
+      returnUrl,
+      origin,
+    });
 
     res.json({
       success: true,
@@ -208,24 +193,20 @@ router.post('/verify', protectUserOptional, async (req, res) => {
       });
     }
 
-    // Generate unique Nathan Coffee Order ID
-    const generatedOrderId = `NC-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const effectiveUserId = await resolveEffectiveUserId({
+      reqUser: req.user,
+      candidateUserId: orderDetails?.userId,
+      customerPhone: orderDetails?.customer?.phone || cfOrder.customer_details?.customer_phone,
+    });
 
-    // Resolve userId from authenticated session, order payload, or customer mobile lookup
-    let effectiveUserId = req.user?._id;
-    if (!effectiveUserId && orderDetails?.userId && String(orderDetails.userId).match(/^[0-9a-fA-F]{24}$/)) {
-      effectiveUserId = orderDetails.userId;
-    }
+    const paidAmount = Number(cfOrder.order_amount) || 439;
+    let verifiedItems = orderDetails?.items || [];
+    let resolvedSubtotal = Math.max(0, paidAmount - STANDARD_DELIVERY_CHARGE);
 
-    const cleanCustomerPhone = orderDetails?.customer?.phone
-      ? String(orderDetails.customer.phone).replace(/\D/g, '').slice(-10)
-      : '';
-
-    if (!effectiveUserId && cleanCustomerPhone && cleanCustomerPhone.length === 10) {
-      const existingUser = await User.findOne({ mobileNumber: cleanCustomerPhone });
-      if (existingUser) {
-        effectiveUserId = existingUser._id;
-      }
+    if (Array.isArray(orderDetails?.items) && orderDetails.items.length > 0) {
+      const cartResult = await resolveAuthoritativeCart(orderDetails.items, defaultProductsData);
+      verifiedItems = cartResult.verifiedItems;
+      resolvedSubtotal = cartResult.subtotal;
     }
 
     const paidTimestamp = successfulPayment?.payment_completion_time
@@ -234,11 +215,11 @@ router.post('/verify', protectUserOptional, async (req, res) => {
 
     const newOrder = new Order({
       userId: effectiveUserId,
-      orderId: generatedOrderId,
+      orderId: generateNathanOrderId(),
       customer: orderDetails?.customer || {
         name: cfOrder.customer_details?.customer_name || 'Valued Customer',
         email: cfOrder.customer_details?.customer_email || 'customer@Nathancoffee.com',
-        phone: cfOrder.customer_details?.customer_phone || cleanCustomerPhone || '9443104462',
+        phone: cfOrder.customer_details?.customer_phone || '9443104462',
         address: {
           doorNo: '2928',
           street: 'South Street',
@@ -247,13 +228,18 @@ router.post('/verify', protectUserOptional, async (req, res) => {
           pincode: '613001',
         },
       },
-      items: orderDetails?.items || [],
-      pricing: orderDetails?.pricing || {
-        subtotal: cfOrder.order_amount,
-        shippingFee: 0,
+      items: verifiedItems,
+      pricing: {
+        subtotal: resolvedSubtotal,
+        shippingFee: STANDARD_DELIVERY_CHARGE,
+        codFee: 0,
         discount: 0,
-        totalAmount: cfOrder.order_amount,
+        totalAmount: paidAmount,
       },
+      paymentMethod: 'Prepaid',
+      deliveryCharge: STANDARD_DELIVERY_CHARGE,
+      codFee: 0,
+      finalTotal: paidAmount,
       payment: {
         status: 'paid',
         method: 'cashfree',
@@ -263,7 +249,7 @@ router.post('/verify', protectUserOptional, async (req, res) => {
         paidAt: paidTimestamp,
       },
       orderStatus: 'processing',
-      trackingNumber: `NCTRACK-${Math.floor(10000000 + Math.random() * 90000000)}`,
+      trackingNumber: generateTrackingNumber(),
     });
 
     const savedOrder = await newOrder.save();
