@@ -30,7 +30,7 @@ const app = express();
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
-    contentSecurityPolicy: false, // Allows embedding Razorpay checkout & images
+    contentSecurityPolicy: false, // Allows embedding Cashfree checkout & images
   })
 );
 

@@ -77,22 +77,39 @@ export const AuthProvider = ({ children }) => {
 
   // Sync token & verify current user on mount if token exists
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      if (userToken && !user) {
-        try {
-          const res = await api.get('/api/auth/me');
-          if (res.data.success && res.data.user) {
-            setUser(res.data.user);
-            localStorage.setItem('Nathan_user_info', JSON.stringify(res.data.user));
-          }
-        } catch (err) {
-          console.warn('Session expired or invalid token');
+    const verifyCurrentUserSession = async () => {
+      const storedToken = localStorage.getItem('Nathan_user_token');
+      if (!storedToken) return;
+
+      try {
+        const res = await api.get('/api/auth/me');
+        if (res.data.success && res.data.user) {
+          setUser(res.data.user);
+          localStorage.setItem('Nathan_user_info', JSON.stringify(res.data.user));
+        } else {
+          logoutUser();
+        }
+      } catch (err) {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          console.warn('User session expired or invalid token');
           logoutUser();
         }
       }
     };
-    fetchCurrentUser();
-  }, [userToken]);
+
+    verifyCurrentUserSession();
+
+    // Listen for global session expiration events from api response interceptor
+    const handleSessionExpired = () => {
+      setUser(null);
+      setUserToken(null);
+    };
+
+    window.addEventListener('nathan:user:session_expired', handleSessionExpired);
+    return () => {
+      window.removeEventListener('nathan:user:session_expired', handleSessionExpired);
+    };
+  }, []);
 
   /**
    * Open the login modal with an optional callback to execute upon successful login
@@ -129,16 +146,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
-   * Verify entered OTP and log the user in
+   * Verify Firebase token and log the user in
    */
-  const verifyOtp = async (mobileNumber, otp, extraData = {}) => {
+  const verifyOtp = async (firebaseToken, extraData = {}) => {
     setUserLoading(true);
     try {
-      const res = await api.post('/api/auth/verify-otp', {
-        mobileNumber,
-        otp,
-        ...extraData,
-      });
+      const payload = typeof firebaseToken === 'object'
+        ? firebaseToken
+        : { firebaseToken, ...extraData };
+      const res = await api.post('/api/auth/verifyOTP', payload);
 
       if (res.data.success && res.data.token) {
         const receivedUser = res.data.user;
@@ -214,7 +230,9 @@ export const AuthProvider = ({ children }) => {
 
         // Customer User
         user,
+        setUser,
         userToken,
+        setUserToken,
         isUserAuthenticated: !!userToken && !!user,
         userLoading,
         isAuthModalOpen,

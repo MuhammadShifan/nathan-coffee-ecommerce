@@ -42,7 +42,7 @@ const PolicyPage = () => {
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">1. Order Cancellations</h3>
           <p>
-            You can cancel your order within 2 hours of placing it by contacting our support team via WhatsApp at +91 63838 05976 or emailing info@Nathancoffee.com. Once an order has been freshly ground and dispatched, it cannot be cancelled.
+            You can cancel your order within 2 hours of placing it by contacting our support team via WhatsApp at +91 63838 05976 or emailing nathancoffeethanjavur.official@gmail.com. Once an order has been freshly ground and dispatched, it cannot be cancelled.
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">2. Damaged or Incorrect Items</h3>
           <p>
@@ -61,7 +61,7 @@ const PolicyPage = () => {
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">1. Payment Security</h3>
           <p>
-            All online transactions are securely encrypted and processed by Razorpay. We do not store any credit card numbers, debit card details, or UPI PINs on our servers.
+            All online transactions are securely encrypted and processed by Cashfree Payments. We do not store any credit card numbers, debit card details, or UPI PINs on our servers.
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">2. Non-Disclosure</h3>
           <p>

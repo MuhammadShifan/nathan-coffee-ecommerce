@@ -365,7 +365,7 @@ const AdminOrdersPage = () => {
                                 : 'bg-amber-100 text-amber-800 border border-amber-200'
                             }`}
                           >
-                            {order.payment?.method === 'cod' ? 'COD' : 'Razorpay'}: {order.payment?.status || 'pending'}
+                            {order.payment?.method === 'cod' ? 'COD' : (order.payment?.method === 'cashfree' ? 'Cashfree' : (order.payment?.method || 'Online'))}: {order.payment?.status || 'pending'}
                           </span>
 
                           <div className="flex items-center gap-1">

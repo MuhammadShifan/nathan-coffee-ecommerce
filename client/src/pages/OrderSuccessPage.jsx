@@ -98,23 +98,79 @@ const OrderSuccessPage = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link
+              id="view-my-orders-btn"
+              to="/my-orders"
+              className="px-6 py-3.5 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-brand-pink-600/30 flex items-center gap-2 transition-all hover:scale-105 btn-shimmer"
+            >
+              <Package className="w-4 h-4" />
+              <span>View in My Orders & History</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+
             <a
               href={`https://wa.me/916383805976?text=${whatsappMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-2 transition-all"
+              className="px-5 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md flex items-center gap-2 transition-all"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp Order Confirmation</span>
+              <span>WhatsApp Confirmation</span>
             </a>
 
             <button
               onClick={handlePrint}
-              className="px-5 py-3 bg-brand-coffee-100 hover:bg-brand-coffee-200 text-brand-coffee-900 font-bold text-xs rounded-xl border border-brand-coffee-200 flex items-center gap-2 transition-all"
+              className="px-5 py-3.5 bg-brand-coffee-100 hover:bg-brand-coffee-200 text-brand-coffee-900 font-bold text-xs sm:text-sm rounded-xl border border-brand-coffee-200 flex items-center gap-2 transition-all"
             >
               <Printer className="w-4 h-4 text-brand-coffee-700" />
-              <span>Print Order Receipt</span>
+              <span>Print Receipt</span>
             </button>
+          </div>
+        </div>
+
+        {/* Live Delivery Progress Tracker Card */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-coffee-200 shadow-md space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-brand-coffee-100">
+            <h3 className="text-sm sm:text-base font-extrabold text-brand-coffee-950 flex items-center gap-2">
+              <Truck className="w-4 h-4 text-brand-pink-600" /> Order Fulfillment Status
+            </h3>
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              Live Tracker
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-center">
+            <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
+              <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto text-xs font-black">
+                ✓
+              </div>
+              <p className="text-xs font-extrabold text-emerald-900">Order Placed</p>
+              <p className="text-[10px] text-emerald-700">Payment Verified</p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
+              <div className="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center mx-auto text-xs font-black animate-pulse">
+                ☕
+              </div>
+              <p className="text-xs font-extrabold text-amber-900">Roasting & Pack</p>
+              <p className="text-[10px] text-amber-700">In Thanjavur Mill</p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-brand-coffee-50 border border-brand-coffee-200 space-y-1 opacity-70">
+              <div className="w-7 h-7 rounded-full bg-brand-coffee-200 text-brand-coffee-700 flex items-center justify-center mx-auto text-xs font-black">
+                📦
+              </div>
+              <p className="text-xs font-bold text-brand-coffee-900">Courier Dispatch</p>
+              <p className="text-[10px] text-brand-coffee-600">ST / Professional</p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-brand-coffee-50 border border-brand-coffee-200 space-y-1 opacity-70">
+              <div className="w-7 h-7 rounded-full bg-brand-coffee-200 text-brand-coffee-700 flex items-center justify-center mx-auto text-xs font-black">
+                🏠
+              </div>
+              <p className="text-xs font-bold text-brand-coffee-900">Door Delivery</p>
+              <p className="text-[10px] text-brand-coffee-600">Across India</p>
+            </div>
           </div>
         </div>
 
@@ -153,7 +209,7 @@ const OrderSuccessPage = () => {
                 </p>
                 <p>
                   <strong>Payment Method:</strong>{' '}
-                  <span className="capitalize">{order.payment?.method || 'Razorpay Online'}</span>
+                  <span className="capitalize">{order.payment?.method === 'cashfree' ? 'Cashfree Payments' : (order.payment?.method || 'Cashfree Online')}</span>
                 </p>
                 <p>
                   <strong>Payment Status:</strong>{' '}
@@ -161,9 +217,9 @@ const OrderSuccessPage = () => {
                     {order.payment?.status || 'Paid'}
                   </span>
                 </p>
-                {order.payment?.razorpayPaymentId && (
+                {(order.payment?.cfPaymentId || order.payment?.razorpayPaymentId) && (
                   <p className="font-mono text-[11px] text-brand-coffee-600">
-                    <strong>Razorpay Txn:</strong> {order.payment.razorpayPaymentId}
+                    <strong>Payment Txn:</strong> {order.payment.cfPaymentId || order.payment.razorpayPaymentId}
                   </p>
                 )}
                 <p className="text-brand-coffee-600">
@@ -206,14 +262,29 @@ const OrderSuccessPage = () => {
           </div>
         )}
 
-        {/* Back to Home CTA */}
-        <div className="text-center pt-4">
+        {/* Navigation CTAs */}
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
           <Link
-            to="/"
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand-coffee-950 hover:bg-brand-coffee-900 text-white font-bold text-xs rounded-xl shadow-md transition-all"
+            to="/my-orders"
+            className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-pink-600 hover:bg-brand-pink-700 text-white font-bold text-xs rounded-xl shadow-md transition-all hover:scale-105"
+          >
+            <Package className="w-4 h-4" />
+            <span>Track & View My Orders</span>
+          </Link>
+
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-coffee-100 hover:bg-brand-coffee-200 text-brand-coffee-900 font-bold text-xs rounded-xl border border-brand-coffee-200 transition-all"
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>Return toNathan Coffee  Home</span>
+            <span>Continue Shopping</span>
+          </Link>
+
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-coffee-950 hover:bg-brand-coffee-900 text-white font-bold text-xs rounded-xl shadow-md transition-all"
+          >
+            <span>Return to Home</span>
           </Link>
         </div>
       </div>

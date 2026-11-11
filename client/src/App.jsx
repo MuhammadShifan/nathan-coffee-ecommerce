@@ -70,6 +70,10 @@ const App = () => {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/my-orders" element={<MyOrdersPage />} />
+          <Route path="/orders" element={<Navigate to="/my-orders" replace />} />
+          <Route path="/myorders" element={<Navigate to="/my-orders" replace />} />
+          <Route path="/track" element={<Navigate to="/my-orders" replace />} />
+          <Route path="/track-order" element={<Navigate to="/my-orders" replace />} />
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
           <Route path="/policy/:type" element={<PolicyPage />} />
 

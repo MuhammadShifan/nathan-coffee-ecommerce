@@ -175,10 +175,10 @@ const ContactPage = () => {
             </div>
             <div className="pt-3 border-t border-brand-coffee-100">
               <a
-                href="mailto:info@Nathancoffee.com"
+                href="mailto:nathancoffeethanjavur.official@gmail.com"
                 className="block text-sm font-extrabold text-brand-coffee-900 hover:text-brand-pink-600 transition-colors"
               >
-                info@Nathancoffee.com
+                nathancoffeethanjavur.official@gmail.com
               </a>
               <span className="text-[11px] text-brand-coffee-400">Response within 24h</span>
             </div>

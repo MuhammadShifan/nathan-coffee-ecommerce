@@ -102,55 +102,49 @@ api.interceptors.request.use(
       window.location &&
       window.location.pathname.startsWith('/admin');
 
-    // Check if endpoint is specifically customer-only
-    const isCustomerOnlyEndpoint =
-      url.includes('/api/orders/my-orders') ||
-      url.includes('/api/auth/me') ||
-      url.includes('/api/auth/profile');
-
-    // Check if endpoint is Admin-oriented
-    const isAdminEndpoint =
-      url.includes('/api/admin') ||
-      url.includes('/api/orders/stats') ||
-      url === '/api/orders' ||
-      url.startsWith('/api/orders?') ||
-      url.includes('/api/orders/all') ||
-      url.includes('/api/upload') ||
-      (url.includes('/api/contact') && method !== 'POST') ||
-      (url.includes('/api/products') && method !== 'GET') ||
-      isAdminPage;
-
     // Helper to safely attach Authorization header across Axios versions
-    const setAuthHeader = (token) => {
+    const setAuthHeader = (token, isAdmin = false) => {
       if (!token) return;
       const cleanToken = token.trim().replace(/^Bearer\s+/i, '');
       if (config.headers && typeof config.headers.set === 'function') {
         config.headers.set('Authorization', `Bearer ${cleanToken}`);
-        config.headers.set('x-admin-token', cleanToken);
+        if (isAdmin) {
+          config.headers.set('x-admin-token', cleanToken);
+        } else {
+          config.headers.delete('x-admin-token');
+        }
       } else {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${cleanToken}`;
         config.headers['Authorization'] = `Bearer ${cleanToken}`;
-        config.headers['x-admin-token'] = cleanToken;
+        if (isAdmin) {
+          config.headers['x-admin-token'] = cleanToken;
+        } else {
+          delete config.headers['x-admin-token'];
+        }
       }
     };
 
-    // 1. If admin endpoint or on admin page: prioritize Admin Token
-    if (isAdminEndpoint && !isCustomerOnlyEndpoint) {
+    // 1. If on an admin page (/admin/*) or calling admin management APIs: prioritize Admin Token
+    const isAdminApi =
+      url.startsWith('/api/admin') ||
+      url.includes('/api/orders/stats') ||
+      url.includes('/api/upload') ||
+      (url.startsWith('/api/products') && method !== 'GET') ||
+      (url.startsWith('/api/contact') && method !== 'POST');
+
+    if (isAdminPage || isAdminApi) {
       if (adminToken) {
-        setAuthHeader(adminToken);
-      }
-    } else if (isCustomerOnlyEndpoint) {
-      // 2. If customer endpoint: prioritize User Token
-      if (userToken) {
-        setAuthHeader(userToken);
+        setAuthHeader(adminToken, true);
+      } else if (userToken) {
+        setAuthHeader(userToken, false);
       }
     } else {
-      // 3. Fallback: attach whichever is available
-      if (adminToken) {
-        setAuthHeader(adminToken);
-      } else if (userToken) {
-        setAuthHeader(userToken);
+      // 2. On customer-facing site (checkout, my-orders, cart, products): ALWAYS prioritize User Token
+      if (userToken) {
+        setAuthHeader(userToken, false);
+      } else if (adminToken && isAdminApi) {
+        setAuthHeader(adminToken, true);
       }
     }
 
@@ -190,6 +184,21 @@ api.interceptors.response.use(
 
       if (isAdminPage) {
         console.warn(`[API Auth Warning] ${status} for ${url}. Admin session issue:`, error.response?.data?.message);
+      } else {
+        // If 401 on customer-facing endpoint, clean up expired customer session
+        if (
+          url.includes('/api/orders/my-orders') ||
+          url.includes('/api/auth/me') ||
+          url.includes('/api/auth/profile')
+        ) {
+          try {
+            localStorage.removeItem('Nathan_user_token');
+            localStorage.removeItem('Nathan_user_info');
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('nathan:user:session_expired'));
+            }
+          } catch (e) {}
+        }
       }
     }
 

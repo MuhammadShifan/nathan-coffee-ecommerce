@@ -12,7 +12,6 @@ import {
   Coffee,
   CheckCircle2,
   Star,
-  BookOpen,
   MapPin,
   ChevronRight,
   Heart,
@@ -20,14 +19,12 @@ import {
 import api from '../services/api';
 import ProductCard from '../components/ProductCard';
 import SEOMeta from '../components/SEOMeta';
-import BrewingGuideModal from '../components/BrewingGuideModal';
 import { defaultProductsData } from '../data/defaultProducts';
 import newLogo from '../assets/images/newLogo.png';
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [brewingGuideOpen, setBrewingGuideOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -143,14 +140,6 @@ const HomePage = () => {
                   >
                     <span>⚡ Buy Now (Express Order)</span>
                   </Link>
-
-                  <button
-                    onClick={() => setBrewingGuideOpen(true)}
-                    className="w-full sm:w-auto px-5 py-3 sm:py-3.5 bg-white/90 hover:bg-white text-brand-coffee-800 rounded-2xl font-bold text-xs shadow-sm border border-brand-coffee-200 hover:border-brand-pink-300 flex items-center justify-center gap-1.5 transition-all"
-                  >
-                    <BookOpen className="w-4 h-4 text-brand-pink-600" />
-                    <span>Brewing Guide</span>
-                  </button>
                 </motion.div>
 
                 {/* Trust Highlights Grid */}
@@ -237,7 +226,7 @@ const HomePage = () => {
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 space-y-2.5 sm:space-y-3">
             <div className="inline-flex items-center gap-1.5 bg-brand-pink-100 text-brand-pink-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5 text-brand-pink-600" />
-              <span>Direct From Our Thanjavur & Thanjavur Mills</span>
+              <span>Direct From Our Thanjavur Warehouse</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-brand-coffee-950 tracking-tight">
               Featured Filter Coffee Powder Range
@@ -360,7 +349,28 @@ const HomePage = () => {
                 "Quality over quantity is the true essence of great coffee."
               </h2>
               <p className="text-xs sm:text-sm text-brand-coffee-700 leading-relaxed">
-                In the early 1950s, amidst the vibrant temple bells and cultural tapestry of Thanjavur, our beloved Grandfather ignited his first charcoal-fired drum roaster. While others cut corners with excessive chicory and artificial darkeners, his philosophy remained unwavering: use only the purest highland beans, roast them patient and slow, and never betray the customer's trust. That foundational philosophy is alive in every single pouch ofNathan Coffee today. From our original roastery near Canara Bank on South Street, Thanjavur, to our modern hub in Thanjavur, every harvest batch is inspected by hand, slow drum-roasted to medium-dark perfection, and ground to the exact micron size required for the sweetest decoction.
+                நமது தஞ்சாவூரின் பெருமை என்றுமே
+                பாரம்பரியம் கலந்த நிறைந்தது என்று சொல்லுவதில்
+                நமக்கு பெருமை. அதே பாரம்பரிய மிக்க
+                தரத்துடனும், நூற்றுக்கு நூறு சுத்தமானது,
+                நமது தி நாதன் காபி. தஞ்சாவூருக்கு
+                மற்றொரு பெருமை இந்த நாதன்காபி.
+                1964 களில் திரு. G.சரவணன் பிள்ளை
+                அவர்களால் நிறுவப்பட்டு இன்றும் அதே
+                தரத்துடனும் நூற்றுக்கு நூறு சுத்தமானதாக
+                காபியை மக்களுக்கு வழங்கப்பட்டு
+                வருகிறது. தரமான காப்பி கொட்டைகளை
+                சிக்மகளூர், ஹாசன் மற்றும் கூசல் நகரில்
+                இருந்து Purchase செய்து தரமான முறையில்
+                காப்பி கொட்டைகளில் (PB, Plantain AA, c coffee,
+                ROB,) சரியான அளவில் Roasted செய்து
+                ஒரு தரமிக்க காபியை மக்களுக்கு கொடுப்பதில்
+                எங்களுக்கு ஒரு பெருமிதம். அன்றும், இன்றும், என்றும்
+                இதே தரமிக்க காபியினை நாதன் காப்பியை
+                வழங்குவோம். நன்றி,
+                உரிமையாளர்
+                S. ராஜ்குமார் சரவணன்.
+
               </p>
               <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 w-full">
                 <Link
@@ -453,21 +463,15 @@ const HomePage = () => {
             </h2>
             <div className="text-xs text-brand-coffee-700 leading-relaxed space-y-2.5">
               <p>
-                Looking for the best <strong>coffee powder</strong> in Thanjavur, Thanjavur, or anywhere in Tamil Nadu? <strong>Nathan Coffee </strong> (also known as <strong>Nathan Coffee</strong>) is your trusted traditional source for 100% pure filter coffee powder, handcrafted with decades of roasting heritage. Our filter coffee beans are handpicked from the verdant slopes of the Western Ghats and slow drum-roasted to bring out rich caramelized flavor notes and unmatched aroma.
+                Looking for the best <strong>coffee powder</strong> in Thanjavur or anywhere in Tamil Nadu? <strong>Nathan Coffee </strong> is your trusted traditional source for 100% pure filter coffee powder, handcrafted with decades of roasting heritage. Our filter coffee beans are handpicked from the verdant slopes of the Western Ghats and slow drum-roasted to bring out rich caramelized flavor notes and unmatched aroma.
               </p>
               <p>
-                Whether you prefer <strong>100% Pure Coffee Powder (0% Chicory)</strong> for an authentic intense decoction or our signature <strong>80:20 Roasted French Chicory Coffee Blend</strong> for hotel-style frothy morning degree coffee,Nathan Coffee delivers fresh roast batches right to your door. Order 250g, 500g, or 1kg coffee packs online with secure Razorpay UPI / Card payments and fast all-India delivery.
+                Whether you prefer <strong>100% Pure Coffee Powder (0% Chicory)</strong> for an authentic intense decoction or our signature <strong>80:20 Roasted French Chicory Coffee Blend</strong> for hotel-style frothy morning degree coffee,Nathan Coffee delivers fresh roast batches right to your door. Order 250g, 500g, or 1kg coffee packs online with secure Cashfree UPI / Card payments and fast all-India delivery.
               </p>
             </div>
           </div>
         </section>
       </div>
-
-      {/* Interactive Brewing Guide Modal */}
-      <BrewingGuideModal
-        isOpen={brewingGuideOpen}
-        onClose={() => setBrewingGuideOpen(false)}
-      />
     </>
   );
 };

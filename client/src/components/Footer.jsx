@@ -122,10 +122,10 @@ const Footer = () => {
                   <Phone className="w-3.5 h-3.5" /> +91 63838 05976
                 </a>
                 <a
-                  href="mailto:info@Nathancoffee.com"
+                  href="mailto:nathancoffeethanjavur.official@gmail.com"
                   className="flex items-center gap-2 text-brand-coffee-300 hover:text-white text-xs"
                 >
-                  <Mail className="w-3.5 h-3.5 text-brand-pink-400" /> info@Nathancoffee.com
+                  <Mail className="w-3.5 h-3.5 text-brand-pink-400" /> nathancoffeethanjavur.official@gmail.com
                 </a>
               </div>
             </div>

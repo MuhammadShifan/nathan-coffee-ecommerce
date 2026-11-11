@@ -12,42 +12,84 @@ import {
   Edit2,
   RefreshCw,
 } from 'lucide-react';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { auth } from '../firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 const AuthModal = () => {
   const {
     isAuthModalOpen,
     closeAuthModal,
-    sendOtp,
-    verifyOtp,
-    userLoading,
+    setUser,
+    setUserToken,
   } = useAuth();
 
   const { showToast } = useCart();
 
   const [step, setStep] = useState('phone'); // 'phone' | 'otp'
   const [mobileNumber, setMobileNumber] = useState('');
-  const [otpValues, setOtpValues] = useState(['', '', '', '']);
+  const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
   const [errorMessage, setErrorMessage] = useState('');
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
-  const [simulatedOtpHint, setSimulatedOtpHint] = useState('');
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState(null);
 
-  const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+  const inputRefs = [
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+  ];
   const phoneInputRef = useRef(null);
 
-  // Reset state on open
+  // Cleanup reCAPTCHA helper
+  function resetRecaptcha() {
+    if (typeof window !== 'undefined' && window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (e) {
+        // ignore
+      }
+      window.recaptchaVerifier = null;
+    }
+  }
+
+  // Setup Firebase RecaptchaVerifier helper
+  function setupRecaptcha() {
+    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+        callback: () => {
+          // reCAPTCHA solved
+        },
+        'expired-callback': () => {
+          setErrorMessage('reCAPTCHA expired. Please try sending OTP again.');
+        },
+      });
+    }
+    return window.recaptchaVerifier;
+  }
+
+  // Initialize or clear state when modal open/closes
   useEffect(() => {
     if (isAuthModalOpen) {
       setStep('phone');
       setErrorMessage('');
-      setOtpValues(['', '', '', '']);
+      setOtpValues(['', '', '', '', '', '']);
+      setConfirmationResult(null);
       setResendTimer(30);
       setCanResend(false);
       setTimeout(() => {
         phoneInputRef.current?.focus();
       }, 100);
+    } else {
+      resetRecaptcha();
     }
   }, [isAuthModalOpen]);
 
@@ -68,6 +110,13 @@ const AuthModal = () => {
     return () => clearInterval(timer);
   }, [step, resendTimer]);
 
+  // Clean up reCAPTCHA on unmount
+  useEffect(() => {
+    return () => {
+      resetRecaptcha();
+    };
+  }, []);
+
   if (!isAuthModalOpen) return null;
 
   // Handle Phone input formatting (digits only, max 10)
@@ -79,7 +128,7 @@ const AuthModal = () => {
     }
   };
 
-  // Submit Phone Number -> Request OTP
+  // Submit Phone Number -> Request OTP via Firebase SMS
   const handleSendOtpSubmit = async (e) => {
     e?.preventDefault();
     setErrorMessage('');
@@ -89,18 +138,38 @@ const AuthModal = () => {
       return;
     }
 
-    const res = await sendOtp(mobileNumber);
-    if (res.success) {
+    setSendingOtp(true);
+    try {
+      const appVerifier = setupRecaptcha();
+      const formattedPhoneNumber = `+91${mobileNumber}`;
+
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier);
+      setConfirmationResult(confirmation);
+
       setStep('otp');
       setResendTimer(30);
       setCanResend(false);
-      setSimulatedOtpHint(res.otp || '1234');
-      showToast(`OTP sent to +91 ${mobileNumber} 📲`, 'success');
+      showToast(`SMS OTP sent to +91 ${mobileNumber} 📲`, 'success');
+
       setTimeout(() => {
         inputRefs[0].current?.focus();
       }, 150);
-    } else {
-      setErrorMessage(res.message || 'Failed to send OTP. Please try again.');
+    } catch (err) {
+      console.error('Firebase signInWithPhoneNumber Error:', err);
+      resetRecaptcha();
+      let msg = 'Failed to send SMS OTP. Please check your number and try again.';
+      if (err.code === 'auth/invalid-phone-number') {
+        msg = 'Invalid mobile number. Please enter a valid 10-digit number.';
+      } else if (err.code === 'auth/too-many-requests') {
+        msg = 'Too many requests. Please wait a few moments before trying again.';
+      } else if (err.code === 'auth/quota-exceeded') {
+        msg = 'SMS quota exceeded for today. Please try again later.';
+      } else if (err.message) {
+        msg = err.message;
+      }
+      setErrorMessage(msg);
+    } finally {
+      setSendingOtp(false);
     }
   };
 
@@ -113,13 +182,13 @@ const AuthModal = () => {
     setErrorMessage('');
 
     // Auto advance focus
-    if (char && index < 3) {
+    if (char && index < 5) {
       inputRefs[index + 1].current?.focus();
     }
 
-    // Auto submit if 4 digits filled
+    // Auto submit if 6 digits filled
     const joined = newOtp.join('');
-    if (joined.length === 4 && index === 3 && char) {
+    if (joined.length === 6 && index === 5 && char) {
       triggerVerify(joined);
     }
   };
@@ -132,47 +201,94 @@ const AuthModal = () => {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4);
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
     if (pastedData.length > 0) {
-      const newOtp = ['', '', '', ''];
+      const newOtp = ['', '', '', '', '', ''];
       for (let i = 0; i < pastedData.length; i++) {
         newOtp[i] = pastedData[i];
       }
       setOtpValues(newOtp);
-      if (pastedData.length === 4) {
+      if (pastedData.length === 6) {
         triggerVerify(pastedData);
       } else {
-        inputRefs[Math.min(pastedData.length, 3)].current?.focus();
+        inputRefs[Math.min(pastedData.length, 5)].current?.focus();
       }
     }
   };
 
-  // Submit OTP
+  // Submit OTP -> Verify with Firebase & backend
   const triggerVerify = async (otpToVerify) => {
     const otpCode = otpToVerify || otpValues.join('');
-    if (otpCode.length !== 4) {
-      setErrorMessage('Please enter the full 4-digit OTP');
+    if (otpCode.length !== 6) {
+      setErrorMessage('Please enter the full 6-digit OTP');
+      return;
+    }
+
+    if (!confirmationResult) {
+      setErrorMessage('Session expired. Please request a new OTP.');
       return;
     }
 
     setErrorMessage('');
-    const res = await verifyOtp(mobileNumber, otpCode);
-    if (res.success) {
-      showToast(`Welcome back, +91 ${mobileNumber}! ☕`, 'success');
-    } else {
-      setErrorMessage(res.message || 'Invalid verification code');
-    }
-  };
+    setVerifyingOtp(true);
+    try {
+      // 1. Confirm OTP with Firebase
+      const userCredential = await confirmationResult.confirm(otpCode);
+      const firebaseUser = userCredential.user;
 
-  const handleQuickFillDemo = () => {
-    const demoCode = ['1', '2', '3', '4'];
-    setOtpValues(demoCode);
-    triggerVerify('1234');
+      // 2. Retrieve Firebase ID Token
+      const firebaseToken = await firebaseUser.getIdToken();
+
+      // 3. Make POST request to backend verifyOTP endpoint
+      const res = await api.post('/api/auth/verifyOTP', {
+        firebaseToken,
+      });
+
+      if (res.data && res.data.success && res.data.token) {
+        const receivedToken = res.data.token;
+        const receivedUser = res.data.user;
+
+        // 1. Save authentication token in localStorage
+        localStorage.setItem('Nathan_user_token', receivedToken);
+        if (receivedUser) {
+          localStorage.setItem('Nathan_user_info', JSON.stringify(receivedUser));
+        }
+
+        // 2. Update user's authenticated state
+        if (typeof setUser === 'function') setUser(receivedUser);
+        if (typeof setUserToken === 'function') setUserToken(receivedToken);
+
+        // 3. Close the modal
+        closeAuthModal();
+
+        showToast(`Welcome back, +91 ${mobileNumber}! ☕`, 'success');
+      } else {
+        setErrorMessage(res.data?.message || 'Server verification failed');
+      }
+    } catch (err) {
+      console.error('OTP Verification Error:', err);
+      let msg = 'Invalid or expired verification code. Please try again.';
+      if (err.code === 'auth/invalid-verification-code') {
+        msg = 'Incorrect 6-digit verification code. Please check and re-enter.';
+      } else if (err.code === 'auth/code-expired') {
+        msg = 'The verification code has expired. Please resend a new OTP.';
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      } else if (err.message) {
+        msg = err.message;
+      }
+      setErrorMessage(msg);
+    } finally {
+      setVerifyingOtp(false);
+    }
   };
 
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        {/* Invisible reCAPTCHA container */}
+        <div id="recaptcha-container"></div>
+
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -216,7 +332,7 @@ const AuthModal = () => {
             <p className="text-xs text-brand-pink-100 mt-1 font-medium">
               {step === 'phone'
                 ? 'Login with Mobile OTP to access checkout & orders'
-                : `Enter 4-digit code sent to +91 ${mobileNumber}`}
+                : `Enter 6-digit code sent to +91 ${mobileNumber}`}
             </p>
           </div>
 
@@ -266,17 +382,17 @@ const AuthModal = () => {
                     />
                   </div>
                   <p className="text-[11px] text-brand-coffee-500 mt-1.5">
-                    We'll send a 4-digit verification code via simulated SMS.
+                    We'll send a 6-digit verification code via SMS to your mobile phone.
                   </p>
                 </div>
 
-                {/* Dev Testing Hint Card */}
+                {/* SMS Info Card */}
                 <div className="p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-start gap-2 text-xs text-amber-900">
                   <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold">Instant Development Access:</span>
+                    <span className="font-bold">Instant SMS Verification:</span>
                     <p className="text-[11px] text-amber-800 mt-0.5">
-                      Enter any 10-digit number. Simulated OTP code is <strong className="font-black bg-amber-200 px-1 py-0.5 rounded text-brand-coffee-950">1234</strong>.
+                      Enter your 10-digit mobile number to receive your one-time code via SMS.
                     </p>
                   </div>
                 </div>
@@ -284,17 +400,17 @@ const AuthModal = () => {
                 <button
                   id="modal-send-otp-btn"
                   type="submit"
-                  disabled={mobileNumber.length !== 10 || userLoading}
+                  disabled={mobileNumber.length !== 10 || sendingOtp}
                   className="w-full py-3.5 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-pink-600/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] btn-shimmer"
                 >
-                  {userLoading ? (
+                  {sendingOtp ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Sending OTP...</span>
+                      <span>Sending SMS OTP...</span>
                     </div>
                   ) : (
                     <>
-                      <span>Get OTP on Mobile</span>
+                      <span>Get OTP via SMS</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -322,12 +438,12 @@ const AuthModal = () => {
                   </button>
                 </div>
 
-                {/* 4-digit Segmented OTP inputs */}
+                {/* 6-digit Segmented OTP inputs */}
                 <div>
                   <label className="block text-center text-xs font-bold text-brand-coffee-900 uppercase tracking-wider mb-3">
-                    Enter 4-Digit OTP Code
+                    Enter 6-Digit OTP Code
                   </label>
-                  <div className="flex justify-center gap-2.5 sm:gap-3" onPaste={handlePaste}>
+                  <div className="flex justify-center gap-1.5 sm:gap-2.5" onPaste={handlePaste}>
                     {otpValues.map((val, idx) => (
                       <input
                         key={idx}
@@ -339,34 +455,24 @@ const AuthModal = () => {
                         value={val}
                         onChange={(e) => handleOtpChange(idx, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(idx, e)}
-                        className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-black text-brand-pink-700 bg-brand-coffee-50/70 border-2 border-brand-coffee-200 focus:border-brand-pink-600 focus:bg-white rounded-2xl focus:outline-none focus:ring-4 focus:ring-brand-pink-500/20 transition-all shadow-sm"
+                        className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black text-brand-pink-700 bg-brand-coffee-50/70 border-2 border-brand-coffee-200 focus:border-brand-pink-600 focus:bg-white rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-brand-pink-500/20 transition-all shadow-sm"
                       />
                     ))}
                   </div>
                 </div>
-
-                {/* Quick Auto-fill button for fast dev testing */}
-                <button
-                  type="button"
-                  onClick={handleQuickFillDemo}
-                  className="w-full py-2 bg-brand-pink-50 hover:bg-brand-pink-100 border border-brand-pink-200 rounded-xl text-xs font-bold text-brand-pink-700 flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-brand-yellow-500" />
-                  <span>Click to Auto-fill Demo OTP (1234)</span>
-                </button>
 
                 {/* Submit Verification Button */}
                 <button
                   id="modal-verify-otp-btn"
                   type="button"
                   onClick={() => triggerVerify()}
-                  disabled={otpValues.join('').length !== 4 || userLoading}
+                  disabled={otpValues.join('').length !== 6 || verifyingOtp}
                   className="w-full py-3.5 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-pink-600/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] btn-shimmer"
                 >
-                  {userLoading ? (
+                  {verifyingOtp ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Verifying...</span>
+                      <span>Verifying Code...</span>
                     </div>
                   ) : (
                     <>
@@ -394,12 +500,6 @@ const AuthModal = () => {
                 </div>
               </div>
             )}
-
-            {/* Footer Trust Shield */}
-            <div className="pt-3 border-t border-brand-coffee-100 flex items-center justify-center gap-1.5 text-[11px] text-brand-coffee-500 text-center">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-              <span>Safe & Secure 256-bit Login • Nathan Coffee </span>
-            </div>
           </div>
         </motion.div>
       </div>

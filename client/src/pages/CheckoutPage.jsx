@@ -21,7 +21,7 @@ import {
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { openRazorpayModal } from '../services/razorpay';
+import { initiateCashfreeCheckout } from '../services/cashfree';
 import SEOMeta from '../components/SEOMeta';
 
 const CheckoutPage = () => {
@@ -82,9 +82,54 @@ const CheckoutPage = () => {
     pincode: '',
   });
 
-  const paymentMethod = 'razorpay';
+  const paymentMethod = 'cashfree';
   const [processing, setProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  // Check for Cashfree redirect callback in URL query params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const cfOrderId = params.get('cf_order_id') || params.get('order_id');
+
+    if (cfOrderId) {
+      setProcessing(true);
+      let savedOrderDetails = null;
+      try {
+        const raw = sessionStorage.getItem('Nathan_pending_checkout');
+        if (raw) savedOrderDetails = JSON.parse(raw);
+      } catch (e) {}
+
+      api
+        .post('/api/payment/verify', {
+          orderId: cfOrderId,
+          orderDetails: savedOrderDetails || undefined,
+        })
+        .then((res) => {
+          if (res.data.success) {
+            try {
+              localStorage.setItem('Nathan_last_order_id', res.data.orderId);
+              sessionStorage.removeItem('Nathan_pending_checkout');
+              sessionStorage.removeItem('Nathan_buy_now_item');
+            } catch (e) {}
+            clearCart();
+            navigate(`/order-success/${res.data.orderId}`, {
+              state: { order: res.data.order },
+              replace: true,
+            });
+          } else {
+            setErrorMessage(res.data.message || 'Cashfree payment verification failed');
+            setProcessing(false);
+          }
+        })
+        .catch((err) => {
+          console.error('Redirect verification error:', err);
+          setErrorMessage(
+            err.response?.data?.message || err.message || 'Failed to verify Cashfree payment'
+          );
+          setProcessing(false);
+        });
+    }
+  }, [location.search]);
 
   // Auto-fill user information if logged in
   useEffect(() => {
@@ -159,76 +204,82 @@ const CheckoutPage = () => {
     setProcessing(true);
 
     try {
-      // Step 1: Create Razorpay Order on Backend
-      const orderRes = await api.post('/api/payment/create-order', {
-        amount: grandTotal,
-        currency: 'INR',
-        receipt: `rcpt_${Date.now().toString().slice(-6)}`,
-        notes: {
-          customer_name: formData.name,
-          customer_phone: formData.phone,
-          user_id: user?._id || '',
-          brand: 'Nathan Coffee ',
-        },
-      });
-
-      if (!orderRes.data.success || !orderRes.data.order) {
-        throw new Error(orderRes.data.message || 'Failed to initialize Razorpay payment');
-      }
-
-      const { order: razorpayOrder, keyId } = orderRes.data;
-
-      // Step 2: Open Razorpay Modal
-      openRazorpayModal({
-        keyId: keyId || 'rzp_test_TfsAvrbG1O9sYj',
-        orderId: razorpayOrder.id,
-        amount: grandTotal,
+      // Build order details payload
+      const orderDetailsPayload = {
+        userId: user?._id || undefined,
         customer: {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          address: formData,
+          address: {
+            doorNo: formData.doorNo,
+            street: formData.street,
+            landmark: formData.landmark,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.pincode,
+          },
         },
-        onSuccess: async (paymentResponse) => {
+        items: checkoutItems.map((i) => ({
+          productId: i.productId,
+          title: i.title,
+          weight: i.weight,
+          price: i.price,
+          quantity: i.quantity,
+          image: i.image,
+        })),
+        pricing: {
+          subtotal,
+          shippingFee,
+          discount: 0,
+          totalAmount: grandTotal,
+        },
+      };
+
+      // Persist pending checkout in sessionStorage in case of external gateway redirection
+      try {
+        sessionStorage.setItem('Nathan_pending_checkout', JSON.stringify(orderDetailsPayload));
+      } catch (e) {}
+
+      // Step 1: Create Cashfree Order on Backend (generates payment_session_id in sandbox)
+      const orderRes = await api.post('/api/payment/create-order', {
+        amount: grandTotal,
+        currency: 'INR',
+        customer: {
+          id: user?._id || undefined,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+        },
+        orderNote: 'Nathan Coffee Pure Filter Coffee Order',
+        returnUrl: `${window.location.origin}/checkout?cf_order_id={order_id}`,
+      });
+
+      if (!orderRes.data.success || !orderRes.data.paymentSessionId) {
+        throw new Error(orderRes.data.message || 'Failed to initialize Cashfree payment order');
+      }
+
+      const { paymentSessionId, orderId } = orderRes.data;
+
+      // Step 2: Open Cashfree Checkout Modal in sandbox mode
+      await initiateCashfreeCheckout({
+        paymentSessionId,
+        redirectTarget: '_modal',
+        mode: 'sandbox',
+        onSuccess: async (paymentDetails) => {
           try {
-            // Step 3: Verify Signature & Save in MongoDB with userId
+            // Step 3: Verify Payment & Save confirmed order into MongoDB
             const verifyRes = await api.post('/api/payment/verify', {
-              razorpay_order_id: paymentResponse.razorpay_order_id,
-              razorpay_payment_id: paymentResponse.razorpay_payment_id,
-              razorpay_signature: paymentResponse.razorpay_signature,
-              orderDetails: {
-                userId: user?._id || undefined,
-                customer: {
-                  name: formData.name,
-                  email: formData.email,
-                  phone: formData.phone,
-                  address: {
-                    doorNo: formData.doorNo,
-                    street: formData.street,
-                    landmark: formData.landmark,
-                    city: formData.city,
-                    state: formData.state,
-                    pincode: formData.pincode,
-                  },
-                },
-                items: checkoutItems.map((i) => ({
-                  productId: i.productId,
-                  title: i.title,
-                  weight: i.weight,
-                  price: i.price,
-                  quantity: i.quantity,
-                  image: i.image,
-                })),
-                pricing: {
-                  subtotal,
-                  shippingFee,
-                  discount: 0,
-                  totalAmount: grandTotal,
-                },
-              },
+              orderId,
+              orderDetails: orderDetailsPayload,
             });
 
             if (verifyRes.data.success) {
+              try {
+                localStorage.setItem('Nathan_last_order_id', verifyRes.data.orderId);
+                sessionStorage.removeItem('Nathan_pending_checkout');
+              } catch (e) {}
+
               if (isBuyNow) {
                 try {
                   sessionStorage.removeItem('Nathan_buy_now_item');
@@ -245,25 +296,42 @@ const CheckoutPage = () => {
             }
           } catch (err) {
             console.error('Verification error:', err);
-            if (isBuyNow) {
-              try {
-                sessionStorage.removeItem('Nathan_buy_now_item');
-              } catch (e) {}
-            } else {
-              clearCart();
-            }
-            const simulatedId = `NC-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-            navigate(`/order-success/${simulatedId}`);
+            const msg = err.response?.data?.message || err.message || 'Payment verification failed. Please check your network or contact support.';
+            setErrorMessage(msg);
+            setProcessing(false);
           }
         },
         onFailure: (err) => {
-          setErrorMessage(err.description || err.message || 'Payment was cancelled or failed. Please retry.');
-          setProcessing(false);
+          console.warn('Payment failed or modal closed:', err);
+          // Check backend status in case payment was completed right before modal closed
+          api
+            .get(`/api/payment/order-status/${orderId}`)
+            .then(async (statusRes) => {
+              if (statusRes.data?.order?.order_status === 'PAID') {
+                const verifyRes = await api.post('/api/payment/verify', {
+                  orderId,
+                  orderDetails: orderDetailsPayload,
+                });
+                if (verifyRes.data.success) {
+                  clearCart();
+                  navigate(`/order-success/${verifyRes.data.orderId}`, {
+                    state: { order: verifyRes.data.order },
+                  });
+                  return;
+                }
+              }
+              setErrorMessage(err?.message || 'Payment was cancelled or could not be completed. Please retry.');
+              setProcessing(false);
+            })
+            .catch(() => {
+              setErrorMessage(err?.message || 'Payment was cancelled or failed. Please retry.');
+              setProcessing(false);
+            });
         },
       });
     } catch (error) {
       console.error('Checkout processing error:', error);
-      setErrorMessage(error.message || 'Failed to process order. Please try again.');
+      setErrorMessage(error.response?.data?.message || error.message || 'Failed to process order. Please try again.');
       setProcessing(false);
     }
   };
@@ -293,7 +361,7 @@ const CheckoutPage = () => {
     <>
       <SEOMeta
         title="Secure Checkout - Nathan Coffee "
-        description="Fast and secure Razorpay payment checkout for Nathan Pure Filter Coffee Powder with all-India shipping."
+        description="Fast and secure Cashfree payment checkout for Nathan Pure Filter Coffee Powder with all-India shipping."
         canonicalUrl="https://Nathancoffee.com/checkout"
         includeLocalBusiness={false}
       />
@@ -552,7 +620,7 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Razorpay Online Payment Option */}
+                  {/* Cashfree Online Payment Option */}
                   <div
                     className="flex items-center justify-between p-4 rounded-2xl border-2 border-brand-pink-600 bg-brand-pink-50/50 shadow-sm"
                   >
@@ -560,7 +628,7 @@ const CheckoutPage = () => {
                       <input
                         type="radio"
                         name="paymentMethod"
-                        value="razorpay"
+                        value="cashfree"
                         checked={true}
                         readOnly
                         className="text-brand-pink-600 focus:ring-brand-pink-500 w-4 h-4 cursor-default"
@@ -568,14 +636,14 @@ const CheckoutPage = () => {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-bold text-brand-coffee-950">
-                            Online Payment (Razorpay)
+                            Online Payment (Cashfree Payments)
                           </span>
                           <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-md">
                             RECOMMENDED
                           </span>
                         </div>
                         <p className="text-xs text-brand-coffee-600 mt-0.5">
-                          Instant UPI (GPay, PhonePe, Paytm), Debit/Credit Cards, NetBanking
+                          Instant UPI (GPay, PhonePe, Paytm), Debit/Credit Cards, NetBanking & Wallets
                         </p>
                       </div>
                     </div>
@@ -585,11 +653,11 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* Razorpay Trust Badge */}
+                {/* Cashfree Trust Badge */}
                 <div className="p-3.5 rounded-2xl bg-brand-coffee-50 border border-brand-coffee-200 flex items-center gap-3 text-xs text-brand-coffee-700">
                   <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
                   <span>
-                    <strong>100% Secure Payments:</strong> Powered by Razorpay. End-to-end 256-bit SSL encrypted.
+                    <strong>100% Secure Payments:</strong> Powered by Cashfree Payments. End-to-end 256-bit SSL encrypted.
                   </span>
                 </div>
               </div>
@@ -606,7 +674,7 @@ const CheckoutPage = () => {
                     ? 'Connecting to Secure Gateway...'
                     : !isUserAuthenticated
                       ? 'Login with Mobile to Complete Order'
-                      : `Pay ₹${grandTotal} with Razorpay`}
+                      : `Pay ₹${grandTotal} with Cashfree`}
                 </span>
                 <ArrowRight className="w-4 h-4" />
               </button>

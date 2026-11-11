@@ -115,7 +115,7 @@ const AboutPage = () => {
                   Founded by our beloved Grandfather on South Street, Thanjavur.
                 </p>
                 <p className="text-[11px] text-brand-coffee-600 font-medium font-tamil mt-1">
-                  நமது அன்பிற்குரிய தாத்தாவால் உருவாக்கப்பட்ட நாதன் காப்பி மார்ட்
+                  நமது அன்பிற்குரிய தாத்தாவால் உருவாக்கப்பட்ட நாதன் காப்பி
                 </p>
               </div>
             </div>
@@ -131,11 +131,7 @@ const AboutPage = () => {
               </h2>
 
               <p className="text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
-                In the early 1950s, amidst the vibrant temple bells and cultural tapestry of Thanjavur, our beloved Grandfather ignited his first charcoal-fired drum roaster. While others cut corners with excessive chicory and artificial darkeners, his philosophy remained unwavering: <em>use only the purest highland beans, roast them patient and slow, and never betray the customer's trust.</em>
-              </p>
-
-              <p className="text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
-                That foundational philosophy is alive in every single pouch ofNathan Coffee today. From our original roastery near Canara Bank on South Street, Thanjavur, to our modern hub in Thanjavur, every harvest batch is inspected by hand, slow drum-roasted to medium-dark perfection, and ground to the exact micron size required for the sweetest decoction.
+                நமது தஞ்சாவூரின் பெருமை என்றுமே பாரம்பரியம் கலந்த நிறைந்தது என்று சொல்லுவதில் நமக்கு பெருமை. அதே பாரம்பரிய மிக்க தரத்துடனும், நூற்றுக்கு நூறு சுத்தமானது, நமது தி நாதன் காபி. தஞ்சாவூருக்கு மற்றொரு பெருமை இந்த நாதன்காபி. 1964 களில் திரு. G.சரவணன் பிள்ளை அவர்களால் நிறுவப்பட்டு இன்றும் அதே தரத்துடனும் நூற்றுக்கு நூறு சுத்தமானதாக காபியை மக்களுக்கு வழங்கப்பட்டு வருகிறது. தரமான காப்பி கொட்டைகளை சிக்மகளூர், ஹாசன் மற்றும் கூசல் நகரில் இருந்து Purchase செய்து தரமான முறையில் காப்பி கொட்டைகளில் (PB, Plantain AA, c coffee, ROB) சரியான அளவில் Roasted செய்து ஒரு தரமிக்க காபியை மக்களுக்கு கொடுப்பதில் எங்களுக்கு ஒரு பெருமிதம். அன்றும், இன்றும், என்றும் இதே தரமிக்க காபியினை நாதன் காப்பியை வழங்குவோம். நன்றி, உரிமையாளர் <br /> <br /> <span className="text-xs sm:text-sm font-extrabold text-brand-coffee-950 italic">S. ராஜ்குமார் சரவணன்.</span>
               </p>
 
               {/* Famous Quote Box */}

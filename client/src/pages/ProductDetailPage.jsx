@@ -148,7 +148,7 @@ const ProductDetailPage = () => {
   const [selectedWeight, setSelectedWeight] = useState('250g');
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
-  const [activeTab, setActiveTab] = useState('brewing');
+  const [activeTab, setActiveTab] = useState('details');
   const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
@@ -810,21 +810,11 @@ const ProductDetailPage = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* TABBED SPECIFICATIONS & BREWING GUIDE */}
+        {/* TABBED SPECIFICATIONS & REVIEWS */}
         {/* ========================================================================= */}
         <div className="bg-white rounded-3xl border border-brand-coffee-200 shadow-md p-6 sm:p-10 space-y-6">
           {/* Tab Navigation */}
           <div className="flex items-center gap-2 sm:gap-4 border-b border-brand-coffee-200 pb-4 overflow-x-auto custom-scrollbar">
-            <button
-              onClick={() => setActiveTab('brewing')}
-              className={`px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center gap-2 flex-shrink-0 ${activeTab === 'brewing'
-                ? 'bg-brand-pink-600 text-white shadow-md'
-                : 'bg-brand-coffee-50 text-brand-coffee-700 hover:bg-brand-pink-50'
-                }`}
-            >
-              <Coffee className="w-4 h-4" /> Traditional Brewing Guide
-            </button>
-
             <button
               onClick={() => setActiveTab('details')}
               className={`px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center gap-2 flex-shrink-0 ${activeTab === 'details'
@@ -846,63 +836,7 @@ const ProductDetailPage = () => {
             </button>
           </div>
 
-          {/* Tab 1: Traditional Brewing Guide */}
-          {activeTab === 'brewing' && (
-            <div className="space-y-6">
-              <div className="max-w-2xl">
-                <h3 className="text-lg font-black text-brand-coffee-950">
-                  How to Brew South Indian Filter Coffee (Hotel-Style Decoction)
-                </h3>
-                <p className="text-xs sm:text-sm text-brand-coffee-600 mt-1">
-                  Follow these 4 simple steps to extract thick golden decoction with maximum foam and aroma.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4 rounded-2xl bg-brand-pink-50/50 border border-brand-pink-200/80 space-y-2">
-                  <div className="w-8 h-8 rounded-xl bg-brand-pink-600 text-white font-black flex items-center justify-center text-xs">
-                    1
-                  </div>
-                  <h4 className="font-bold text-sm text-brand-coffee-950">Add Fresh Powder</h4>
-                  <p className="text-xs text-brand-coffee-700 leading-relaxed">
-                    Add 2 to 3 heaped tablespoons ofNathan Coffee powder into the upper pierced chamber of the brass/steel filter.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-brand-yellow-50/50 border border-brand-yellow-200/80 space-y-2">
-                  <div className="w-8 h-8 rounded-xl bg-brand-yellow-500 text-brand-coffee-950 font-black flex items-center justify-center text-xs">
-                    2
-                  </div>
-                  <h4 className="font-bold text-sm text-brand-coffee-950">Light Tamp & Plunger</h4>
-                  <p className="text-xs text-brand-coffee-700 leading-relaxed">
-                    Place the pressing disc lightly on the powder without hard tamping so boiling water can seep evenly.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-2">
-                  <div className="w-8 h-8 rounded-xl bg-amber-600 text-white font-black flex items-center justify-center text-xs">
-                    3
-                  </div>
-                  <h4 className="font-bold text-sm text-brand-coffee-950">Pour Boiling Water</h4>
-                  <p className="text-xs text-brand-coffee-700 leading-relaxed">
-                    Pour freshly boiled water (100ml) over the umbrella disc, close the lid, and let it percolate for 12-15 minutes.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 space-y-2">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-black flex items-center justify-center text-xs">
-                    4
-                  </div>
-                  <h4 className="font-bold text-sm text-brand-coffee-950">Froth with Hot Milk</h4>
-                  <p className="text-xs text-brand-coffee-700 leading-relaxed">
-                    Mix 30ml thick decoction with 100ml piping hot foamed full-cream milk and sugar. Froth between Davarah and Tumbler!
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Tab 2: Blend & Roast Profile */}
+          {/* Tab: Blend & Roast Profile */}
           {activeTab === 'details' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs sm:text-sm">
               <div className="space-y-4">

@@ -180,13 +180,13 @@ const Navbar = () => {
                 <Link
                   id="my-orders-nav-btn"
                   to="/my-orders"
-                  className={`hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex-shrink-0 whitespace-nowrap ${location.pathname === '/my-orders'
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex-shrink-0 whitespace-nowrap ${location.pathname === '/my-orders'
                     ? 'bg-brand-pink-600 text-white shadow-brand-pink-600/30'
                     : 'bg-brand-pink-50 hover:bg-brand-pink-100 text-brand-pink-700 border border-brand-pink-200'
                     }`}
                 >
                   <Package className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span>My Orders</span>
+                  <span className="hidden sm:inline">My Orders</span>
                 </Link>
 
                 {/* User Profile / Logout Dropdown */}
@@ -255,13 +255,28 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              /* GUEST: Login Button & Order Now CTA */
+              /* GUEST: Track Order Link, Login Button & Order Now CTA */
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                {/* Track Order Button for Guests */}
+                <Link
+                  id="track-orders-nav-btn"
+                  to="/my-orders"
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold transition-all border ${
+                    location.pathname === '/my-orders'
+                      ? 'bg-brand-pink-600 text-white border-brand-pink-600'
+                      : 'bg-white hover:bg-brand-pink-50 text-brand-coffee-900 border-brand-coffee-200 hover:border-brand-pink-300'
+                  }`}
+                  title="Track Your Order"
+                >
+                  <Package className="w-3.5 h-3.5 text-brand-pink-600" />
+                  <span className="hidden xs:inline sm:inline">Track Order</span>
+                </Link>
+
                 {/* Login Button */}
                 <button
                   id="nav-login-btn"
                   onClick={() => openAuthModal()}
-                  className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white hover:bg-brand-pink-50 text-brand-coffee-900 hover:text-brand-pink-600 font-bold text-xs border border-brand-coffee-200 hover:border-brand-pink-300 transition-all shadow-sm flex-shrink-0 whitespace-nowrap"
+                  className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-brand-pink-50 text-brand-coffee-900 hover:text-brand-pink-600 font-bold text-xs border border-brand-coffee-200 hover:border-brand-pink-300 transition-all shadow-sm flex-shrink-0 whitespace-nowrap"
                 >
                   <UserIcon className="w-3.5 h-3.5 text-brand-pink-600" />
                   <span>Login</span>

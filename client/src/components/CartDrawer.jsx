@@ -216,7 +216,7 @@ const CartDrawer = () => {
 
                   <div className="flex items-center justify-center gap-1.5 text-[11px] text-brand-coffee-500 text-center pt-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>100% Secure Razorpay Checkout with UPI & Cards</span>
+                    <span>100% Secure Cashfree Checkout with UPI & Cards</span>
                   </div>
                 </div>
               )}

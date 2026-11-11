@@ -35,10 +35,10 @@ const SEOMeta = ({
     },
     foundingDate: '1950',
     telephone: '+91-6383805976',
-    email: 'info@Nathancoffee.com',
+    email: 'nathancoffeethanjavur.official@gmail.com',
     priceRange: '₹₹',
     currenciesAccepted: 'INR',
-    paymentAccepted: 'Credit Card, Debit Card, UPI, Net Banking, Razorpay',
+    paymentAccepted: 'Credit Card, Debit Card, UPI, Net Banking, Cashfree',
     address: [
       {
         '@type': 'PostalAddress',

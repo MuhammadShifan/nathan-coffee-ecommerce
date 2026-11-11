@@ -167,3 +167,5 @@ export const protectUserOptional = async (req, res, next) => {
   }
   next();
 };
+
+export { verifyFirebaseToken, verifyFirebaseTokenOptional } from './firebaseAuth.js';

@@ -99,7 +99,7 @@ const AdminDashboardPage = () => {
               </h3>
               <p className="text-[11px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Verified Razorpay Online Sales
+                Verified Online Sales (Cashfree)
               </p>
             </div>
           </div>
@@ -283,7 +283,7 @@ const AdminDashboardPage = () => {
                               : 'bg-amber-100 text-amber-800'
                           }`}
                         >
-                          {order.payment?.method || 'Razorpay'}: {order.payment?.status}
+                          {order.payment?.method || 'Cashfree'}: {order.payment?.status}
                         </span>
                       </td>
 
