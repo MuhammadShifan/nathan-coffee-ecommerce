@@ -35,7 +35,7 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-brand-coffee-50 flex flex-col lg:flex-row font-sans">
+    <div className="min-h-screen bg-brand-coffee-50 flex flex-col font-sans">
       {/* Mobile Header */}
       <header className="lg:hidden bg-brand-coffee-950 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-brand-pink-600">
         <div className="flex items-center gap-2.5">
@@ -61,9 +61,18 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
         </button>
       </header>
 
-      {/* Sidebar Navigation */}
+      {/* Mobile Sidebar Backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Fixed Sidebar Navigation */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-brand-coffee-950 text-white flex flex-col justify-between border-r-2 border-brand-pink-600/30 transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-0 left-0 z-50 h-screen w-72 overflow-y-auto bg-brand-coffee-950 text-white flex flex-col justify-between border-r-2 border-brand-pink-600/30 transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
         <div>
@@ -148,7 +157,7 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      <main className="flex-1 flex flex-col min-w-0 lg:ml-72">
         {/* Top Desktop Bar */}
         <div className="hidden lg:flex items-center justify-between px-8 py-4 bg-white border-b border-brand-coffee-200/80 sticky top-0 z-30 shadow-xs">
           <div>

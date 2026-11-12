@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Mail, Eye, EyeOff, ShieldCheck, Coffee, ArrowRight, AlertCircle } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, Coffee, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import SEOMeta from '../../components/SEOMeta';
 
@@ -9,8 +9,8 @@ const AdminLoginPage = () => {
   const { login, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('nathan@gmail.com');
-  const [password, setPassword] = useState('12345678');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorAlert, setErrorAlert] = useState(null);
 
@@ -92,7 +92,8 @@ const AdminLoginPage = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nathan@gmail.com"
+                  placeholder="Enter admin email"
+                  autoComplete="email"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-xs text-brand-coffee-900 bg-brand-coffee-50/60"
                 />
               </div>
@@ -132,17 +133,6 @@ const AdminLoginPage = () => {
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
-
-          {/* Quick Demo Credentials Info */}
-          <div className="p-3.5 rounded-2xl bg-brand-yellow-50 border border-brand-yellow-200 text-[11px] text-brand-coffee-800 space-y-1">
-            <div className="flex items-center gap-1 font-bold text-brand-coffee-950">
-              <ShieldCheck className="w-3.5 h-3.5 text-brand-yellow-600" />
-              <span>Default Master Credentials:</span>
-            </div>
-            <p className="font-mono text-[10px]">
-              Email: <strong>nathan@gmail.com</strong> | Pass: <strong>12345678</strong>
-            </p>
-          </div>
         </motion.div>
       </div>
     </>
