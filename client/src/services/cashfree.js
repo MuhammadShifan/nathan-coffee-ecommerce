@@ -3,11 +3,11 @@ import { load } from '@cashfreepayments/cashfree-js';
 let cashfreeInstancePromise = null;
 
 /**
- * Get or initialize the Cashfree SDK instance in sandbox mode
- * @param {string} mode 'sandbox' or 'production' (defaults to 'sandbox')
+ * Get or initialize the Cashfree SDK instance in production mode
+ * @param {string} mode 'sandbox' or 'production' (defaults to 'production')
  * @returns {Promise<any>}
  */
-export const getCashfree = async (mode = 'sandbox') => {
+export const getCashfree = async (mode = 'production') => {
   if (!cashfreeInstancePromise) {
     cashfreeInstancePromise = load({ mode });
   }
@@ -21,14 +21,14 @@ export const getCashfree = async (mode = 'sandbox') => {
  * @param {string} [options.redirectTarget='_modal'] - '_modal' (popup modal) or '_self' (page redirect)
  * @param {Function} [options.onSuccess] - Callback when payment is completed
  * @param {Function} [options.onFailure] - Callback when payment fails or is closed
- * @param {string} [options.mode='sandbox'] - 'sandbox' or 'production'
+ * @param {string} [options.mode='production'] - 'sandbox' or 'production'
  */
 export const initiateCashfreeCheckout = async ({
   paymentSessionId,
   redirectTarget = '_modal',
   onSuccess,
   onFailure,
-  mode = 'sandbox',
+  mode = 'production',
 }) => {
   try {
     if (!paymentSessionId) {

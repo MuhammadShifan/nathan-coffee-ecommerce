@@ -393,11 +393,11 @@ const CheckoutPage = () => {
         sessionStorage.setItem('Nathan_pending_checkout', JSON.stringify(orderDetailsPayload));
       } catch (e) { }
 
-      // Step 2: Open Cashfree Checkout Modal in sandbox mode
+      // Step 2: Open Cashfree Checkout Modal in production mode
       await initiateCashfreeCheckout({
         paymentSessionId,
         redirectTarget: '_modal',
-        mode: 'sandbox',
+        mode: 'production',
         onSuccess: async () => {
           try {
             // Step 3: Verify Payment & Save confirmed order into MongoDB
