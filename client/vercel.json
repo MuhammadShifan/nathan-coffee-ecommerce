@@ -5,6 +5,14 @@
             "destination": "https://nathan-coffee-ecommerce.onrender.com/api/:path*"
         },
         {
+            "source": "/sitemap.xml",
+            "destination": "https://nathan-coffee-ecommerce.onrender.com/sitemap.xml"
+        },
+        {
+            "source": "/robots.txt",
+            "destination": "https://nathan-coffee-ecommerce.onrender.com/robots.txt"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

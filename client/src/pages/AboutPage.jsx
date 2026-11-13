@@ -51,10 +51,10 @@ const AboutPage = () => {
   return (
     <>
       <SEOMeta
-        title="Our Legacy & Heritage -Nathan Coffee | Authentic South Indian Roasters"
-        description="Discover the 70+ year legacy ofNathan Coffee . Founded by our beloved Grandfather in Thanjavur and expanded to Thanjavur. Dedicated to 100% pure filter coffee roasting with zero artificial additives."
+        title="Our Legacy & Heritage - Nathan Coffee | Authentic South Indian Roasters"
+        description="Discover the 70+ year legacy of Nathan Coffee. Founded by our beloved Grandfather in Thanjavur and expanded to Thanjavur. Dedicated to 100% pure filter coffee roasting with zero artificial additives."
         keywords="Nathan coffee legacy, nathan coffee history, thanjavur filter coffee grandfather, authentic Thanjavur coffee roasters, pure filter coffee heritage tamil nadu"
-        canonicalUrl="https://Nathancoffee.com/about"
+        canonicalUrl="/about"
         breadcrumbs={breadcrumbs}
         includeLocalBusiness={true}
       />

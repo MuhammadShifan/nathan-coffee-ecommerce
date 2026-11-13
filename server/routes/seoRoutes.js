@@ -1,72 +1,87 @@
 import express from 'express';
 import Product from '../models/Product.js';
 import { defaultProductsData } from './productRoutes.js';
+import { SITE_URL, resolveUrl, SEO_CONFIG } from '../config/seoConfig.js';
 
 const router = express.Router();
 
 // Dynamic sitemap.xml generator
 router.get('/sitemap.xml', async (req, res) => {
   try {
-    const baseUrl = process.env.SITE_URL || 'https://Nathancoffee.com';
     let products = await Product.find({}, 'slug updatedAt');
 
     if (!products || products.length === 0) {
       products = defaultProductsData;
     }
 
-    const staticPages = [
-      { url: '/', changefreq: 'daily', priority: '1.0' },
-      { url: '/shop', changefreq: 'daily', priority: '0.9' },
-      { url: '/about', changefreq: 'weekly', priority: '0.8' },
-      { url: '/contact', changefreq: 'monthly', priority: '0.8' },
-      { url: '/checkout', changefreq: 'monthly', priority: '0.5' },
-    ];
+    const todayDate = new Date().toISOString().split('T')[0];
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
-    staticPages.forEach((page) => {
+    // Static core pages
+    SEO_CONFIG.staticPages.forEach((page) => {
       xml += `  <url>
-    <loc>${baseUrl}${page.url}</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <loc>${resolveUrl(page.url)}</loc>
+    <lastmod>${todayDate}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
   </url>
 `;
     });
 
+    // Dynamic individual product detail pages
     products.forEach((prod) => {
-      xml += `  <url>
-    <loc>${baseUrl}/shop#${prod.slug}</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+      if (prod.slug) {
+        xml += `  <url>
+    <loc>${resolveUrl(`/product/${prod.slug}`)}</loc>
+    <lastmod>${todayDate}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
 `;
+      }
     });
 
     xml += `</urlset>`;
 
     res.header('Content-Type', 'application/xml');
+    res.header('Cache-Control', 'public, max-age=3600');
     res.send(xml);
   } catch (error) {
+    console.error('Error generating sitemap.xml:', error);
     res.status(500).send('Error generating sitemap');
   }
 });
 
 // Dynamic robots.txt
 router.get('/robots.txt', (req, res) => {
-  const baseUrl = process.env.SITE_URL || 'https://Nathancoffee.com';
-  const robotsTxt = `User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /api/admin/
+  try {
+    const disallowRules = SEO_CONFIG.robots.disallow
+      .map((path) => `Disallow: ${path}`)
+      .join('\n');
 
-Sitemap: ${baseUrl}/sitemap.xml
+    const allowRules = SEO_CONFIG.robots.allow
+      .map((path) => `Allow: ${path}`)
+      .join('\n');
+
+    const robotsTxt = `# robots.txt for Nathan Coffee
+User-agent: *
+${allowRules}
+${disallowRules}
+
+# Dynamic Sitemap Reference
+Sitemap: ${resolveUrl('/sitemap.xml')}
 `;
-  res.header('Content-Type', 'text/plain');
-  res.send(robotsTxt);
+
+    res.header('Content-Type', 'text/plain');
+    res.header('Cache-Control', 'public, max-age=86400');
+    res.send(robotsTxt);
+  } catch (error) {
+    console.error('Error generating robots.txt:', error);
+    res.status(500).send('User-agent: *\nAllow: /\n');
+  }
 });
 
 export default router;

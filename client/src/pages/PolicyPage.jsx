@@ -96,9 +96,9 @@ const PolicyPage = () => {
   return (
     <>
       <SEOMeta
-        title={`${activePolicy.title} -Nathan Coffee`}
-        description={`ReadNathan Coffee 's ${activePolicy.title}. Transparent policies for fresh coffee powder dispatch and customer assurance.`}
-        canonicalUrl={`https://Nathancoffee.com/policy/${type}`}
+        title={`${activePolicy.title} - Nathan Coffee`}
+        description={`Read Nathan Coffee's ${activePolicy.title}. Transparent policies for fresh coffee powder dispatch and customer assurance.`}
+        canonicalUrl={`/policy/${type}`}
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">

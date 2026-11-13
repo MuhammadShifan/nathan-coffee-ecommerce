@@ -96,3 +96,142 @@
 .btn-shimmer:hover::after {
   transform: rotate(30deg) translateX(100%);
 }
+
+/* ==========================================================================
+   PRINT STYLES: 1-PAGE PROFESSIONAL RETAIL INVOICE
+   ========================================================================== */
+@media print {
+  /* Set standard A4 portrait with neat margins */
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  /* Force browsers (Chrome, Safari, Firefox, Edge) to retain background colors and images */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Reset document and viewport layout so there is no clipping or multi-page spillover */
+  html,
+  body,
+  #root,
+  main {
+    background: #ffffff !important;
+    color: #1a0f0a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide all non-receipt elements: Navbar, Footer, Trackers, Banner Cards, CTAs, Modals, Buttons */
+  nav,
+  header:not(.receipt-print-header),
+  footer,
+  aside,
+  button,
+  .no-print,
+  [data-no-print],
+  .btn-shimmer,
+  #toast-container,
+  [role="dialog"],
+  [aria-modal="true"] {
+    display: none !important;
+  }
+
+  /* Reset page wrapper */
+  .order-success-page-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Isolated printable receipt card */
+  .printable-receipt {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 14px 18px !important;
+    background-color: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Compact section spacing in print to ensure neat 1-page fit */
+  .printable-receipt .receipt-header {
+    margin-bottom: 10px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .printable-receipt .receipt-info-grid {
+    margin-bottom: 10px !important;
+    padding-bottom: 8px !important;
+    gap: 10px !important;
+  }
+
+  .printable-receipt .receipt-table th,
+  .printable-receipt .receipt-table td {
+    padding: 5px 8px !important;
+    font-size: 10.5px !important;
+  }
+
+  .printable-receipt .receipt-totals {
+    margin-top: 8px !important;
+    padding-top: 6px !important;
+  }
+
+  .printable-receipt .receipt-footer {
+    margin-top: 10px !important;
+    padding-top: 6px !important;
+  }
+
+  /* Ensure the logo renders crisply with exact colors */
+  .receipt-logo {
+    display: block !important;
+    max-height: 46px !important;
+    width: auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Table styling in print */
+  .receipt-table th {
+    background-color: #f3f4f6 !important;
+    color: #111827 !important;
+    border-bottom: 1.5px solid #9ca3af !important;
+  }
+
+  .receipt-table td {
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  /* Prevent page breaks inside any critical invoice blocks */
+  .receipt-header,
+  .receipt-info-grid,
+  .receipt-table-wrapper,
+  .receipt-table,
+  .receipt-totals,
+  .receipt-footer {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}

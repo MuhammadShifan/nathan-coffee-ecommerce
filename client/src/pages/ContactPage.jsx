@@ -77,10 +77,10 @@ const ContactPage = () => {
   return (
     <>
       <SEOMeta
-        title="Contact Us -Nathan Coffee | Thanjavur & Thanjavur Stores"
-        description="Get in touch withNathan Coffee . Call +91 63838 05976 or WhatsApp for wholesale coffee powder inquiries, retail orders, and fresh batch dispatch from Thanjavur & Thanjavur."
-        keywords="contactNathan coffee, nathan coffee phone number, thanjavur coffee shop address, Thanjavur coffee powder wholesale contact,Nathan filter coffee customer support"
-        canonicalUrl="https://Nathancoffee.com/contact"
+        title="Contact Us - Nathan Coffee | Thanjavur & Thanjavur Stores"
+        description="Get in touch with Nathan Coffee. Call +91 63838 05976 or WhatsApp for wholesale coffee powder inquiries, retail orders, and fresh batch dispatch from Thanjavur & Thanjavur."
+        keywords="contact Nathan coffee, nathan coffee phone number, thanjavur coffee shop address, Thanjavur coffee powder wholesale contact, Nathan filter coffee customer support"
+        canonicalUrl="/contact"
         breadcrumbs={breadcrumbs}
         includeLocalBusiness={true}
       />

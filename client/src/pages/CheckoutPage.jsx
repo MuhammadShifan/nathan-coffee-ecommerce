@@ -480,9 +480,9 @@ const CheckoutPage = () => {
   return (
     <>
       <SEOMeta
-        title="Secure Checkout - Nathan Coffee "
+        title="Secure Checkout - Nathan Coffee"
         description="Fast and secure Cashfree payment checkout for Nathan Pure Filter Coffee Powder with all-India shipping."
-        canonicalUrl="https://Nathancoffee.com/checkout"
+        canonicalUrl="/checkout"
         includeLocalBusiness={false}
       />
 

@@ -35,9 +35,9 @@ const AdminLoginPage = () => {
   return (
     <>
       <SEOMeta
-        title="Admin Portal Login - Nathan Coffee "
+        title="Admin Portal Login - Nathan Coffee"
         description="Secure admin access portal for Nathan Coffee order and product inventory management."
-        canonicalUrl="https://nadhancoffee.com/admin/login"
+        canonicalUrl="/admin/login"
         includeLocalBusiness={false}
       />
 

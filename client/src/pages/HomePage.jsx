@@ -49,10 +49,10 @@ const HomePage = () => {
   return (
     <>
       <SEOMeta
-        title="Pure & Fresh Filter Coffee Powder from Thanjavur |Nathan Coffee"
-        description="Buy 100% Pure South Indian Filter Coffee Powder Online fromNathan Coffee . Freshly roasted in Thanjavur and Thanjavur. Slow drum roast with intense aroma in 250g, 500g, 1kg packs with fast delivery across India."
-        keywords="coffee powder,Nathan coffee, nathan coffee,Nathan coffee , filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, degree coffee powder, kumbakonam degree coffee powder, best coffee powder in tamil nadu"
-        canonicalUrl="https://Nathancoffee.com"
+        title="Pure & Fresh Filter Coffee Powder from Thanjavur | Nathan Coffee"
+        description="Buy 100% Pure South Indian Filter Coffee Powder Online from Nathan Coffee. Freshly roasted in Thanjavur and Thanjavur. Slow drum roast with intense aroma in 250g, 500g, 1kg packs with fast delivery across India."
+        keywords="coffee powder, Nathan coffee, nathan coffee, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, degree coffee powder, kumbakonam degree coffee powder, best coffee powder in tamil nadu"
+        canonicalUrl="/"
         ogImage="/images/hero-coffee.jpg"
         includeLocalBusiness={true}
         includeFAQ={true}

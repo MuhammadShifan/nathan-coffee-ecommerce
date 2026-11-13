@@ -66,10 +66,10 @@ const ShopPage = () => {
   return (
     <>
       <SEOMeta
-        title="Buy Pure Filter Coffee Powder Online -Nathan Coffee"
-        description="Shop fresh authentic South Indian filter coffee powder online fromNathan Coffee . Available in 250g, 500g, 1kg packs. 100% Pure & Chicory Blends roasted in Thanjavur & Thanjavur. Fast shipping across India."
-        keywords="buy pure filter coffee powder online,Nathan coffee shop, filter coffee 250g, filter coffee 500g, pure coffee powder buy online, nathan coffee shop, Thanjavur filter coffee order, chicory coffee powder buy"
-        canonicalUrl="https://Nathancoffee.com/shop"
+        title="Buy Pure Filter Coffee Powder Online - Nathan Coffee"
+        description="Shop fresh authentic South Indian filter coffee powder online from Nathan Coffee. Available in 250g, 500g, 1kg packs. 100% Pure & Chicory Blends roasted in Thanjavur & Thanjavur. Fast shipping across India."
+        keywords="buy pure filter coffee powder online, Nathan coffee shop, filter coffee 250g, filter coffee 500g, pure coffee powder buy online, nathan coffee shop, Thanjavur filter coffee order, chicory coffee powder buy"
+        canonicalUrl="/shop"
         breadcrumbs={breadcrumbs}
         includeLocalBusiness={true}
       />
