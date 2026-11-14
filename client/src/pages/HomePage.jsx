@@ -25,6 +25,7 @@ import newLogo from '../assets/images/newLogo.png';
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [heroImageUrl, setHeroImageUrl] = useState('/images/hero-coffee.jpg');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,7 +44,20 @@ const HomePage = () => {
         setLoading(false);
       }
     };
+
+    const fetchHeroImage = async () => {
+      try {
+        const res = await api.get('/api/settings/hero-image');
+        if (res.data?.success && res.data?.heroImageUrl) {
+          setHeroImageUrl(res.data.heroImageUrl);
+        }
+      } catch (err) {
+        // Non-blocking fallback to default hero image
+      }
+    };
+
     fetchProducts();
+    fetchHeroImage();
   }, []);
 
   return (
@@ -79,11 +93,11 @@ const HomePage = () => {
                 >
                   <span className="w-2 h-2 rounded-full bg-brand-pink-600 animate-ping flex-shrink-0" />
                   <span className="uppercase tracking-wide font-extrabold text-[10px] sm:text-[11px]">
-                    Authentic South Indian Filter Coffee
+                    South main street thanjavur 613007 | தெற்கு வீதி தஞ்சாவூர் 613007
                   </span>
                   <span className="text-brand-pink-400 hidden xs:inline">•</span>
                   <span className="font-tamil font-bold text-brand-pink-900 text-[11px] sm:text-xs">
-                    1950 முதல் பாரம்பரிய சுவை
+
                   </span>
                 </motion.div>
 
@@ -112,7 +126,7 @@ const HomePage = () => {
                     Handcrafted from 100% natural, slow wood-fired drum roasted plantation beans. Experience the velvety golden decoction and heavenly traditional aroma that defines genuine Tamil Nadu filter coffee.
                   </p>
                   <p className="text-xs sm:text-sm font-semibold text-brand-pink-700 font-tamil">
-                    நூற்றுக்கு நூறு சுத்தமானது • அடர்ந்த டிக்காஷன் • கலப்படமில்லாத நறுமணம்
+                    நூற்றுக்கு நூறு சுத்தமானது • தரமான டிக்காஷன் • கலப்படமில்லாத நறுமணம்
                   </p>
                 </motion.div>
 
@@ -172,46 +186,18 @@ const HomePage = () => {
                   className="relative mx-auto w-full max-w-sm sm:max-w-md lg:max-w-none"
                 >
                   {/* Decorative Frame */}
-                  <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white ring-4 ring-brand-pink-500/20 bg-brand-coffee-950 w-full">
+                  <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white ring-4 ring-brand-pink-500/20 bg-white w-full min-h-[300px] xs:min-h-[340px] sm:min-h-[400px] md:min-h-[420px] flex items-center justify-center p-2 sm:p-3">
                     <img
-                      src="/images/hero-coffee.jpg"
-                      alt="Traditional South Indian Filter Coffee Davarah and Tumbler with Golden Crema"
-                      className="w-full h-[280px] xs:h-[340px] sm:h-[400px] md:h-[420px] object-cover hover:scale-105 transition-transform duration-700"
+                      src={heroImageUrl || '/images/hero-coffee.jpg'}
+                      alt="Nathan Coffee - Authentic South Indian Filter Coffee"
+                      className="w-full h-auto max-h-[280px] xs:max-h-[340px] sm:max-h-[400px] md:max-h-[420px] object-contain rounded-2xl transition-transform duration-500 hover:scale-[1.02]"
                       width="600"
                       height="420"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/images/hero-coffee.jpg';
+                      }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-brand-coffee-950/80 via-transparent to-transparent" />
-
-                    {/* Floating Authentic Pack Badge */}
-                    <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 bg-white/95 backdrop-blur-md p-2.5 sm:p-3.5 rounded-2xl border border-white/60 shadow-lg flex items-center gap-2.5 sm:gap-3">
-                      <img
-                        src="/images/250g front.png"
-                        alt="Nathan 250g Coffee Powder Pack"
-                        className="h-11 sm:h-14 w-auto object-contain flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="bg-brand-pink-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full">
-                            Top Seller
-                          </span>
-                          <span className="text-xs font-extrabold text-brand-coffee-950 truncate">Pure Filter Blend</span>
-                        </div>
-                        <p className="text-[10px] sm:text-[11px] text-brand-coffee-700 truncate">₹399 for 250g Kraft Zip Pack</p>
-                      </div>
-                      <Link
-                        to="/shop"
-                        className="p-2 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl shadow transition-transform active:scale-95 flex-shrink-0"
-                        aria-label="Order now"
-                      >
-                        <ShoppingBag className="w-4 h-4" />
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Stamp Badge */}
-                  <div className="absolute -top-3 sm:-top-4 -right-2 sm:-right-4 bg-brand-yellow-400 text-brand-coffee-950 p-2.5 sm:p-3 rounded-2xl shadow-xl border-2 border-white ring-2 ring-brand-yellow-500 font-extrabold text-xs text-center rotate-6">
-                    <p className="font-black text-xs sm:text-sm">₹399</p>
-                    <p className="text-[9px] sm:text-[10px] uppercase font-bold">Pure 250g Pack</p>
                   </div>
                 </motion.div>
               </div>
@@ -336,7 +322,7 @@ const HomePage = () => {
                 </div>
                 <div className="absolute -bottom-3 inset-x-0 mx-auto w-max max-w-[90%] bg-brand-pink-600 text-white text-[11px] sm:text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg border border-white flex items-center justify-center gap-1.5 truncate">
                   <Award className="w-3.5 h-3.5 text-brand-yellow-400 flex-shrink-0" />
-                  <span className="truncate">Founder Grandfather • Since 1950s</span>
+                  <span className="truncate">Founder G. Saravanan Pillai • Since 1950s</span>
                 </div>
               </div>
             </div>
@@ -355,7 +341,7 @@ const HomePage = () => {
                 தரத்துடனும், நூற்றுக்கு நூறு சுத்தமானது,
                 நமது தி நாதன் காபி. தஞ்சாவூருக்கு
                 மற்றொரு பெருமை இந்த நாதன்காபி.
-                1964 களில் திரு. G.சரவணன் பிள்ளை
+                1964 களில் தெய்வத்திரு  . G.சரவணன் பிள்ளை
                 அவர்களால் நிறுவப்பட்டு இன்றும் அதே
                 தரத்துடனும் நூற்றுக்கு நூறு சுத்தமானதாக
                 காபியை மக்களுக்கு வழங்கப்பட்டு

@@ -80,15 +80,17 @@ export const defaultProductsData = [
     title: 'Pure Filter Coffee Powder (250g)',
     tamilTitle: 'நாதன் காப்பி - தூய ஃபில்டர் காபித்தூள் (250g)',
     slug: 'pure-filter-coffee-powder-250g',
-    shortDescription: '100% Pure Filter Coffee Powder crafted with traditional slow drum roasting from Thanjavur & Thanjavur.',
+    shortDescription: '100% Pure Filter Coffee Powder crafted with traditional slow drum roasting from Thanjavur',
     description: 'Experience the legendary South Indian filter coffee with Nathan Coffee. Our 250g Kraft Stand-up Pouch features 100% pure shade-grown Arabica & Robusta beans, ground to the perfect decoction consistency. Zero artificial colors, zero preservatives, 100% rich aroma and thick golden foam.',
     ingredients: '100% Pure Plantation Arabica & Robusta Coffee Beans (0% Chicory)',
-    roastLevel: 'Medium-Dark Slow Roast',
     blendRatio: '100% Pure Coffee',
-    fssaiNumber: '22426461000422',
+    roastMaster: 'Medium-Dark Slow Roast',
+    packaging: 'Airtight Kraft Stand-up Zip Pouch / Traditional Foil Pack',
+    heritageOrigin: 'Thanjavur & Thanjavur, Tamil Nadu',
+    roastLevel: 'Medium-Dark Slow Roast',
     packagingType: 'Airtight Kraft Stand-up Zip Pouch / Traditional Foil Pack',
     origin: 'Thanjavur & Thanjavur, Tamil Nadu',
-    category: 'pure_coffee',
+    fssaiNumber: '22426461000422',
     images: ['/images/250g front.png', '/images/250g back.png'],
     variants: [
       { weight: '250g', mrp: 450, price: 399, image: '/images/250g front.png', inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
@@ -108,12 +110,14 @@ export const defaultProductsData = [
     shortDescription: 'Family Value Pack: Authentic 500g Slow-Roast South Indian Filter Coffee with thick golden decoction.',
     description: 'Our flagship 500g value pack for passionate filter coffee connoisseurs. Hand-selected beans slow roasted in small batches to preserve natural essential coffee oils. Yields maximum decoction cup after cup with unforgettable traditional aroma.',
     ingredients: '100% Premium Selected Coffee Beans (0% Chicory)',
-    roastLevel: 'Medium-Dark Rich Roast',
     blendRatio: '100% Pure Coffee',
-    fssaiNumber: '22426461000422',
+    roastMaster: 'Medium-Dark Rich Roast',
+    packaging: 'Eco Kraft Stand-up Pouch with Air-tight Zip Lock',
+    heritageOrigin: 'Thanjavur & Thanjavur, Tamil Nadu',
+    roastLevel: 'Medium-Dark Rich Roast',
     packagingType: 'Eco Kraft Stand-up Pouch with Air-tight Zip Lock',
     origin: 'Thanjavur & Thanjavur, Tamil Nadu',
-    category: 'pure_coffee',
+    fssaiNumber: '22426461000422',
     images: ['/images/500g fornt.png', '/images/500g back.png'],
     variants: [
       { weight: '500g', mrp: 680, price: 580, image: '/images/500g fornt.png', inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
@@ -133,12 +137,14 @@ export const defaultProductsData = [
     shortDescription: 'Authentic South Indian Hotel-Style Filter Coffee Blend (80% Pure Coffee + 20% Roasted French Chicory).',
     description: 'The golden South Indian restaurant & wedding style blend! Carefully roasted French chicory blended with high-grown Arabica & Robusta gives a dark, velvety decoction with a heavenly lingering aftertaste and rich foaming crema.',
     ingredients: '80% Pure Plantation Coffee + 20% Roasted Specialty Chicory',
-    roastLevel: 'Dark Traditional Roast',
     blendRatio: '80% Coffee : 20% Chicory',
-    fssaiNumber: '22426461000422',
+    roastMaster: 'Dark Traditional Roast',
+    packaging: 'Air-sealed Moisture Barrier Pouch',
+    heritageOrigin: 'Thanjavur & Thanjavur, Tamil Nadu',
+    roastLevel: 'Dark Traditional Roast',
     packagingType: 'Air-sealed Moisture Barrier Pouch',
     origin: 'Thanjavur & Thanjavur, Tamil Nadu',
-    category: 'chicory_blend',
+    fssaiNumber: '22426461000422',
     images: ['/images/chicory powder.jpg', '/images/250g back.png'],
     variants: [
       { weight: '250g', mrp: 280, price: 240, image: '/images/chicory powder.jpg', inStock: true, stockCount: 200, sku: 'NC-250G-CHIC' },
@@ -331,10 +337,10 @@ router.put('/reorder', protectAdmin, async (req, res) => {
     const ids = Array.isArray(productIds)
       ? productIds
       : Array.isArray(req.body)
-      ? req.body
-      : Array.isArray(req.body?.order)
-      ? req.body.order
-      : null;
+        ? req.body
+        : Array.isArray(req.body?.order)
+          ? req.body.order
+          : null;
 
     if (!ids || ids.length === 0) {
       return res.status(400).json({

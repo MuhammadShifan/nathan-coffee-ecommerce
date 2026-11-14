@@ -109,8 +109,8 @@ const Footer = () => {
                 <MapPin className="w-4 h-4 text-brand-yellow-400 mt-1 flex-shrink-0" />
                 <div className="text-brand-coffee-300 text-xs leading-relaxed">
                   <p className="text-white font-semibold">Thanjavur Branch:</p>
-                  <p>2928, South Street, Near Canara Bank, Thanjavur, Tamil Nadu - 613001</p>
-                  <p className="text-brand-yellow-300/80 mt-0.5">Mangalapuram, MC Road</p>
+                  <p>2928, South Main Street, Near Canara Bank, Thanjavur, Tamil Nadu - 613007</p>
+                  <p className="text-brand-yellow-300/80 mt-0.5"></p>
                 </div>
               </div>
 
@@ -134,7 +134,7 @@ const Footer = () => {
 
         {/* Bottom Bar with SEO Keywords */}
         <div className="mt-12 pt-8 border-t border-brand-coffee-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-brand-coffee-400">
-          <p>© 2026Nathan Coffee . All Rights Reserved. Pure Filter Coffee from Thanjavur & Thanjavur.</p>
+          <p>© 2026Nathan Coffee . All Rights Reserved. Pure Filter Coffee from Thanjavur</p>
           <div className="flex items-center gap-3">
             <span className="text-brand-pink-400 font-medium flex items-center gap-1">
               Crafted with <Heart className="w-3 h-3 fill-brand-pink-500 text-brand-pink-500 inline" /> for South Indian Coffee Lovers

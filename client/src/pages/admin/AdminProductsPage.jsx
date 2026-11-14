@@ -45,7 +45,11 @@ const AdminProductsPage = () => {
     slug: '',
     shortDescription: '',
     description: '',
-    category: 'pure_coffee',
+    ingredients: '',
+    blendRatio: '',
+    roastMaster: '',
+    packaging: '',
+    heritageOrigin: '',
     variants: [
       { weight: '250g', price: 399, mrp: 450, image: '/images/250g front.png' },
     ],
@@ -243,7 +247,11 @@ const AdminProductsPage = () => {
       slug: '',
       shortDescription: '',
       description: '',
-      category: 'pure_coffee',
+      ingredients: '',
+      blendRatio: '',
+      roastMaster: '',
+      packaging: '',
+      heritageOrigin: '',
       variants: [
         { weight: '250g', price: 399, mrp: 450, image: '/images/250g front.png' },
       ],
@@ -283,7 +291,11 @@ const AdminProductsPage = () => {
       slug: product.slug,
       shortDescription: product.shortDescription,
       description: product.description,
-      category: product.category || 'pure_coffee',
+      ingredients: product.ingredients || '',
+      blendRatio: product.blendRatio || '',
+      roastMaster: product.roastMaster || product.roastLevel || '',
+      packaging: product.packaging || product.packagingType || '',
+      heritageOrigin: product.heritageOrigin || product.origin || '',
       variants: initialVariants,
       images: productImages,
       inStock: product.inStock !== false,
@@ -346,7 +358,14 @@ const AdminProductsPage = () => {
           .replace(/ +/g, '-'),
       shortDescription: formData.shortDescription.trim(),
       description: formData.description?.trim() || formData.shortDescription.trim(),
-      category: formData.category,
+      ingredients: (formData.ingredients || '').trim(),
+      blendRatio: (formData.blendRatio || '').trim(),
+      roastMaster: (formData.roastMaster || '').trim(),
+      packaging: (formData.packaging || '').trim(),
+      heritageOrigin: (formData.heritageOrigin || '').trim(),
+      roastLevel: (formData.roastMaster || '').trim(),
+      packagingType: (formData.packaging || '').trim(),
+      origin: (formData.heritageOrigin || '').trim(),
       inStock: formData.inStock,
       images: normalizedImages,
       variants: cleanedVariants,
@@ -446,7 +465,6 @@ const AdminProductsPage = () => {
                     <th className="p-4 w-14 text-center">Order</th>
                     <th className="p-4">Product Image</th>
                     <th className="p-4">Title & Details</th>
-                    <th className="p-4">Category</th>
                     <th className="p-4">Available Variants</th>
                     <th className="p-4">Online Price (₹)</th>
                     <th className="p-4">Stock Status</th>
@@ -462,7 +480,7 @@ const AdminProductsPage = () => {
                     >
                       {products.length === 0 ? (
                         <tr>
-                          <td colSpan="8" className="p-12 text-center text-brand-coffee-500 bg-white">
+                          <td colSpan="7" className="p-12 text-center text-brand-coffee-500 bg-white">
                             <div className="flex flex-col items-center justify-center space-y-3">
                               <Package className="w-12 h-12 text-brand-coffee-300" />
                               <div>
@@ -554,13 +572,6 @@ const AdminProductsPage = () => {
                           <div className="text-[11px] text-brand-coffee-600 font-tamil">{product.tamilTitle}</div>
                         )}
                         <div className="text-[10px] text-brand-pink-600 font-mono mt-0.5">/{product.slug}</div>
-                      </td>
-
-                      {/* Category */}
-                      <td className="p-4">
-                        <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase bg-brand-yellow-100 text-brand-coffee-900 border border-brand-yellow-300">
-                          {product.category || 'Pure Coffee'}
-                        </span>
                       </td>
 
                       {/* Variants & Weights */}
@@ -704,18 +715,74 @@ const AdminProductsPage = () => {
                   />
                 </div>
 
-                {/* Category Selection */}
-                <div>
-                  <label className="block font-bold text-brand-coffee-800 mb-1">Category *</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900 bg-white"
-                  >
-                    <option value="pure_coffee">Pure Coffee (0% Chicory)</option>
-                    <option value="chicory_blend">Chicory Blend (80:20)</option>
-                    <option value="special_roast">Special Roast</option>
-                  </select>
+                {/* Product Specifications & Roast Details */}
+                <div className="bg-brand-coffee-50/70 p-4 rounded-2xl border border-brand-coffee-200 space-y-3">
+                  <div>
+                    <h4 className="font-extrabold text-brand-coffee-950 text-xs flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-brand-yellow-600" />
+                      Product Specifications & Roast Details
+                    </h4>
+                    <p className="text-[11px] text-brand-coffee-600">
+                      Configure dynamic specifications displayed live on the product page and cards.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-brand-coffee-800 mb-1 text-[11px]">Ingredients</label>
+                      <input
+                        type="text"
+                        value={formData.ingredients}
+                        onChange={(e) => setFormData({ ...formData, ingredients: e.target.value })}
+                        placeholder="e.g. 100% Selected Plantation Arabica & Robusta Beans"
+                        className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900 text-xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-brand-coffee-800 mb-1 text-[11px]">Blend Ratio</label>
+                      <input
+                        type="text"
+                        value={formData.blendRatio}
+                        onChange={(e) => setFormData({ ...formData, blendRatio: e.target.value })}
+                        placeholder="e.g. 100% Pure Coffee (0% Chicory) or 80:20 Blend"
+                        className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900 text-xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-brand-coffee-800 mb-1 text-[11px]">Roast Master / Level</label>
+                      <input
+                        type="text"
+                        value={formData.roastMaster}
+                        onChange={(e) => setFormData({ ...formData, roastMaster: e.target.value })}
+                        placeholder="e.g. Slow Drum Roast / Medium-Dark"
+                        className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900 text-xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-brand-coffee-800 mb-1 text-[11px]">Packaging Details</label>
+                      <input
+                        type="text"
+                        value={formData.packaging}
+                        onChange={(e) => setFormData({ ...formData, packaging: e.target.value })}
+                        placeholder="e.g. Eco Kraft Stand-up Pouch with Air-tight Zip Lock"
+                        className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900 text-xs"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block font-bold text-brand-coffee-800 mb-1 text-[11px]">Heritage Origin</label>
+                      <input
+                        type="text"
+                        value={formData.heritageOrigin}
+                        onChange={(e) => setFormData({ ...formData, heritageOrigin: e.target.value })}
+                        placeholder="e.g. Thanjavur & Thanjavur, Tamil Nadu"
+                        className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900 text-xs"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Dynamic Variants & Pricing Section */}

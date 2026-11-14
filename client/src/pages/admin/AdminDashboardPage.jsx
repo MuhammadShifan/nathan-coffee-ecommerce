@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import AdminLayout from '../../components/AdminLayout';
+import HeroBannerManager from '../../components/admin/HeroBannerManager';
 
 const AdminDashboardPage = () => {
   const [stats, setStats] = useState({
@@ -200,6 +201,9 @@ const AdminDashboardPage = () => {
             </button>
           </div>
         </div>
+
+        {/* Homepage Hero Banner Manager */}
+        <HeroBannerManager />
 
         {/* Recent Orders Table */}
         <div className="bg-white rounded-3xl border border-brand-coffee-200 shadow-md overflow-hidden space-y-4">

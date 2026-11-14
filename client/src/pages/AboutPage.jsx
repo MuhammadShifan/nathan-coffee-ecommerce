@@ -26,7 +26,7 @@ const AboutPage = () => {
       year: '1950s',
       title: 'The Humble Roastery at South Street, Thanjavur',
       description:
-        'Our beloved Grandfather establishedNathan Coffee (Nathan Coffee) at 2928, South Street near Canara Bank in Thanjavur. Roasting small batches over seasoned wood fires, the intoxicating aroma drew coffee connoisseurs from all across the delta region.',
+        'Our beloved Grandfather establishedNathan Coffee (Nathan Coffee) at 2928, South Main Street near Canara Bank in Thanjavur. Roasting small batches over seasoned wood fires, the intoxicating aroma drew coffee connoisseurs from all across the delta region.',
     },
     {
       year: '1985',

@@ -65,32 +65,48 @@ const productSchema = new mongoose.Schema(
     },
     ingredients: {
       type: String,
-      default: '100% Selected Plantation Arabica & Robusta Coffee Beans',
-    },
-    roastLevel: {
-      type: String,
-      default: 'Medium-Dark Slow Drum Roast',
+      default: '',
+      trim: true,
     },
     blendRatio: {
       type: String,
-      default: '100% Pure Coffee (0% Chicory)',
+      default: '',
+      trim: true,
+    },
+    roastMaster: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    packaging: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    heritageOrigin: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    // Legacy support fields maintained for existing documents
+    roastLevel: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    packagingType: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    origin: {
+      type: String,
+      default: '',
+      trim: true,
     },
     fssaiNumber: {
       type: String,
       default: '22426461000422',
-    },
-    packagingType: {
-      type: String,
-      default: 'Eco Kraft Stand-up Pouch with Air-tight Zip Lock',
-    },
-    origin: {
-      type: String,
-      default: 'Thanjavur & Thanjavur, Tamil Nadu',
-    },
-    category: {
-      type: String,
-      enum: ['pure_coffee', 'chicory_blend', 'special_roast'],
-      default: 'pure_coffee',
     },
     images: {
       type: [String],
@@ -130,6 +146,15 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.pre('validate', function (next) {
+  // Sync specification fields with legacy fields if present
+  if (this.roastMaster && !this.roastLevel) this.roastLevel = this.roastMaster;
+  if (this.packaging && !this.packagingType) this.packagingType = this.packaging;
+  if (this.heritageOrigin && !this.origin) this.origin = this.heritageOrigin;
+
+  if (this.roastLevel && !this.roastMaster) this.roastMaster = this.roastLevel;
+  if (this.packagingType && !this.packaging) this.packaging = this.packagingType;
+  if (this.origin && !this.heritageOrigin) this.heritageOrigin = this.origin;
+
   if (this.images && Array.isArray(this.images)) {
     this.images = this.images
       .map((img) => (typeof img === 'object' && img?.url ? img.url : img))

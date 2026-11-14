@@ -225,7 +225,7 @@ router.post('/verify', protectUserOptional, async (req, res) => {
           street: 'South Street',
           city: 'Thanjavur',
           state: 'Tamil Nadu',
-          pincode: '613001',
+          pincode: '613007',
         },
       },
       items: verifiedItems,

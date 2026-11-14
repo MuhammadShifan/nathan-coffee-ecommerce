@@ -40,7 +40,7 @@ export const SEO_CONFIG = {
     legalName: 'Nathan Coffee Private Limited',
     phone: '+91-6383805976',
     email: 'nathancoffeethanjavur.official@gmail.com',
-    primaryAddress: '2928, South Street, Near Canara Bank, Thanjavur, Tamil Nadu - 613001, India',
+    primaryAddress: '2928, South Main Street, Near Canara Bank, Thanjavur, Tamil Nadu - 613007, India',
     secondaryAddress: 'Avinashi Road / R.S. Puram, Thanjavur, Tamil Nadu - 641002, India',
   },
 

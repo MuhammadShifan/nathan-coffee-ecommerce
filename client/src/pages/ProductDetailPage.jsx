@@ -113,14 +113,14 @@ const getProductReviews = (prod) => {
     return productReviewsDictionary[prod._id];
   }
 
-  const slugOrTitle = (prod.slug || prod.title || '').toLowerCase();
-  if (slugOrTitle.includes('chicory') || prod.category === 'chicory_blend') {
+  const slugOrTitle = `${prod.slug || ''} ${prod.title || ''} ${prod.blendRatio || ''}`.toLowerCase();
+  if (slugOrTitle.includes('chicory')) {
     return productReviewsDictionary['traditional-chicory-blended-coffee-powder'];
   }
   if (slugOrTitle.includes('500g')) {
     return productReviewsDictionary['pure-filter-coffee-powder-500g'];
   }
-  if (slugOrTitle.includes('pure') || slugOrTitle.includes('filter') || prod.category === 'pure_coffee') {
+  if (slugOrTitle.includes('pure') || slugOrTitle.includes('filter')) {
     return productReviewsDictionary['pure-filter-coffee-powder-250g'];
   }
 
@@ -183,8 +183,8 @@ const ProductDetailPage = () => {
           const generalImgs =
             Array.isArray(currentProd.images) && currentProd.images.length > 0
               ? currentProd.images
-                  .map((img) => (typeof img === 'object' && img?.url ? img.url : img))
-                  .filter(Boolean)
+                .map((img) => (typeof img === 'object' && img?.url ? img.url : img))
+                .filter(Boolean)
               : [currentProd.image || '/images/250g front.png'];
 
           const initialImage =
@@ -271,13 +271,13 @@ const ProductDetailPage = () => {
   const variants = Array.isArray(product?.variants) && product.variants.length > 0
     ? product.variants
     : [
-        {
-          weight: product?.weight || product?.selectedWeight || '250g',
-          price: product?.price || 399,
-          mrp: product?.mrp || 450,
-          inStock: true,
-        },
-      ];
+      {
+        weight: product?.weight || product?.selectedWeight || '250g',
+        price: product?.price || 399,
+        mrp: product?.mrp || 450,
+        inStock: true,
+      },
+    ];
 
   const currentVariant = variants.find((v) => v.weight === selectedWeight) || variants[0] || {
     weight: selectedWeight,
@@ -367,7 +367,7 @@ const ProductDetailPage = () => {
 
     try {
       sessionStorage.setItem('Nathan_buy_now_item', JSON.stringify(buyNowItem));
-    } catch (e) {}
+    } catch (e) { }
 
     if (!isUserAuthenticated) {
       openAuthModal(() => {
@@ -610,9 +610,11 @@ const ProductDetailPage = () => {
                     <span>{product.rating || '4.9'}</span>
                     <span className="text-brand-coffee-400 font-normal">({product.reviewCount || '248'} reviews)</span>
                   </div>
-                  <span className="text-xs font-bold text-brand-coffee-600 bg-brand-coffee-100/80 px-2.5 py-1 rounded-lg">
-                    {product.roastLevel || 'Medium-Dark Slow Roast'}
-                  </span>
+                  {(product.roastMaster || product.roastLevel) && (
+                    <span className="text-xs font-bold text-brand-coffee-600 bg-brand-coffee-100/80 px-2.5 py-1 rounded-lg">
+                      {product.roastMaster || product.roastLevel}
+                    </span>
+                  )}
                 </div>
 
                 {/* Share Button */}
@@ -689,11 +691,10 @@ const ProductDetailPage = () => {
                       key={variant.weight}
                       type="button"
                       onClick={() => handleVariantSelect(variant)}
-                      className={`p-3 sm:px-4 sm:py-3 rounded-2xl text-center border-2 transition-all flex flex-col justify-center items-center gap-1 min-w-[95px] sm:min-w-[115px] flex-1 sm:flex-none relative ${
-                        isSelected
-                          ? 'border-brand-pink-600 bg-brand-pink-50/70 shadow-md ring-2 ring-brand-yellow-400/80 scale-105'
-                          : 'border-brand-coffee-200 bg-white hover:border-brand-pink-300 hover:bg-brand-coffee-50/50'
-                      }`}
+                      className={`p-3 sm:px-4 sm:py-3 rounded-2xl text-center border-2 transition-all flex flex-col justify-center items-center gap-1 min-w-[95px] sm:min-w-[115px] flex-1 sm:flex-none relative ${isSelected
+                        ? 'border-brand-pink-600 bg-brand-pink-50/70 shadow-md ring-2 ring-brand-yellow-400/80 scale-105'
+                        : 'border-brand-coffee-200 bg-white hover:border-brand-pink-300 hover:bg-brand-coffee-50/50'
+                        }`}
                     >
                       {variantImg && (
                         <div className="w-8 h-8 rounded-lg bg-brand-coffee-50 p-0.5 flex items-center justify-center overflow-hidden border border-brand-coffee-200">
@@ -781,31 +782,6 @@ const ProductDetailPage = () => {
             </div>
 
             {/* Delivery & Trust Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-brand-coffee-100/50 rounded-2xl border border-brand-coffee-200/80 text-xs">
-              <div className="flex items-center gap-2.5">
-                <Truck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-brand-coffee-950">Free Shipping</div>
-                  <div className="text-[11px] text-brand-coffee-600">On all orders ₹500+</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5">
-                <Clock className="w-4 h-4 text-brand-pink-600 flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-brand-coffee-950">Fresh Dispatch</div>
-                  <div className="text-[11px] text-brand-coffee-600">Roasted in small batches</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-brand-yellow-600 flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-brand-coffee-950">FSSAI Certified</div>
-                  <div className="text-[11px] text-brand-coffee-600">Lic #22426461000422</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -844,23 +820,23 @@ const ProductDetailPage = () => {
                 <div className="space-y-2.5">
                   <div className="flex justify-between py-2 border-b border-brand-coffee-100">
                     <span className="text-brand-coffee-500 font-bold">Ingredients:</span>
-                    <span className="text-brand-coffee-900 font-medium text-right">{product.ingredients || '100% Pure Plantation Coffee'}</span>
+                    <span className="text-brand-coffee-900 font-medium text-right">{product.ingredients || '—'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-brand-coffee-100">
                     <span className="text-brand-coffee-500 font-bold">Blend Ratio:</span>
-                    <span className="text-brand-coffee-900 font-medium">{product.blendRatio || '100% Pure Coffee (0% Chicory)'}</span>
+                    <span className="text-brand-coffee-900 font-medium">{product.blendRatio || '—'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-brand-coffee-100">
                     <span className="text-brand-coffee-500 font-bold">Roast Master:</span>
-                    <span className="text-brand-coffee-900 font-medium">{product.roastLevel || 'Slow Drum Roast'}</span>
+                    <span className="text-brand-coffee-900 font-medium">{product.roastMaster || product.roastLevel || '—'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-brand-coffee-100">
                     <span className="text-brand-coffee-500 font-bold">Packaging:</span>
-                    <span className="text-brand-coffee-900 font-medium">{product.packagingType || 'Airtight Kraft Stand-up Pouch'}</span>
+                    <span className="text-brand-coffee-900 font-medium">{product.packaging || product.packagingType || '—'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-brand-coffee-100">
                     <span className="text-brand-coffee-500 font-bold">Heritage Origin:</span>
-                    <span className="text-brand-coffee-900 font-medium">{product.origin || 'Thanjavur & Thanjavur, Tamil Nadu'}</span>
+                    <span className="text-brand-coffee-900 font-medium">{product.heritageOrigin || product.origin || '—'}</span>
                   </div>
                 </div>
               </div>

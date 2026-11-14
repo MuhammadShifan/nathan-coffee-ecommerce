@@ -98,7 +98,7 @@ const seedDatabase = async () => {
             landmark: 'Opp. Big Temple',
             city: 'Thanjavur',
             state: 'Tamil Nadu',
-            pincode: '613001',
+            pincode: '613007',
           },
         },
         items: [

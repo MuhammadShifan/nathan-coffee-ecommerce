@@ -78,7 +78,7 @@ const ContactPage = () => {
     <>
       <SEOMeta
         title="Contact Us - Nathan Coffee | Thanjavur & Thanjavur Stores"
-        description="Get in touch with Nathan Coffee. Call +91 63838 05976 or WhatsApp for wholesale coffee powder inquiries, retail orders, and fresh batch dispatch from Thanjavur & Thanjavur."
+        description="Get in touch with Nathan Coffee. Call +91 63838 05976 or WhatsApp for wholesale coffee powder inquiries, retail orders, and fresh batch dispatch from Thanjavur"
         keywords="contact Nathan coffee, nathan coffee phone number, thanjavur coffee shop address, Thanjavur coffee powder wholesale contact, Nathan filter coffee customer support"
         canonicalUrl="/contact"
         breadcrumbs={breadcrumbs}
@@ -123,18 +123,24 @@ const ContactPage = () => {
                 Speak directly with our roasting and dispatch team for instant inquiries.
               </p>
             </div>
-            <div className="pt-3 border-t border-brand-coffee-100 space-y-1.5">
+            <div className="pt-3 border-t border-brand-coffee-100 space-y-2">
+              <div className="space-y-0.5">
+                <a
+                  href="tel:+916383805976"
+                  className="block text-sm font-extrabold text-brand-pink-600 hover:text-brand-pink-700 transition-colors"
+                >
+                  +91 63838 05976
+                </a>
+                <span className="block text-xs font-medium text-brand-coffee-500">
+                  Mon – Sat (9:00 AM – 9:00 PM)
+                </span>
+              </div>
               <a
-                href="tel:+91 6383 805 976"
-                className="block text-sm font-extrabold text-brand-pink-600 hover:text-brand-pink-700 transition-colors"
+                href="tel:+916383805976"
+                className="w-full py-2.5 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all"
               >
-                +91 63838 05976
-              </a>
-              <a
-                href="tel:+919443104462"
-                className="block text-xs font-bold text-brand-coffee-700 hover:text-brand-pink-600 transition-colors"
-              >
-                (Thanjavur)
+                <Phone className="w-4 h-4" />
+                <span>Call +91 63838 05976</span>
               </a>
             </div>
           </div>
@@ -150,14 +156,28 @@ const ContactPage = () => {
                 Place instant orders or inquire about wholesale bulk pricing on WhatsApp.
               </p>
             </div>
-            <div className="pt-3 border-t border-brand-coffee-100">
+            <div className="pt-3 border-t border-brand-coffee-100 space-y-2">
+              <div className="space-y-0.5">
+                <a
+                  href="https://wa.me/916383805976?text=Hello%20Nathan%20Coffee%2C%20I%20would%20like%20to%20order%20pure%20filter%20coffee%20powder"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm font-extrabold text-emerald-600 hover:text-emerald-700 transition-colors"
+                >
+                  +91 63838 05976
+                </a>
+                <span className="block text-xs font-medium text-brand-coffee-500">
+                  Instant response on chat
+                </span>
+              </div>
               <a
                 href="https://wa.me/916383805976?text=Hello%20Nathan%20Coffee%2C%20I%20would%20like%20to%20order%20pure%20filter%20coffee%20powder"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all"
               >
-                <span>💬 Chat on WhatsApp</span>
+                <MessageCircle className="w-4 h-4" />
+                <span>Chat on WhatsApp</span>
               </a>
             </div>
           </div>
@@ -173,14 +193,26 @@ const ContactPage = () => {
                 For corporate gifting, cafe partnerships, and feedback.
               </p>
             </div>
-            <div className="pt-3 border-t border-brand-coffee-100">
+            <div className="pt-3 border-t border-brand-coffee-100 space-y-2">
+              <div className="space-y-0.5">
+                <a
+                  href="mailto:nathancoffeethanjavur.official@gmail.com"
+                  className="block text-xs font-extrabold text-brand-coffee-900 hover:text-brand-pink-600 transition-colors truncate"
+                  title="nathancoffeethanjavur.official@gmail.com"
+                >
+                  nathancoffeethanjavur.official@gmail.com
+                </a>
+                <span className="block text-xs font-medium text-brand-coffee-500">
+                  Response within 24 hours
+                </span>
+              </div>
               <a
                 href="mailto:nathancoffeethanjavur.official@gmail.com"
-                className="block text-sm font-extrabold text-brand-coffee-900 hover:text-brand-pink-600 transition-colors"
+                className="w-full py-2.5 bg-brand-yellow-500 hover:bg-brand-yellow-600 text-brand-coffee-950 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all"
               >
-                nathancoffeethanjavur.official@gmail.com
+                <Mail className="w-4 h-4" />
+                <span>Send Email</span>
               </a>
-              <span className="text-[11px] text-brand-coffee-400">Response within 24h</span>
             </div>
           </div>
         </div>
@@ -206,18 +238,15 @@ const ContactPage = () => {
                   <span>Thanjavur Branch (Heritage Store):</span>
                 </div>
                 <p className="text-xs text-brand-coffee-800 leading-relaxed">
-                  <strong>2928, South Street,</strong> Near Canara Bank, Thanjavur, Tamil Nadu - 613001
-                </p>
-                <p className="text-[11px] text-brand-coffee-500">
-                  Landmark: Mangalapuram, M.C. Road junction
+                  <strong>2928, South Main Street,</strong> Near Canara Bank, Thanjavur, Tamil Nadu - 613007
                 </p>
                 <div className="text-[11px] text-brand-yellow-700 font-semibold flex items-center gap-1 pt-1">
-                  <span>Ph: 63838 05976 / 94431 04462</span>
+                  <span>Ph: 63838 05976</span>
                 </div>
               </div>
 
               {/* Thanjavur Location */}
-              <div className="p-4 rounded-2xl bg-brand-coffee-50 border border-brand-coffee-200 space-y-2">
+              {/* <div className="p-4 rounded-2xl bg-brand-coffee-50 border border-brand-coffee-200 space-y-2">
                 <div className="flex items-center gap-2 text-brand-pink-600 font-bold text-sm">
                   <MapPin className="w-4 h-4" />
                   <span>Thanjavur Hub & Roastery:</span>
@@ -228,14 +257,14 @@ const ContactPage = () => {
                 <p className="text-[11px] text-brand-coffee-500">
                   Primary Online Order Dispatch Center
                 </p>
-              </div>
+              </div> */}
 
               {/* Working Hours */}
               <div className="p-4 rounded-2xl bg-brand-yellow-50 border border-brand-yellow-200/80 flex items-start gap-3">
                 <Clock className="w-5 h-5 text-brand-yellow-600 flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-brand-coffee-900 leading-relaxed">
                   <p className="font-extrabold text-sm">Working Hours:</p>
-                  <p>Monday – Saturday: <strong>9:00 AM – 6:00 PM</strong></p>
+                  <p>Monday – Saturday: <strong>9:00 AM – 9:00 PM</strong></p>
                   <p className="text-brand-coffee-600">Sunday: Closed for Roastery Maintenance</p>
                 </div>
               </div>

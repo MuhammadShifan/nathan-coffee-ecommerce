@@ -719,12 +719,12 @@ const CheckoutPage = () => {
                       value={formData.pincode}
                       onChange={handleChange}
                       onBlur={handlePincodeBlur}
-                      placeholder="e.g. 613001"
+                      placeholder="e.g. 613007"
                       className={`w-full px-4 py-2.5 pr-10 rounded-xl border focus:ring-2 focus:outline-none text-xs text-brand-coffee-900 bg-brand-coffee-50/50 ${pincodeError
-                          ? 'border-red-500 focus:ring-red-400 bg-red-50/40'
-                          : pincodeStatus === 'valid'
-                            ? 'border-emerald-500 focus:ring-emerald-400 bg-emerald-50/30'
-                            : 'border-brand-coffee-200 focus:ring-brand-pink-500'
+                        ? 'border-red-500 focus:ring-red-400 bg-red-50/40'
+                        : pincodeStatus === 'valid'
+                          ? 'border-emerald-500 focus:ring-emerald-400 bg-emerald-50/30'
+                          : 'border-brand-coffee-200 focus:ring-brand-pink-500'
                         }`}
                     />
                     {pincodeStatus === 'checking' && (

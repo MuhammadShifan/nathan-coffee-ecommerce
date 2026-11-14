@@ -72,11 +72,11 @@ export const SEO_CONFIG = {
     addresses: [
       {
         branchName: 'Thanjavur Branch (Heritage Store & Roastery)',
-        streetAddress: '2928, South Street, Near Canara Bank',
-        landmark: 'Mangalapuram, MC Road Junction',
+        streetAddress: '2928, South Main Street, Near Canara Bank',
+        landmark: ' Junction',
         addressLocality: 'Thanjavur',
         addressRegion: 'Tamil Nadu',
-        postalCode: '613001',
+        postalCode: '613007',
         addressCountry: 'IN',
         geo: {
           latitude: '10.7870',

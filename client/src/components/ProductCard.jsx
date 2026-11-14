@@ -117,7 +117,7 @@ const ProductCard = ({ product }) => {
           </span>
         )}
         <span className="bg-brand-yellow-400 text-brand-coffee-950 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1 border border-brand-yellow-500">
-          <Sparkles className="w-2.5 h-2.5" /> 100% PURE
+          <Sparkles className="w-2.5 h-2.5" /> {product.blendRatio ? product.blendRatio.toUpperCase() : '100% PURE'}
         </span>
       </div>
 
@@ -225,9 +225,11 @@ const ProductCard = ({ product }) => {
               <span>{product.rating || '4.9'}</span>
               <span className="text-brand-coffee-400 font-normal">({product.reviewCount || '148'})</span>
             </div>
-            <span className="text-[10px] sm:text-[11px] font-semibold text-brand-coffee-500 uppercase tracking-wider">
-              {product.roastLevel || 'Slow Drum Roast'}
-            </span>
+            {(product.roastMaster || product.roastLevel || product.blendRatio) && (
+              <span className="text-[10px] sm:text-[11px] font-semibold text-brand-coffee-500 uppercase tracking-wider">
+                {product.roastMaster || product.roastLevel || product.blendRatio}
+              </span>
+            )}
           </div>
 
           {/* Title & Tamil Subtitle */}
