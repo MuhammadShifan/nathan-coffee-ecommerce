@@ -62,7 +62,7 @@ const PolicyPage = () => {
               <strong>No cancellations are allowed once an order is placed, as our coffee powder is freshly roasted and packed immediately. (Cancellation கிடையாது).</strong>
             </p>
             <p className="pl-8 text-xs text-brand-coffee-600 leading-relaxed">
-              To guarantee that every cup delivers authentic Kumbakonam/Thanjavur-style thick golden decoction, our roastery team initiates batch preparation and sealing immediately upon receipt of your prepaid order. Therefore, once an order is placed, it cannot be modified, recalled, or cancelled.
+              To guarantee that every cup delivers authentic Thanjavur-style thick golden decoction, our roastery team initiates batch preparation and sealing immediately upon receipt of your prepaid order. Therefore, once an order is placed, it cannot be modified, recalled, or cancelled.
             </p>
           </div>
 
