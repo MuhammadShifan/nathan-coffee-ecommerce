@@ -23,6 +23,7 @@ import {
   Heart,
 } from 'lucide-react';
 import api from '../services/api';
+import { resolveProductImageUrl } from '../utils/imageUrl';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import SEOMeta from '../components/SEOMeta';
@@ -262,10 +263,14 @@ const ProductDetailPage = () => {
     }
   }
 
-  const images = cleanImages.length > 0 ? cleanImages : ['/images/250g front.png'];
+  const images = cleanImages.length > 0
+    ? cleanImages.map((img) => resolveProductImageUrl(img))
+    : ['/images/250g front.png'];
 
   // Current active display image with safe fallbacks
-  const displayedImage = currentMainImage || images[currentImgIndex] || images[0] || '/images/250g front.png';
+  const displayedImage = resolveProductImageUrl(
+    currentMainImage || images[currentImgIndex] || images[0] || '/images/250g front.png'
+  );
 
   // Current Variant Details & dynamic variants array
   const variants = Array.isArray(product?.variants) && product.variants.length > 0
@@ -522,9 +527,12 @@ const ProductDetailPage = () => {
                     <img
                       src={displayedImage}
                       alt={`${product.title} - ${currentVariant.weight}`}
+                      decoding="async"
                       className={`max-h-full max-w-full object-contain drop-shadow-xl transition-transform duration-500 ${isHoverZoom ? 'scale-110' : 'scale-100'
                         }`}
                       onError={(e) => {
+                        if (e.target.dataset.failed) return;
+                        e.target.dataset.failed = 'true';
                         e.target.src = '/images/250g front.png';
                       }}
                     />
@@ -585,8 +593,12 @@ const ProductDetailPage = () => {
                       <img
                         src={url}
                         alt={`${product.title} thumbnail ${idx + 1}`}
+                        loading="lazy"
+                        decoding="async"
                         className="max-h-full max-w-full object-contain"
                         onError={(e) => {
+                          if (e.target.dataset.failed) return;
+                          e.target.dataset.failed = 'true';
                           e.target.src = '/images/250g front.png';
                         }}
                       />

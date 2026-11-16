@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, Zap, Star, Sparkles, Eye, CheckCircle2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { resolveProductImageUrl, isDefaultPlaceholderImage } from '../utils/imageUrl';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
@@ -37,12 +38,29 @@ const ProductCard = ({ product }) => {
     inStock: true,
   };
 
-  const images = Array.isArray(product.images) && product.images.length > 0
+  const rawImages = Array.isArray(product.images) && product.images.length > 0
     ? product.images.map((img) => (typeof img === 'object' && img?.url ? img.url : img)).filter(Boolean)
     : [product.image || '/images/250g front.png'];
 
+  const images = rawImages.map((img) => resolveProductImageUrl(img));
   const hasMultipleImages = images.length > 1;
-  const primaryImage = currentVariant.image || currentVariant.imageUrl || images[0] || '/images/250g front.png';
+
+  // Smart dynamic image selection:
+  // If variant has a custom image (not generic placeholder), prefer it.
+  // Otherwise, if product.images[0] has been updated by admin, prefer it over generic placeholder.
+  const variantImg = currentVariant.image || currentVariant.imageUrl;
+  let candidateImage = null;
+  if (variantImg && !isDefaultPlaceholderImage(variantImg)) {
+    candidateImage = variantImg;
+  } else if (rawImages[0] && !isDefaultPlaceholderImage(rawImages[0])) {
+    candidateImage = rawImages[0];
+  } else if (product.image && !isDefaultPlaceholderImage(product.image)) {
+    candidateImage = product.image;
+  } else {
+    candidateImage = variantImg || rawImages[0] || '/images/250g front.png';
+  }
+
+  const primaryImage = resolveProductImageUrl(candidateImage);
   const secondaryImage = images[1] || primaryImage;
 
   const discountPercent = currentVariant.mrp > currentVariant.price
@@ -63,12 +81,6 @@ const ProductCard = ({ product }) => {
   const handleBuyNow = (e) => {
     e.stopPropagation();
     const targetWeight = currentVariant.weight || '250g';
-    const variantImage = currentVariant.image || currentVariant.imageUrl;
-    const primaryImage =
-      variantImage ||
-      (Array.isArray(product.images) && product.images.length > 0
-        ? (typeof product.images[0] === 'object' && product.images[0]?.url ? product.images[0].url : product.images[0])
-        : product.image) || '/images/250g front.png';
 
     const buyNowItem = {
       itemKey: `${product._id || product.slug}-${targetWeight}`,
@@ -133,9 +145,16 @@ const ProductCard = ({ product }) => {
         {/* If manual pip index selected, show that specific image */}
         {activeImageIndex !== null ? (
           <img
-            src={images[activeImageIndex] || primaryImage}
+            src={resolveProductImageUrl(images[activeImageIndex] || primaryImage)}
             alt={`${product.title} - View ${activeImageIndex + 1}`}
+            loading="lazy"
+            decoding="async"
             className="max-h-48 sm:max-h-60 w-auto object-contain transition-all duration-500 transform scale-105 drop-shadow-md"
+            onError={(e) => {
+              if (e.target.dataset.failed) return;
+              e.target.dataset.failed = 'true';
+              e.target.src = '/images/250g front.png';
+            }}
           />
         ) : (
           /* Multi-image smooth dual-layer crossfade on hover */
@@ -152,6 +171,8 @@ const ProductCard = ({ product }) => {
                   : 'opacity-100 scale-100 translate-y-0 group-hover:scale-105'
               }`}
               onError={(e) => {
+                if (e.target.dataset.failed) return;
+                e.target.dataset.failed = 'true';
                 e.target.src = '/images/250g front.png';
               }}
             />
@@ -169,6 +190,8 @@ const ProductCard = ({ product }) => {
                     : 'opacity-0 scale-90 translate-y-3 pointer-events-none'
                 }`}
                 onError={(e) => {
+                  if (e.target.dataset.failed) return;
+                  e.target.dataset.failed = 'true';
                   e.target.src = primaryImage;
                 }}
               />

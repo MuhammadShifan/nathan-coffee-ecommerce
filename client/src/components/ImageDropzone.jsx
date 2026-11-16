@@ -11,8 +11,10 @@ import {
   ArrowRight,
   Eye,
   Trash2,
+  Link2,
 } from 'lucide-react';
 import api, { uploadProductImages, getAdminToken } from '../services/api';
+import { resolveProductImageUrl } from '../utils/imageUrl';
 
 /**
  * ImageDropzone Component (Multi-Image Upload & Preview)
@@ -34,6 +36,7 @@ const ImageDropzone = ({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [previewModalImg, setPreviewModalImg] = useState(null);
+  const [directUrl, setDirectUrl] = useState('');
   const fileInputRef = useRef(null);
 
   // Normalize incoming value to an array of string URLs
@@ -170,6 +173,23 @@ const ImageDropzone = ({
     }
   };
 
+  const handleAddDirectUrl = (e) => {
+    e?.preventDefault();
+    const trimmed = directUrl.trim();
+    if (!trimmed) return;
+    if (imageList.length >= maxImages) {
+      setUploadError(`You can add a maximum of ${maxImages} images per product.`);
+      return;
+    }
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('/')) {
+      setUploadError('Please enter a valid image URL (e.g. https://... or /images/...)');
+      return;
+    }
+    setUploadError(null);
+    onChange([...imageList, trimmed]);
+    setDirectUrl('');
+  };
+
   const triggerFileInput = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -270,10 +290,14 @@ const ImageDropzone = ({
                       title="Click to zoom preview"
                     >
                       <img
-                        src={url}
+                        src={resolveProductImageUrl(url)}
                         alt={`Preview ${idx + 1}`}
+                        loading="lazy"
+                        decoding="async"
                         className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                         onError={(e) => {
+                          if (e.target.dataset.failed) return;
+                          e.target.dataset.failed = 'true';
                           e.target.src = '/images/250g front.png';
                         }}
                       />
@@ -401,6 +425,34 @@ const ImageDropzone = ({
             </div>
           </div>
         )}
+      </div>
+
+      {/* Direct Image URL Input Bar (Cloudinary, Firebase, Imgur, S3, CDN) */}
+      <div className="flex items-center gap-2 pt-1">
+        <div className="relative flex-1">
+          <Link2 className="w-3.5 h-3.5 text-brand-coffee-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="url"
+            value={directUrl}
+            onChange={(e) => setDirectUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddDirectUrl();
+              }
+            }}
+            placeholder="Or paste image URL (Cloudinary, Firebase, CDN, etc.)..."
+            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-brand-coffee-200 bg-white focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={handleAddDirectUrl}
+          disabled={!directUrl.trim() || imageList.length >= maxImages}
+          className="px-3 py-1.5 bg-brand-pink-600 hover:bg-brand-pink-700 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex-shrink-0 cursor-pointer"
+        >
+          Add URL
+        </button>
       </div>
 
       {/* Upload Error Banner */}

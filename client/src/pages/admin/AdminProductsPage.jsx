@@ -28,6 +28,7 @@ import api, {
 import AdminLayout from '../../components/AdminLayout';
 import ImageDropzone from '../../components/ImageDropzone';
 import { defaultProductsData } from '../../data/defaultProducts';
+import { resolveProductImageUrl } from '../../utils/imageUrl';
 
 const AdminProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -239,6 +240,28 @@ const AdminProductsPage = () => {
     }));
   };
 
+  const handleProductImagesChange = (newImages) => {
+    setFormData((prev) => {
+      const updatedVariants = prev.variants.map((v, idx) => {
+        // If variant 0 image is empty or still the default placeholder, automatically update it to match the new primary image
+        if (
+          idx === 0 &&
+          (!v.image ||
+            v.image === '/images/250g front.png' ||
+            v.image.includes('250g front'))
+        ) {
+          return { ...v, image: newImages[0] || '' };
+        }
+        return v;
+      });
+      return {
+        ...prev,
+        images: newImages,
+        variants: updatedVariants,
+      };
+    });
+  };
+
   const openAddModal = () => {
     setEditingProduct(null);
     setFormData({
@@ -334,18 +357,31 @@ const AdminProductsPage = () => {
       }
     }
 
-    const cleanedVariants = formData.variants.map((v) => ({
-      weight: v.weight.trim(),
-      price: Number(v.price),
-      mrp: Number(v.mrp) || Number(v.price),
-      image: (v.image || '').trim(),
-      inStock: v.inStock !== false,
-      sku: `NC-${v.weight.toUpperCase().replace(/[^A-Z0-9]/g, '')}-${Date.now().toString().slice(-4)}`,
-    }));
-
     const normalizedImages = Array.isArray(formData.images) && formData.images.length > 0
       ? formData.images
       : ['/images/250g front.png'];
+
+    const cleanedVariants = formData.variants.map((v, idx) => {
+      let variantImg = (v.image || '').trim();
+      // If variant 0 image is empty or still default placeholder, adopt the new primary image
+      if (
+        idx === 0 &&
+        (!variantImg ||
+          variantImg === '/images/250g front.png' ||
+          variantImg.includes('250g front')) &&
+        normalizedImages[0]
+      ) {
+        variantImg = normalizedImages[0];
+      }
+      return {
+        weight: v.weight.trim(),
+        price: Number(v.price),
+        mrp: Number(v.mrp) || Number(v.price),
+        image: variantImg,
+        inStock: v.inStock !== false,
+        sku: `NC-${v.weight.toUpperCase().replace(/[^A-Z0-9]/g, '')}-${Date.now().toString().slice(-4)}`,
+      };
+    });
 
     const productPayload = {
       title: formData.title.trim(),
@@ -881,10 +917,12 @@ const AdminProductsPage = () => {
                             {variant.image ? (
                               <div className="relative group w-12 h-12 rounded-lg bg-white border border-brand-coffee-200 p-1 flex items-center justify-center flex-shrink-0 shadow-2xs">
                                 <img
-                                  src={variant.image}
+                                  src={resolveProductImageUrl(variant.image)}
                                   alt={`Variant ${variant.weight || index}`}
                                   className="w-full h-full object-contain"
                                   onError={(e) => {
+                                    if (e.target.dataset.failed) return;
+                                    e.target.dataset.failed = 'true';
                                     e.target.src = '/images/250g front.png';
                                   }}
                                 />
@@ -962,7 +1000,7 @@ const AdminProductsPage = () => {
 
                 <ImageDropzone
                   value={formData.images}
-                  onChange={(images) => setFormData({ ...formData, images })}
+                  onChange={handleProductImagesChange}
                   label="Product Packaging Images (Multi-Image)"
                   maxImages={8}
                 />

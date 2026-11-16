@@ -271,10 +271,16 @@ const parseProductPayload = (req) => {
 };
 
 // @route   GET /api/products
-// @desc    Get all products (public - sorted by sortOrder ascending)
+// @desc    Get all products (public - sorted by sortOrder ascending, lean & un-cached for instant updates)
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({}).sort({ sortOrder: 1, createdAt: -1 });
+    // Explicit cache-busting headers so newly uploaded images & edited prices appear immediately
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
+    // .lean() avoids Mongoose hydration overhead for lightning-fast JSON response
+    const products = await Product.find({}).sort({ sortOrder: 1, createdAt: -1 }).lean();
 
     res.json({
       success: true,
@@ -295,14 +301,18 @@ router.get('/', async (req, res) => {
 // @desc    Get single product by ID or Slug
 router.get('/:idOrSlug', async (req, res) => {
   try {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
     const { idOrSlug } = req.params;
     let product = null;
 
     if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
-      product = await Product.findById(idOrSlug);
+      product = await Product.findById(idOrSlug).lean();
     }
     if (!product) {
-      product = await Product.findOne({ slug: idOrSlug });
+      product = await Product.findOne({ slug: idOrSlug }).lean();
     }
 
     if (!product) {

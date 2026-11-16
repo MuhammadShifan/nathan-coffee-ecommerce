@@ -12,6 +12,7 @@ const ShopPage = () => {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
+  const [visibleCount, setVisibleCount] = useState(9);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -31,6 +32,11 @@ const ShopPage = () => {
     };
     fetchProducts();
   }, []);
+
+  // Reset pagination when category or sort changes
+  useEffect(() => {
+    setVisibleCount(9);
+  }, [activeCategory, sortBy]);
 
   // Filter and sort products
   const filteredProducts = products.filter((p) => {
@@ -192,10 +198,37 @@ const ShopPage = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
-            {sortedProducts.map((product) => (
-              <ProductCard key={product._id || product.slug} product={product} />
-            ))}
+          <div className="space-y-8 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
+              {sortedProducts.slice(0, visibleCount).map((product) => (
+                <ProductCard key={product._id || product.slug} product={product} />
+              ))}
+            </div>
+
+            {/* Pagination / Load More Controls */}
+            {sortedProducts.length > 9 && (
+              <div className="flex flex-col items-center justify-center gap-3 pt-4">
+                <p className="text-xs font-semibold text-brand-coffee-600">
+                  Showing <span className="font-bold text-brand-coffee-950">{Math.min(visibleCount, sortedProducts.length)}</span> of{' '}
+                  <span className="font-bold text-brand-coffee-950">{sortedProducts.length}</span> coffee blends
+                </p>
+
+                {visibleCount < sortedProducts.length ? (
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => prev + 9)}
+                    className="px-6 py-3 bg-white hover:bg-brand-pink-50 text-brand-pink-700 border-2 border-brand-pink-300 hover:border-brand-pink-500 rounded-2xl font-bold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4 text-brand-pink-600" />
+                    <span>Load More Blends</span>
+                  </button>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-brand-coffee-100/70 text-brand-coffee-700 rounded-full text-xs font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> You have viewed all available blends
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         )}
 

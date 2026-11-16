@@ -84,7 +84,11 @@ const uploadHeroImageMiddleware = (req, res, next) => {
 // @access  Public
 router.get('/hero-image', async (req, res) => {
   try {
-    let settings = await SiteSettings.findOne({ key: 'default' });
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
+    let settings = await SiteSettings.findOne({ key: 'default' }).lean();
 
     if (!settings) {
       settings = await SiteSettings.create({

@@ -21,6 +21,7 @@ import ProductCard from '../components/ProductCard';
 import SEOMeta from '../components/SEOMeta';
 import { defaultProductsData } from '../data/defaultProducts';
 import newLogo from '../assets/images/newLogo.png';
+import { resolveProductImageUrl } from '../utils/imageUrl';
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
@@ -188,13 +189,17 @@ const HomePage = () => {
                   {/* Decorative Frame */}
                   <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white ring-4 ring-brand-pink-500/20 bg-white w-full min-h-[300px] xs:min-h-[340px] sm:min-h-[400px] md:min-h-[420px] flex items-center justify-center p-2 sm:p-3">
                     <img
-                      src={heroImageUrl || '/images/hero-coffee.jpg'}
+                      src={resolveProductImageUrl(heroImageUrl, '/images/hero-coffee.jpg')}
                       alt="Nathan Coffee - Authentic South Indian Filter Coffee"
+                      fetchpriority="high"
+                      loading="eager"
+                      decoding="async"
                       className="w-full h-auto max-h-[280px] xs:max-h-[340px] sm:max-h-[400px] md:max-h-[420px] object-contain rounded-2xl transition-transform duration-500 hover:scale-[1.02]"
                       width="600"
                       height="420"
                       onError={(e) => {
-                        e.target.onerror = null;
+                        if (e.target.dataset.failed) return;
+                        e.target.dataset.failed = 'true';
                         e.target.src = '/images/hero-coffee.jpg';
                       }}
                     />
@@ -224,10 +229,22 @@ const HomePage = () => {
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
-            {products.map((product) => (
+            {products.slice(0, 6).map((product) => (
               <ProductCard key={product._id || product.slug} product={product} />
             ))}
           </div>
+
+          {products.length > 6 && (
+            <div className="mt-8 text-center">
+              <Link
+                to="/shop"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-2xl font-bold text-sm shadow-md transition-all hover:scale-[1.02]"
+              >
+                <span>View All Available Blends ({products.length})</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          )}
         </section>
 
         {/* ========================================================================= */}
@@ -244,6 +261,8 @@ const HomePage = () => {
                   <img
                     src={newLogo}
                     alt="Nathan Coffee  Logo"
+                    loading="lazy"
+                    decoding="async"
                     className="h-8 sm:h-10 w-auto object-contain bg-white rounded-lg"
                     width="100"
                     height="32"
@@ -317,6 +336,8 @@ const HomePage = () => {
                   <img
                     src="/images/grandfather photo.jpg"
                     alt="Beloved Founder Grandfather ofNathan Coffee "
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-auto object-cover"
                   />
                 </div>

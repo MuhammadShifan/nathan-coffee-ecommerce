@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 import connectDB from './config/db.js';
@@ -94,8 +95,30 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static images from client public/images
-app.use('/images', express.static(path.join(__dirname, '../client/public/images')));
+// Serve static images and uploads with CORS and caching
+const clientPublicImagesDir = path.join(__dirname, '../client/public/images');
+const serverUploadsDir = path.join(__dirname, 'uploads');
+const serverImagesDir = path.join(__dirname, 'images');
+
+if (!fs.existsSync(clientPublicImagesDir)) {
+  try { fs.mkdirSync(clientPublicImagesDir, { recursive: true }); } catch (e) {}
+}
+if (!fs.existsSync(serverUploadsDir)) {
+  try { fs.mkdirSync(serverUploadsDir, { recursive: true }); } catch (e) {}
+}
+
+const staticImageOptions = {
+  maxAge: '7d',
+  setHeaders: (res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  },
+};
+
+app.use('/images', express.static(clientPublicImagesDir, staticImageOptions));
+if (fs.existsSync(serverImagesDir)) {
+  app.use('/images', express.static(serverImagesDir, staticImageOptions));
+}
+app.use('/uploads', express.static(serverUploadsDir, staticImageOptions));
 
 // API Routes
 app.use('/api/auth', authRoutes);
