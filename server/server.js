@@ -35,13 +35,47 @@ app.use(
   })
 );
 
-// CORS configuration - allow cross-origin requests seamlessly for local network IP, localhost, etc.
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
+// CORS configuration - explicitly allow production domains, Vercel deployments, and local development
+const rawClientUrl = process.env.CLIENT_URL || 'https://nathancoffeethanjavur.com';
+const normalizedClientUrl = rawClientUrl.replace(/\/+$/, '');
+
+const allowedOrigins = [
+  'https://nathancoffeethanjavur.com',
+  'https://www.nathancoffeethanjavur.com',
+  'https://nathan-coffee-ecommerce.vercel.app',
+  normalizedClientUrl,
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5001',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5001',
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+
+    const isExplicitlyAllowed = allowedOrigins.includes(origin);
+    const isVercelDomain = /^https:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/.test(origin);
+    const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+    if (isExplicitlyAllowed || isVercelDomain || isLocalhost) {
+      return callback(null, true);
+    }
+
+    console.warn(`[CORS] Blocked request from origin: ${origin}`);
+    return callback(new Error(`CORS policy blocked access from origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Set-Cookie'],
+  maxAge: 86400, // 24 hours
+};
+
+app.use(cors(corsOptions));
 
 // Logging
 if (process.env.NODE_ENV === 'development') {

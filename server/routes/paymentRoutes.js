@@ -59,7 +59,8 @@ router.post('/create-order', protectUserOptional, async (req, res) => {
       });
     }
 
-    const origin = req.headers.origin || `${req.protocol}://${req.get('host')}`;
+    const fallbackClient = (process.env.CLIENT_URL || process.env.SITE_URL || 'https://nathancoffeethanjavur.com').replace(/\/+$/, '');
+    const origin = req.headers.origin || fallbackClient;
     const { orderData } = await createCashfreeOrder({
       amount: orderAmount,
       currency,
@@ -218,7 +219,7 @@ router.post('/verify', protectUserOptional, async (req, res) => {
       orderId: generateNathanOrderId(),
       customer: orderDetails?.customer || {
         name: cfOrder.customer_details?.customer_name || 'Valued Customer',
-        email: cfOrder.customer_details?.customer_email || 'customer@Nathancoffee.com',
+        email: cfOrder.customer_details?.customer_email || 'customer@nathancoffeethanjavur.com',
         phone: cfOrder.customer_details?.customer_phone || '9443104462',
         address: {
           doorNo: '2928',

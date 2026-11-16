@@ -13,7 +13,7 @@
  */
 
 // Resolves the production site base URL from environment or fallback placeholder
-const rawSiteUrl = (import.meta.env.VITE_SITE_URL || 'https://nadhancoffee.com').trim();
+const rawSiteUrl = (import.meta.env.VITE_SITE_URL || 'https://nathancoffeethanjavur.com').trim();
 export const SITE_URL = rawSiteUrl.replace(/\/+$/, '');
 
 /**

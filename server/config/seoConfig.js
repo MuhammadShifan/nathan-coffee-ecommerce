@@ -2,16 +2,16 @@
  * Central SEO Configuration - Backend (Node/Express)
  * 
  * NOTE FOR CUSTOM DOMAIN:
- * When you purchase and connect your custom domain (e.g., https://nadhancoffee.com),
+ * When you purchase and connect your custom domain (e.g., https://nathancoffeethanjavur.com),
  * you DO NOT need to touch this file.
  * Simply update the SITE_URL environment variable in your server .env / Render / host settings:
  * 
- *   SITE_URL=https://your-custom-domain.com
+ *   SITE_URL=https://nathancoffeethanjavur.com
  * 
  * sitemap.xml and robots.txt will automatically output the dynamic production URLs.
  */
 
-const rawSiteUrl = (process.env.SITE_URL || process.env.CLIENT_URL || 'https://nadhancoffee.com').trim();
+const rawSiteUrl = (process.env.SITE_URL || process.env.CLIENT_URL || 'https://nathancoffeethanjavur.com').trim();
 export const SITE_URL = rawSiteUrl.replace(/\/+$/, '');
 
 /**

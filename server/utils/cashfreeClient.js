@@ -42,12 +42,17 @@ export const createCashfreeOrder = async ({
   const cleanCustomerId = String(rawCustomerId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 50) || `cust_${Date.now()}`;
 
   const customerName = (customer?.name || reqUser?.name || 'Customer').trim();
-  const customerEmail = (customer?.email || reqUser?.email || `customer_${cleanPhone}@Nathancoffee.com`).trim();
+  const customerEmail = (customer?.email || reqUser?.email || `customer_${cleanPhone}@nathancoffeethanjavur.com`).trim();
 
   const resolvedMerchantOrderId =
     cfMerchantOrderId || `order_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
 
-  const defaultReturnUrl = origin ? `${origin}/checkout?cf_order_id={order_id}` : undefined;
+  const fallbackClientUrl = (process.env.CLIENT_URL || process.env.SITE_URL || 'https://nathancoffeethanjavur.com').replace(/\/+$/, '');
+  const baseClientUrl = origin && origin !== 'null' && origin !== 'undefined' ? origin.replace(/\/+$/, '') : fallbackClientUrl;
+  const defaultReturnUrl = `${baseClientUrl}/checkout?cf_order_id={order_id}`;
+  const resolvedReturnUrl = returnUrl
+    ? (returnUrl.startsWith('http') ? returnUrl : `${baseClientUrl}${returnUrl.startsWith('/') ? '' : '/'}${returnUrl}`)
+    : defaultReturnUrl;
 
   const orderPayload = {
     order_id: resolvedMerchantOrderId,
@@ -60,7 +65,7 @@ export const createCashfreeOrder = async ({
       customer_email: customerEmail,
     },
     order_meta: {
-      return_url: returnUrl || defaultReturnUrl,
+      return_url: resolvedReturnUrl,
     },
     order_note: orderNote,
   };
