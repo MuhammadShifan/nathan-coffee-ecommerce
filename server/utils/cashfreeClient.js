@@ -42,7 +42,10 @@ export const createCashfreeOrder = async ({
   const cleanCustomerId = String(rawCustomerId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 50) || `cust_${Date.now()}`;
 
   const customerName = (customer?.name || reqUser?.name || 'Customer').trim();
-  const customerEmail = (customer?.email || reqUser?.email || `customer_${cleanPhone}@nathancoffeethanjavur.com`).trim();
+  const candidateEmail = String(customer?.email || reqUser?.email || '').trim();
+  const customerEmail = candidateEmail && candidateEmail.includes('@')
+    ? candidateEmail
+    : `customer_${cleanPhone}@nathancoffeethanjavur.com`;
 
   const resolvedMerchantOrderId =
     cfMerchantOrderId || `order_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;

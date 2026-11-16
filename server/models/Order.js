@@ -48,7 +48,7 @@ const orderSchema = new mongoose.Schema(
     },
     customer: {
       name: { type: String, required: true, trim: true },
-      email: { type: String, required: true, trim: true },
+      email: { type: String, required: false, default: '', trim: true },
       phone: { type: String, required: true, trim: true },
       address: {
         doorNo: { type: String, required: true },

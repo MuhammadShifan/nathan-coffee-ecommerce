@@ -292,8 +292,8 @@ const CheckoutPage = () => {
     if (!formData.name.trim()) return 'Please enter your full name';
     if (!formData.phone.trim() || formData.phone.length < 10)
       return 'Please enter a valid 10-digit mobile number';
-    if (!formData.email.trim() || !formData.email.includes('@'))
-      return 'Please enter a valid email address';
+    if (formData.email.trim() && !formData.email.includes('@'))
+      return 'Please enter a valid email address (or leave it empty)';
     if (!formData.doorNo.trim()) return 'Please enter door / house / flat number';
     if (!formData.street.trim()) return 'Please enter street name or area';
     if (!formData.city.trim()) return 'Please enter city';
@@ -629,15 +629,14 @@ const CheckoutPage = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-brand-coffee-800 mb-1">
-                    Email Address (For Order Updates & Invoice) *
+                    Email Address (Optional)
                   </label>
                   <input
                     type="email"
                     name="email"
-                    required
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="e.g. senthil@gmail.com"
+                    placeholder="e.g. senthil@gmail.com (Optional)"
                     className="w-full px-4 py-2.5 rounded-xl border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-xs text-brand-coffee-900 bg-brand-coffee-50/50"
                   />
                 </div>
