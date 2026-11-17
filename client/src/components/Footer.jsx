@@ -24,7 +24,7 @@ const Footer = () => {
               <div>
                 <span className="font-extrabold text-xl tracking-tight text-brand-pink-400">Nathan </span>
                 <span className="font-bold text-xl text-white">COFFEE</span>
-                <p className="text-[11px] text-brand-yellow-400 font-medium">Thanjavur & Thanjavur</p>
+                <p className="text-[11px] text-brand-yellow-400 font-medium">Thanjavur</p>
               </div>
             </Link>
             <p className="text-sm text-brand-coffee-300 leading-relaxed">

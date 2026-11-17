@@ -26,7 +26,6 @@ import api, {
   uploadProductImages,
 } from '../../services/api';
 import AdminLayout from '../../components/AdminLayout';
-import ImageDropzone from '../../components/ImageDropzone';
 import { defaultProductsData } from '../../data/defaultProducts';
 import { resolveProductImageUrl } from '../../utils/imageUrl';
 
@@ -37,9 +36,8 @@ const AdminProductsPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [feedback, setFeedback] = useState(null);
-  const [uploadingVariantIndex, setUploadingVariantIndex] = useState(null);
 
-  // Form state for new / edit product
+  // Form state for new / edit product with per-variant dual images
   const [formData, setFormData] = useState({
     title: '',
     tamilTitle: '',
@@ -52,9 +50,8 @@ const AdminProductsPage = () => {
     packaging: '',
     heritageOrigin: '',
     variants: [
-      { weight: '250g', price: 399, mrp: 450, image: '/images/250g front.png' },
+      { weight: '250g', price: 399, mrp: 450, image: '/images/250g front.png', image2: '/images/250g back.png' },
     ],
-    images: ['/images/250g front.png', '/images/250g back.png'],
     inStock: true,
   });
 
@@ -187,12 +184,50 @@ const AdminProductsPage = () => {
     }
   };
 
+  const [uploadingVariant, setUploadingVariant] = useState(null);
+
+  const handleVariantImageUpload = async (index, slot, file) => {
+    if (!file) return;
+    if (!file.type.match(/^image\/(jpeg|jpg|png|webp|avif)$/)) {
+      showFeedback('Please select a valid image file (JPG, PNG, WebP, AVIF)', 'error');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showFeedback('Image file size must be less than 10MB', 'error');
+      return;
+    }
+
+    setUploadingVariant({ index, slot });
+    const uploadData = new FormData();
+    uploadData.append('images', file);
+
+    try {
+      const res = await uploadProductImages(uploadData);
+      const uploadedUrl = res.data?.urls?.[0] || res.data?.url;
+      if (uploadedUrl) {
+        handleVariantChange(index, slot, uploadedUrl);
+        const slotLabel = slot === 'image2' ? 'Back (Image 2)' : 'Front (Image 1)';
+        showFeedback(
+          `${slotLabel} uploaded for ${formData.variants[index]?.weight || `Variant #${index + 1}`}!`,
+          'success'
+        );
+      } else {
+        throw new Error(res.data?.message || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('Variant image upload failed:', err);
+      showFeedback(err.response?.data?.message || 'Failed to upload variant image to server', 'error');
+    } finally {
+      setUploadingVariant(null);
+    }
+  };
+
   const handleAddVariant = () => {
     setFormData((prev) => ({
       ...prev,
       variants: [
         ...prev.variants,
-        { weight: '', price: '', mrp: '', image: '' },
+        { weight: '', price: '', mrp: '', image: '', image2: '', images: [] },
       ],
     }));
   };
@@ -208,27 +243,6 @@ const AdminProductsPage = () => {
     });
   };
 
-  const handleVariantImageUpload = async (index, file) => {
-    if (!file) return;
-    setUploadingVariantIndex(index);
-    try {
-      const data = new FormData();
-      data.append('image', file);
-      const res = await uploadProductImages(data);
-      if (res.data.success && res.data.url) {
-        handleVariantChange(index, 'image', res.data.url);
-        showFeedback(`Image uploaded for variant ${formData.variants[index]?.weight || `#${index + 1}`}!`, 'success');
-      } else {
-        showFeedback(res.data.message || 'Failed to upload variant image', 'error');
-      }
-    } catch (err) {
-      console.error('Error uploading variant image:', err);
-      showFeedback(err.response?.data?.message || 'Error uploading variant image', 'error');
-    } finally {
-      setUploadingVariantIndex(null);
-    }
-  };
-
   const handleRemoveVariant = (index) => {
     if (formData.variants.length <= 1) {
       showFeedback('A product must have at least one variant', 'error');
@@ -238,28 +252,6 @@ const AdminProductsPage = () => {
       ...prev,
       variants: prev.variants.filter((_, idx) => idx !== index),
     }));
-  };
-
-  const handleProductImagesChange = (newImages) => {
-    setFormData((prev) => {
-      const updatedVariants = prev.variants.map((v, idx) => {
-        // If variant 0 image is empty or still the default placeholder, automatically update it to match the new primary image
-        if (
-          idx === 0 &&
-          (!v.image ||
-            v.image === '/images/250g front.png' ||
-            v.image.includes('250g front'))
-        ) {
-          return { ...v, image: newImages[0] || '' };
-        }
-        return v;
-      });
-      return {
-        ...prev,
-        images: newImages,
-        variants: updatedVariants,
-      };
-    });
   };
 
   const openAddModal = () => {
@@ -276,9 +268,16 @@ const AdminProductsPage = () => {
       packaging: '',
       heritageOrigin: '',
       variants: [
-        { weight: '250g', price: 399, mrp: 450, image: '/images/250g front.png' },
+        {
+          weight: '250g',
+          price: 399,
+          mrp: 450,
+          image: '/images/250g front.png',
+          image2: '/images/250g back.png',
+          images: ['/images/250g front.png', '/images/250g back.png'],
+          inStock: true,
+        },
       ],
-      images: ['/images/250g front.png', '/images/250g back.png'],
       inStock: true,
     });
     setModalOpen(true);
@@ -286,24 +285,32 @@ const AdminProductsPage = () => {
 
   const openEditModal = (product) => {
     setEditingProduct(product);
-    const productImages = Array.isArray(product.images) && product.images.length > 0
-      ? product.images.map((img) => (typeof img === 'object' && img?.url ? img.url : img)).filter(Boolean)
-      : [product.image || '/images/250g front.png'];
 
     const initialVariants = Array.isArray(product.variants) && product.variants.length > 0
-      ? product.variants.map((v) => ({
-          weight: v.weight || '',
-          price: v.price ?? '',
-          mrp: v.mrp ?? '',
-          image: v.image || v.imageUrl || '',
-          inStock: v.inStock !== false,
-        }))
+      ? product.variants.map((v) => {
+          const img1 = v.image || (Array.isArray(v.images) ? v.images[0] : '') || '';
+          const img2 = v.image2 || (Array.isArray(v.images) ? v.images[1] : '') || '';
+          return {
+            weight: v.weight || '',
+            price: v.price ?? '',
+            mrp: v.mrp ?? '',
+            image: img1,
+            image2: img2,
+            images: [img1, img2].filter(Boolean),
+            inStock: v.inStock !== false,
+          };
+        })
       : [
           {
             weight: product.weight || product.selectedWeight || '250g',
             price: product.price || 399,
             mrp: product.mrp || 450,
-            image: product.image || (product.images && product.images[0]) || '',
+            image: product.image || (Array.isArray(product.images) ? product.images[0] : '') || '/images/250g front.png',
+            image2: product.image2 || (Array.isArray(product.images) ? product.images[1] : '') || '/images/250g back.png',
+            images: [
+              product.image || (Array.isArray(product.images) ? product.images[0] : '') || '/images/250g front.png',
+              product.image2 || (Array.isArray(product.images) ? product.images[1] : '') || '/images/250g back.png',
+            ].filter(Boolean),
             inStock: true,
           },
         ];
@@ -320,7 +327,6 @@ const AdminProductsPage = () => {
       packaging: product.packaging || product.packagingType || '',
       heritageOrigin: product.heritageOrigin || product.origin || '',
       variants: initialVariants,
-      images: productImages,
       inStock: product.inStock !== false,
     });
     setModalOpen(true);
@@ -346,7 +352,7 @@ const AdminProductsPage = () => {
     for (let i = 0; i < formData.variants.length; i++) {
       const v = formData.variants[i];
       if (!v.weight || !v.weight.trim()) {
-        showFeedback(`Variant #${i + 1} is missing a weight (e.g. '100g', '250g', '750g')`, 'error');
+        showFeedback(`Variant #${i + 1} is missing a weight (e.g. '100g', '250g', '1kg')`, 'error');
         setSaving(false);
         return;
       }
@@ -357,31 +363,23 @@ const AdminProductsPage = () => {
       }
     }
 
-    const normalizedImages = Array.isArray(formData.images) && formData.images.length > 0
-      ? formData.images
-      : ['/images/250g front.png'];
-
-    const cleanedVariants = formData.variants.map((v, idx) => {
-      let variantImg = (v.image || '').trim();
-      // If variant 0 image is empty or still default placeholder, adopt the new primary image
-      if (
-        idx === 0 &&
-        (!variantImg ||
-          variantImg === '/images/250g front.png' ||
-          variantImg.includes('250g front')) &&
-        normalizedImages[0]
-      ) {
-        variantImg = normalizedImages[0];
-      }
+    const cleanedVariants = formData.variants.map((v) => {
+      const img1 = (v.image || '').trim();
+      const img2 = (v.image2 || '').trim();
+      const variantImages = [img1, img2].filter(Boolean);
       return {
         weight: v.weight.trim(),
         price: Number(v.price),
         mrp: Number(v.mrp) || Number(v.price),
-        image: variantImg,
+        image: img1 || '/images/250g front.png',
+        image2: img2 || '/images/250g back.png',
+        images: variantImages.length > 0 ? variantImages : ['/images/250g front.png', '/images/250g back.png'],
         inStock: v.inStock !== false,
         sku: `NC-${v.weight.toUpperCase().replace(/[^A-Z0-9]/g, '')}-${Date.now().toString().slice(-4)}`,
       };
     });
+
+    const defaultVariant = cleanedVariants[0];
 
     const productPayload = {
       title: formData.title.trim(),
@@ -403,9 +401,8 @@ const AdminProductsPage = () => {
       packagingType: (formData.packaging || '').trim(),
       origin: (formData.heritageOrigin || '').trim(),
       inStock: formData.inStock,
-      images: normalizedImages,
       variants: cleanedVariants,
-      selectedWeight: cleanedVariants[0]?.weight || '250g',
+      selectedWeight: defaultVariant?.weight || '250g',
     };
 
     try {
@@ -560,11 +557,10 @@ const AdminProductsPage = () => {
                                       ? { display: 'table', tableLayout: 'fixed', width: '100%' }
                                       : {}),
                                   }}
-                                  className={`transition-colors ${
-                                    snapshot.isDragging
+                                  className={`transition-colors ${snapshot.isDragging
                                       ? 'bg-brand-pink-50/95 shadow-2xl ring-2 ring-brand-pink-500 z-50'
                                       : 'hover:bg-brand-pink-50/20'
-                                  }`}
+                                    }`}
                                 >
                                   {/* Drag Handle & Order Sequence Badge */}
                                   <td className="p-4 w-14 text-center">
@@ -587,129 +583,129 @@ const AdminProductsPage = () => {
                                     <div className="relative w-16 h-16 bg-brand-coffee-50 rounded-xl p-1 border border-brand-coffee-200 flex items-center justify-center flex-shrink-0 group">
                                       <img
                                         src={primaryImg}
-                            alt={product.title}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              e.target.src = '/images/250g front.png';
-                            }}
-                          />
-                          {productImages.length > 1 && (
-                            <span className="absolute -top-1.5 -right-1.5 bg-brand-pink-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-xs">
-                              {productImages.length}
-                            </span>
-                          )}
-                        </div>
-                      </td>
+                                        alt={product.title}
+                                        className="w-full h-full object-contain"
+                                        onError={(e) => {
+                                          e.target.src = '/images/250g front.png';
+                                        }}
+                                      />
+                                      {productImages.length > 1 && (
+                                        <span className="absolute -top-1.5 -right-1.5 bg-brand-pink-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-xs">
+                                          {productImages.length}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
 
-                      {/* Title & SEO Slug */}
-                      <td className="p-4">
-                        <div className="font-bold text-brand-coffee-950 text-sm">{product.title}</div>
-                        {product.tamilTitle && (
-                          <div className="text-[11px] text-brand-coffee-600 font-tamil">{product.tamilTitle}</div>
-                        )}
-                        <div className="text-[10px] text-brand-pink-600 font-mono mt-0.5">/{product.slug}</div>
-                      </td>
+                                  {/* Title & SEO Slug */}
+                                  <td className="p-4">
+                                    <div className="font-bold text-brand-coffee-950 text-sm">{product.title}</div>
+                                    {product.tamilTitle && (
+                                      <div className="text-[11px] text-brand-coffee-600 font-tamil">{product.tamilTitle}</div>
+                                    )}
+                                    <div className="text-[10px] text-brand-pink-600 font-mono mt-0.5">/{product.slug}</div>
+                                  </td>
 
-                      {/* Variants & Weights */}
-                      <td className="p-4">
-                        <div className="flex flex-wrap gap-1.5 max-w-xs">
-                          {Array.isArray(product.variants) && product.variants.length > 0 ? (
-                            product.variants.map((v, vIdx) => (
-                              <span
-                                key={v?.weight || vIdx}
-                                className="inline-flex items-center gap-1.5 text-[11px] bg-brand-coffee-100 px-2 py-0.5 rounded-md font-bold text-brand-coffee-800 border border-brand-coffee-200"
-                              >
-                                {v?.image && (
-                                  <img
-                                    src={v.image}
-                                    alt={v.weight || 'Variant'}
-                                    className="w-3.5 h-3.5 rounded object-contain bg-white flex-shrink-0"
-                                    onError={(e) => {
-                                      e.target.style.display = 'none';
-                                    }}
-                                  />
-                                )}
-                                <span>{v?.weight || 'Pack'}: ₹{v?.price ?? product.price ?? 399}</span>
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-[11px] bg-brand-coffee-100 px-2 py-0.5 rounded-md font-bold text-brand-coffee-800 border border-brand-coffee-200">
-                              {product.weight || product.selectedWeight || '250g'}: ₹{product.price || 399}
-                            </span>
-                          )}
-                        </div>
-                      </td>
+                                  {/* Variants & Weights */}
+                                  <td className="p-4">
+                                    <div className="flex flex-wrap gap-1.5 max-w-xs">
+                                      {Array.isArray(product.variants) && product.variants.length > 0 ? (
+                                        product.variants.map((v, vIdx) => (
+                                          <span
+                                            key={v?.weight || vIdx}
+                                            className="inline-flex items-center gap-1.5 text-[11px] bg-brand-coffee-100 px-2 py-0.5 rounded-md font-bold text-brand-coffee-800 border border-brand-coffee-200"
+                                          >
+                                            {v?.image && (
+                                              <img
+                                                src={v.image}
+                                                alt={v.weight || 'Variant'}
+                                                className="w-3.5 h-3.5 rounded object-contain bg-white flex-shrink-0"
+                                                onError={(e) => {
+                                                  e.target.style.display = 'none';
+                                                }}
+                                              />
+                                            )}
+                                            <span>{v?.weight || 'Pack'}: ₹{v?.price ?? product.price ?? 399}</span>
+                                          </span>
+                                        ))
+                                      ) : (
+                                        <span className="text-[11px] bg-brand-coffee-100 px-2 py-0.5 rounded-md font-bold text-brand-coffee-800 border border-brand-coffee-200">
+                                          {product.weight || product.selectedWeight || '250g'}: ₹{product.price || 399}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
 
-                      {/* Price & MRP */}
-                      <td className="p-4 font-bold text-brand-coffee-950">
-                        {(() => {
-                          const vars = Array.isArray(product.variants) && product.variants.length > 0 ? product.variants : [];
-                          const prices = vars.map((v) => Number(v?.price) || 0).filter((p) => p > 0);
-                          const lowest = prices.length > 0 ? Math.min(...prices) : product.price || 399;
-                          const highest = prices.length > 0 ? Math.max(...prices) : lowest;
-                          return (
-                            <div>
-                              <div className="text-sm font-black text-brand-pink-700">
-                                ₹{lowest} {highest > lowest ? <span className="text-xs text-brand-coffee-600 font-normal">to ₹{highest}</span> : ''}
-                              </div>
-                              <div className="text-[10px] text-brand-coffee-500 font-medium">
-                                {vars.length} variant{vars.length !== 1 ? 's' : ''} configured
-                              </div>
-                            </div>
+                                  {/* Price & MRP */}
+                                  <td className="p-4 font-bold text-brand-coffee-950">
+                                    {(() => {
+                                      const vars = Array.isArray(product.variants) && product.variants.length > 0 ? product.variants : [];
+                                      const prices = vars.map((v) => Number(v?.price) || 0).filter((p) => p > 0);
+                                      const lowest = prices.length > 0 ? Math.min(...prices) : product.price || 399;
+                                      const highest = prices.length > 0 ? Math.max(...prices) : lowest;
+                                      return (
+                                        <div>
+                                          <div className="text-sm font-black text-brand-pink-700">
+                                            ₹{lowest} {highest > lowest ? <span className="text-xs text-brand-coffee-600 font-normal">to ₹{highest}</span> : ''}
+                                          </div>
+                                          <div className="text-[10px] text-brand-coffee-500 font-medium">
+                                            {vars.length} variant{vars.length !== 1 ? 's' : ''} configured
+                                          </div>
+                                        </div>
+                                      );
+                                    })()}
+                                  </td>
+
+                                  {/* Stock Switch Toggle */}
+                                  <td className="p-4">
+                                    <button
+                                      onClick={() => handleStockToggle(product._id, product.inStock)}
+                                      className={`px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all ${product.inStock !== false
+                                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
+                                        : 'bg-rose-100 text-rose-800 border border-rose-300 hover:bg-rose-200'
+                                        }`}
+                                    >
+                                      <span
+                                        className={`w-2 h-2 rounded-full ${product.inStock !== false ? 'bg-emerald-500' : 'bg-rose-500'
+                                          }`}
+                                      />
+                                      <span>{product.inStock !== false ? 'In Stock' : 'Out of Stock'}</span>
+                                    </button>
+                                  </td>
+
+                                  {/* Action Buttons */}
+                                  <td className="p-4">
+                                    <div className="flex items-center justify-center gap-2">
+                                      <button
+                                        onClick={() => openEditModal(product)}
+                                        className="p-2 rounded-lg bg-brand-coffee-100 hover:bg-brand-pink-100 text-brand-coffee-800 hover:text-brand-pink-600 transition-colors"
+                                        title="Edit Product"
+                                      >
+                                        <Edit2 className="w-3.5 h-3.5" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteProduct(product)}
+                                        className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                                        title="Delete Product"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </Draggable>
                           );
-                        })()}
-                      </td>
-
-                      {/* Stock Switch Toggle */}
-                      <td className="p-4">
-                        <button
-                          onClick={() => handleStockToggle(product._id, product.inStock)}
-                          className={`px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all ${product.inStock !== false
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
-                            : 'bg-rose-100 text-rose-800 border border-rose-300 hover:bg-rose-200'
-                            }`}
-                        >
-                          <span
-                            className={`w-2 h-2 rounded-full ${product.inStock !== false ? 'bg-emerald-500' : 'bg-rose-500'
-                              }`}
-                          />
-                          <span>{product.inStock !== false ? 'In Stock' : 'Out of Stock'}</span>
-                        </button>
-                      </td>
-
-                      {/* Action Buttons */}
-                      <td className="p-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => openEditModal(product)}
-                            className="p-2 rounded-lg bg-brand-coffee-100 hover:bg-brand-pink-100 text-brand-coffee-800 hover:text-brand-pink-600 transition-colors"
-                            title="Edit Product"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProduct(product)}
-                            className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
-                            title="Delete Product"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                        })
+                      )}
+                      {droppableProvided.placeholder}
+                    </tbody>
                   )}
-                </Draggable>
-              );
-            })
-          )}
-          {droppableProvided.placeholder}
-        </tbody>
-      )}
-    </Droppable>
-  </table>
-</DragDropContext>
-</div>
-</div>
+                </Droppable>
+              </table>
+            </DragDropContext>
+          </div>
+        </div>
 
         {/* Modal: Add / Edit Product */}
         {modalOpen && (
@@ -814,7 +810,7 @@ const AdminProductsPage = () => {
                         type="text"
                         value={formData.heritageOrigin}
                         onChange={(e) => setFormData({ ...formData, heritageOrigin: e.target.value })}
-                        placeholder="e.g. Thanjavur & Thanjavur, Tamil Nadu"
+                        placeholder="e.g. Thanjavur, Tamil Nadu"
                         className="w-full px-3 py-1.5 rounded-lg border border-brand-coffee-200 focus:ring-2 focus:ring-brand-pink-500 focus:outline-none text-brand-coffee-900 text-xs"
                       />
                     </div>
@@ -899,11 +895,10 @@ const AdminProductsPage = () => {
                               type="button"
                               onClick={() => handleRemoveVariant(index)}
                               disabled={formData.variants.length <= 1}
-                              className={`p-2 rounded-lg transition-colors ${
-                                formData.variants.length <= 1
+                              className={`p-2 rounded-lg transition-colors ${formData.variants.length <= 1
                                   ? 'text-brand-coffee-300 cursor-not-allowed bg-brand-coffee-50'
                                   : 'text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50'
-                              }`}
+                                }`}
                               title={formData.variants.length <= 1 ? 'Minimum 1 variant required' : 'Remove variant'}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -911,99 +906,193 @@ const AdminProductsPage = () => {
                           </div>
                         </div>
 
-                        {/* Variant-Specific Image Upload Bar */}
-                        <div className="pt-2.5 border-t border-brand-coffee-100 flex flex-wrap items-center justify-between gap-3 bg-brand-coffee-50/60 p-2.5 rounded-xl">
-                          <div className="flex items-center gap-3 min-w-0">
-                            {variant.image ? (
-                              <div className="relative group w-12 h-12 rounded-lg bg-white border border-brand-coffee-200 p-1 flex items-center justify-center flex-shrink-0 shadow-2xs">
-                                <img
-                                  src={resolveProductImageUrl(variant.image)}
-                                  alt={`Variant ${variant.weight || index}`}
-                                  className="w-full h-full object-contain"
-                                  onError={(e) => {
-                                    if (e.target.dataset.failed) return;
-                                    e.target.dataset.failed = 'true';
-                                    e.target.src = '/images/250g front.png';
-                                  }}
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => handleVariantChange(index, 'image', '')}
-                                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-xs hover:bg-rose-700"
-                                  title="Remove variant image"
-                                >
-                                  <X className="w-2.5 h-2.5" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="w-12 h-12 rounded-lg border-2 border-dashed border-brand-coffee-300 bg-white flex items-center justify-center flex-shrink-0 text-brand-coffee-400">
-                                <ImageIcon className="w-5 h-5 text-brand-coffee-400" />
-                              </div>
-                            )}
-
-                            <div className="min-w-0">
-                              <div className="text-[11px] font-extrabold text-brand-coffee-950 flex items-center gap-1.5">
-                                <span>Variant Image ({variant.weight || `#${index + 1}`})</span>
-                                {variant.image && (
-                                  <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">
-                                    Assigned
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-[10px] text-brand-coffee-600 truncate max-w-xs">
-                                {variant.image
-                                  ? variant.image
-                                  : 'Specific pack image shown when customer selects this size.'}
-                              </p>
-                            </div>
+                        {/* Dedicated Per-Variant Dual Images (Front & Back) */}
+                        <div className="pt-3 border-t border-brand-coffee-100 space-y-2.5 bg-brand-coffee-50/70 p-3 rounded-xl">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-extrabold text-brand-coffee-950 uppercase tracking-wider">
+                              Pack Dual Images ({variant.weight || `#${index + 1}`})
+                            </span>
+                            <span className="text-[10px] text-brand-coffee-500 font-medium">
+                              Image 1 (Front) & Image 2 (Back)
+                            </span>
                           </div>
 
-                          <div className="flex items-center gap-2">
-                            <label
-                              htmlFor={`variant-image-file-${index}`}
-                              className={`px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
-                                uploadingVariantIndex === index
-                                  ? 'bg-brand-coffee-100 text-brand-coffee-400 border-brand-coffee-200 pointer-events-none'
-                                  : 'bg-white hover:bg-brand-pink-50 text-brand-pink-700 border-brand-pink-300 shadow-2xs hover:border-brand-pink-400'
-                              }`}
-                            >
-                              {uploadingVariantIndex === index ? (
-                                <>
-                                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand-pink-600" />
-                                  <span>Uploading...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="w-3.5 h-3.5 text-brand-pink-600" />
-                                  <span>{variant.image ? 'Change Image' : 'Upload Image'}</span>
-                                </>
-                              )}
-                            </label>
-                            <input
-                              id={`variant-image-file-${index}`}
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              disabled={uploadingVariantIndex === index}
-                              onChange={(e) => {
-                                if (e.target.files && e.target.files[0]) {
-                                  handleVariantImageUpload(index, e.target.files[0]);
-                                }
-                              }}
-                            />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {/* Slot 1: Image 1 (Front / Primary) */}
+                            <div className="bg-white p-2.5 rounded-lg border border-brand-coffee-200 flex items-center justify-between gap-2 shadow-2xs">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                {variant.image ? (
+                                  <div className="relative group w-11 h-11 rounded-md bg-brand-coffee-50 border border-brand-coffee-200 p-1 flex items-center justify-center flex-shrink-0">
+                                    <img
+                                      src={resolveProductImageUrl(variant.image)}
+                                      alt={`Variant ${variant.weight} Front`}
+                                      className="w-full h-full object-contain"
+                                      onError={(e) => {
+                                        if (e.target.dataset.failed) return;
+                                        e.target.dataset.failed = 'true';
+                                        e.target.src = '/images/250g front.png';
+                                      }}
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleVariantChange(index, 'image', '')}
+                                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-xs hover:bg-rose-700"
+                                      title="Remove Front Image"
+                                    >
+                                      <X className="w-2.5 h-2.5" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="w-11 h-11 rounded-md border-2 border-dashed border-brand-coffee-300 bg-brand-coffee-50/50 flex items-center justify-center flex-shrink-0 text-brand-coffee-400">
+                                    <ImageIcon className="w-4 h-4 text-brand-coffee-400" />
+                                  </div>
+                                )}
+
+                                <div className="min-w-0">
+                                  <div className="text-[11px] font-bold text-brand-coffee-950 flex items-center gap-1">
+                                    <span>Image 1: Front</span>
+                                    {variant.image ? (
+                                      <span className="text-[8px] font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
+                                        Set
+                                      </span>
+                                    ) : (
+                                      <span className="text-[8px] font-medium text-amber-700 bg-amber-50 px-1 py-0.2 rounded border border-amber-200">
+                                        Default
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] text-brand-coffee-500 truncate max-w-[130px]">
+                                    Primary front view
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div>
+                                <label
+                                  htmlFor={`variant-img1-file-${index}`}
+                                  className={`px-2.5 py-1 rounded-md border text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                                    uploadingVariant?.index === index && uploadingVariant?.slot === 'image'
+                                      ? 'bg-brand-coffee-100 text-brand-coffee-400 border-brand-coffee-200 pointer-events-none'
+                                      : 'bg-brand-pink-50 hover:bg-brand-pink-100 text-brand-pink-700 border-brand-pink-200 hover:border-brand-pink-300'
+                                  }`}
+                                >
+                                  {uploadingVariant?.index === index && uploadingVariant?.slot === 'image' ? (
+                                    <>
+                                      <RefreshCw className="w-3 h-3 animate-spin text-brand-pink-600" />
+                                      <span>...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Upload className="w-3 h-3 text-brand-pink-600" />
+                                      <span>{variant.image ? 'Change' : 'Upload'}</span>
+                                    </>
+                                  )}
+                                </label>
+                                <input
+                                  id={`variant-img1-file-${index}`}
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  disabled={uploadingVariant?.index === index && uploadingVariant?.slot === 'image'}
+                                  onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                      handleVariantImageUpload(index, 'image', e.target.files[0]);
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Slot 2: Image 2 (Back / Secondary) */}
+                            <div className="bg-white p-2.5 rounded-lg border border-brand-coffee-200 flex items-center justify-between gap-2 shadow-2xs">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                {variant.image2 ? (
+                                  <div className="relative group w-11 h-11 rounded-md bg-brand-coffee-50 border border-brand-coffee-200 p-1 flex items-center justify-center flex-shrink-0">
+                                    <img
+                                      src={resolveProductImageUrl(variant.image2)}
+                                      alt={`Variant ${variant.weight} Back`}
+                                      className="w-full h-full object-contain"
+                                      onError={(e) => {
+                                        if (e.target.dataset.failed) return;
+                                        e.target.dataset.failed = 'true';
+                                        e.target.src = '/images/250g back.png';
+                                      }}
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleVariantChange(index, 'image2', '')}
+                                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-xs hover:bg-rose-700"
+                                      title="Remove Back Image"
+                                    >
+                                      <X className="w-2.5 h-2.5" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="w-11 h-11 rounded-md border-2 border-dashed border-brand-coffee-300 bg-brand-coffee-50/50 flex items-center justify-center flex-shrink-0 text-brand-coffee-400">
+                                    <ImageIcon className="w-4 h-4 text-brand-coffee-400" />
+                                  </div>
+                                )}
+
+                                <div className="min-w-0">
+                                  <div className="text-[11px] font-bold text-brand-coffee-950 flex items-center gap-1">
+                                    <span>Image 2: Back</span>
+                                    {variant.image2 ? (
+                                      <span className="text-[8px] font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
+                                        Set
+                                      </span>
+                                    ) : (
+                                      <span className="text-[8px] font-medium text-amber-700 bg-amber-50 px-1 py-0.2 rounded border border-amber-200">
+                                        Default
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] text-brand-coffee-500 truncate max-w-[130px]">
+                                    Hover flip / back view
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div>
+                                <label
+                                  htmlFor={`variant-img2-file-${index}`}
+                                  className={`px-2.5 py-1 rounded-md border text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                                    uploadingVariant?.index === index && uploadingVariant?.slot === 'image2'
+                                      ? 'bg-brand-coffee-100 text-brand-coffee-400 border-brand-coffee-200 pointer-events-none'
+                                      : 'bg-brand-pink-50 hover:bg-brand-pink-100 text-brand-pink-700 border-brand-pink-200 hover:border-brand-pink-300'
+                                  }`}
+                                >
+                                  {uploadingVariant?.index === index && uploadingVariant?.slot === 'image2' ? (
+                                    <>
+                                      <RefreshCw className="w-3 h-3 animate-spin text-brand-pink-600" />
+                                      <span>...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Upload className="w-3 h-3 text-brand-pink-600" />
+                                      <span>{variant.image2 ? 'Change' : 'Upload'}</span>
+                                    </>
+                                  )}
+                                </label>
+                                <input
+                                  id={`variant-img2-file-${index}`}
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  disabled={uploadingVariant?.index === index && uploadingVariant?.slot === 'image2'}
+                                  onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                      handleVariantImageUpload(index, 'image2', e.target.files[0]);
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-
-                <ImageDropzone
-                  value={formData.images}
-                  onChange={handleProductImagesChange}
-                  label="Product Packaging Images (Multi-Image)"
-                  maxImages={8}
-                />
 
                 <div>
                   <label className="block font-bold text-brand-coffee-800 mb-1">Short Description *</label>

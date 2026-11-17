@@ -50,9 +50,9 @@ export const SEO_CONFIG = {
       'Nathan Coffee Thanjavur',
       'Nathan Coffee Thanjavur',
     ],
-    tagline: 'Pure & Fresh Filter Coffee Powder from Thanjavur & Thanjavur • Since 1950',
+    tagline: 'Pure & Fresh Filter Coffee Powder from Thanjavur • Since 1950',
     description:
-      'Premier manufacturer and retailer of 100% Pure South Indian Filter Coffee Powder and traditional roasted blends in Thanjavur and Thanjavur.',
+      'Premier manufacturer and retailer of 100% Pure South Indian Filter Coffee Powder and traditional roasted blends in Thanjavur.',
     founder: {
       name: 'Grandfather Nathan',
       jobTitle: 'Master Coffee Roaster & Founder',
@@ -112,9 +112,9 @@ export const SEO_CONFIG = {
 
   // Default Page Metadata
   defaults: {
-    title: 'Nathan Coffee | Pure & Fresh Filter Coffee Powder from Thanjavur & Thanjavur',
+    title: 'Nathan Coffee | Pure & Fresh Filter Coffee Powder from Thanjavur',
     description:
-      'Buy 100% Pure South Indian Filter Coffee Powder Online from Nathan Coffee. Freshly roasted in Thanjavur and Thanjavur. Rich aroma, traditional drum roast, fast delivery across India.',
+      'Buy 100% Pure South Indian Filter Coffee Powder Online from Nathan Coffee. Freshly roasted in Thanjavur. Rich aroma, traditional drum roast, fast delivery across India.',
     keywords:
       'coffee powder, Nathan coffee, nathan coffee, Nathan coffee, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, best coffee powder in tamil nadu, degree coffee powder, chicory coffee blend, south indian filter coffee powder',
     ogImage: '/images/hero-coffee.jpg',

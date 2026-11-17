@@ -10,21 +10,25 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Target upload directories
+const serverUploadsDir = path.join(__dirname, '../uploads');
 const clientPublicImagesDir = path.join(__dirname, '../../client/public/images');
 const clientSrcImagesDir = path.join(__dirname, '../../client/src/assets/images');
 
 // Ensure directories exist
+if (!fs.existsSync(serverUploadsDir)) {
+  fs.mkdirSync(serverUploadsDir, { recursive: true });
+}
 if (!fs.existsSync(clientPublicImagesDir)) {
-  fs.mkdirSync(clientPublicImagesDir, { recursive: true });
+  try { fs.mkdirSync(clientPublicImagesDir, { recursive: true }); } catch (e) {}
 }
 if (!fs.existsSync(clientSrcImagesDir)) {
-  fs.mkdirSync(clientSrcImagesDir, { recursive: true });
+  try { fs.mkdirSync(clientSrcImagesDir, { recursive: true }); } catch (e) {}
 }
 
 // Multer Storage Configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, clientPublicImagesDir);
+    cb(null, serverUploadsDir);
   },
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname).toLowerCase();
@@ -94,10 +98,18 @@ router.post('/', protectAdmin, handleUploadMiddleware, (req, res) => {
     const fileDetails = [];
 
     for (const file of rawFiles) {
-      const uploadedPath = `/images/${file.filename}`;
+      const uploadedPath = `/uploads/${file.filename}`;
       uploadedUrls.push(uploadedPath);
 
-      // Also mirror to client/src/assets/images if needed
+      // Also mirror copy to client/public/images if accessible
+      try {
+        const pubDest = path.join(clientPublicImagesDir, file.filename);
+        fs.copyFileSync(file.path, pubDest);
+      } catch (e) {
+        // Non-blocking copy
+      }
+
+      // Also mirror copy to client/src/assets/images if accessible
       try {
         const srcDest = path.join(clientSrcImagesDir, file.filename);
         fs.copyFileSync(file.path, srcDest);

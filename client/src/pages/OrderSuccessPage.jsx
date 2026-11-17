@@ -58,17 +58,17 @@ const OrderSuccessPage = () => {
 
   const formattedDate = order?.createdAt
     ? new Date(order.createdAt).toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
     : new Date().toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      });
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
 
   const customer = order?.customer || {};
   const address = customer.address || {};
@@ -134,7 +134,7 @@ const OrderSuccessPage = () => {
               Thank You for Your Order!
             </h1>
             <p className="text-xs sm:text-sm text-brand-coffee-700 max-w-lg mx-auto">
-              We have received your order. Our master roasters in Thanjavur & Thanjavur will pack your fresh coffee powder and dispatch it right away.
+              We have received your order. Our master roasters in Thanjavur will pack your fresh coffee powder and dispatch it right away.
             </p>
           </div>
 
@@ -270,7 +270,7 @@ const OrderSuccessPage = () => {
                     Freshly Roasted Authentic South Indian Filter Coffee
                   </p>
                   <p className="text-[10px] text-brand-coffee-600">
-                    Roastery: Thanjavur & Thanjavur, Tamil Nadu, India
+                    Roastery: Thanjavur, Tamil Nadu, India
                   </p>
                   <p className="text-[10px] text-brand-coffee-600">
                     WhatsApp / Support: +91 63838 05976 • support@nadhancoffee.com
@@ -291,11 +291,10 @@ const OrderSuccessPage = () => {
                 </div>
                 <div className="pt-0.5">
                   <span
-                    className={`receipt-badge inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-md border ${
-                      isPaid
+                    className={`receipt-badge inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-md border ${isPaid
                         ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                         : 'bg-amber-50 text-amber-800 border-amber-300'
-                    }`}
+                      }`}
                   >
                     {isPaid ? '✓ PAID • VERIFIED' : 'PAY ON DELIVERY'}
                   </span>
@@ -413,7 +412,7 @@ const OrderSuccessPage = () => {
             <div className="receipt-totals pt-3 border-t border-brand-coffee-100 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="text-[10px] text-brand-coffee-600 space-y-1 sm:max-w-xs">
                 <p className="font-bold text-brand-coffee-800">Order Notes & Quality Assurance:</p>
-                <p>• Roasted in small batches in Thanjavur & Thanjavur to guarantee authentic filter coffee taste.</p>
+                <p>• Roasted in small batches in Thanjavur to guarantee authentic filter coffee taste.</p>
                 <p>• Packed fresh with aroma-lock valve packaging.</p>
                 <p>• All prices are inclusive of GST.</p>
               </div>

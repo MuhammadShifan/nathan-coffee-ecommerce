@@ -134,19 +134,37 @@ const ProductDetailPage = () => {
   const { addToCart } = useCart();
   const { isUserAuthenticated, openAuthModal } = useAuth();
 
-  const [product, setProduct] = useState(null);
-  const [allProducts, setAllProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // 1. Synchronously resolve product from local catalog matching slug or id
+  // This eliminates ANY flash of stale, loading, or incorrect placeholder images on initial render and refresh!
+  const initialCatalogProduct = React.useMemo(() => {
+    if (!slug) return null;
+    return (
+      defaultProductsData.find(
+        (p) => p.slug === slug || p._id === slug || p.id === slug
+      ) || null
+    );
+  }, [slug]);
+
+  const [product, setProduct] = useState(initialCatalogProduct);
+  const [allProducts, setAllProducts] = useState(defaultProductsData);
+  const [loading, setLoading] = useState(() => !initialCatalogProduct);
+
+  const initialVariant =
+    initialCatalogProduct?.variants?.find((v) => v.weight === initialCatalogProduct?.selectedWeight) ||
+    initialCatalogProduct?.variants?.[0];
+
+  const initialWeight =
+    initialCatalogProduct?.selectedWeight || initialVariant?.weight || '250g';
+
+  const [selectedWeight, setSelectedWeight] = useState(initialWeight);
 
   // Carousel & Image State
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
-  const [currentMainImage, setCurrentMainImage] = useState('');
   const [slideDirection, setSlideDirection] = useState(0); // 1 = next, -1 = prev
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isHoverZoom, setIsHoverZoom] = useState(false);
 
   // Product Selection State
-  const [selectedWeight, setSelectedWeight] = useState('250g');
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
@@ -155,7 +173,9 @@ const ProductDetailPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     const fetchProductData = async () => {
-      setLoading(true);
+      if (!initialCatalogProduct) {
+        setLoading(true);
+      }
       try {
         const [prodRes, allRes] = await Promise.all([
           api.get(`/api/products/${slug}`).catch(() => null),
@@ -163,47 +183,28 @@ const ProductDetailPage = () => {
         ]);
 
         let currentProd = prodRes?.data?.data || null;
-
         const productList = allRes?.data?.data?.length > 0 ? allRes.data.data : [];
 
-        setProduct(currentProd);
-        setAllProducts(productList);
+        // Fallback to searching in allProducts list if direct slug lookup failed
+        if (!currentProd && productList.length > 0) {
+          currentProd = productList.find(
+            (p) => p.slug === slug || p._id === slug || p.id === slug
+          );
+        }
+
+        // Fallback to static catalog if backend is connecting/waking up
+        if (!currentProd && Array.isArray(defaultProductsData)) {
+          currentProd = defaultProductsData.find(
+            (p) => p.slug === slug || p._id === slug || p.id === slug
+          );
+        }
 
         if (currentProd) {
-          const initWeight =
-            currentProd.selectedWeight ||
-            (currentProd.variants && currentProd.variants[0]?.weight) ||
-            '250g';
-          setSelectedWeight(initWeight);
-
-          // Find if initial variant has a specific image
-          const initVariant =
-            currentProd.variants?.find((v) => v.weight === initWeight) ||
-            currentProd.variants?.[0];
-
-          const generalImgs =
-            Array.isArray(currentProd.images) && currentProd.images.length > 0
-              ? currentProd.images
-                .map((img) => (typeof img === 'object' && img?.url ? img.url : img))
-                .filter(Boolean)
-              : [currentProd.image || '/images/250g front.png'];
-
-          const initialImage =
-            initVariant?.image ||
-            initVariant?.imageUrl ||
-            generalImgs[0] ||
-            '/images/250g front.png';
-
-          setCurrentMainImage(initialImage);
-          const matchedIndex = generalImgs.findIndex(
-            (img) => (typeof img === 'string' ? img.trim() : '') === (initialImage || '').trim()
-          );
-          setCurrentImgIndex(matchedIndex !== -1 ? matchedIndex : 0);
+          setProduct(currentProd);
         }
+        setAllProducts(productList.length > 0 ? productList : defaultProductsData);
       } catch (err) {
         console.error('Error fetching product detail:', err);
-        setProduct(null);
-        setAllProducts([]);
       } finally {
         setLoading(false);
       }
@@ -245,33 +246,6 @@ const ProductDetailPage = () => {
     );
   }
 
-  // Normalize & strictly deduplicate product images for the gallery thumbnail strip.
-  // We use product.images directly so individual variant pack images don't duplicate thumbnails.
-  const rawImages = Array.isArray(product.images) && product.images.length > 0
-    ? product.images.map((img) => (typeof img === 'object' && img?.url ? img.url : img)).filter(Boolean)
-    : [product.image || '/images/250g front.png'];
-
-  const cleanImages = [];
-  const seenImageUrls = new Set();
-  for (const img of rawImages) {
-    if (typeof img === 'string') {
-      const trimmed = img.trim();
-      if (trimmed && !seenImageUrls.has(trimmed)) {
-        seenImageUrls.add(trimmed);
-        cleanImages.push(trimmed);
-      }
-    }
-  }
-
-  const images = cleanImages.length > 0
-    ? cleanImages.map((img) => resolveProductImageUrl(img))
-    : ['/images/250g front.png'];
-
-  // Current active display image with safe fallbacks
-  const displayedImage = resolveProductImageUrl(
-    currentMainImage || images[currentImgIndex] || images[0] || '/images/250g front.png'
-  );
-
   // Current Variant Details & dynamic variants array
   const variants = Array.isArray(product?.variants) && product.variants.length > 0
     ? product.variants
@@ -280,6 +254,9 @@ const ProductDetailPage = () => {
         weight: product?.weight || product?.selectedWeight || '250g',
         price: product?.price || 399,
         mrp: product?.mrp || 450,
+        image: product?.image || '/images/250g front.png',
+        image2: product?.image2 || '/images/250g back.png',
+        images: ['/images/250g front.png', '/images/250g back.png'],
         inStock: true,
       },
     ];
@@ -288,8 +265,34 @@ const ProductDetailPage = () => {
     weight: selectedWeight,
     price: product?.price || 399,
     mrp: product?.mrp || 450,
+    image: '/images/250g front.png',
+    image2: '/images/250g back.png',
+    images: ['/images/250g front.png', '/images/250g back.png'],
     inStock: true,
   };
+
+  // Derive the 2 specific images assigned to the selected weight variant (Image 1 Front, Image 2 Back)
+  const currentVariantImages = (() => {
+    if (Array.isArray(currentVariant?.images) && currentVariant.images.length > 0) {
+      const list = currentVariant.images
+        .map((img) => (typeof img === 'object' && img?.url ? img.url : img))
+        .filter(Boolean);
+      if (list.length > 0) {
+        return list.map((img) => resolveProductImageUrl(img));
+      }
+    }
+    const directList = [currentVariant?.image, currentVariant?.image2].filter(Boolean);
+    if (directList.length > 0) {
+      return directList.map((img) => resolveProductImageUrl(img));
+    }
+    return [
+      resolveProductImageUrl('/images/250g front.png'),
+      resolveProductImageUrl('/images/250g back.png'),
+    ];
+  })();
+
+  const images = currentVariantImages;
+  const displayedImage = images[currentImgIndex] || images[0] || resolveProductImageUrl('/images/250g front.png');
 
   const discountPercent = currentVariant.mrp > currentVariant.price
     ? Math.round(((currentVariant.mrp - currentVariant.price) / currentVariant.mrp) * 100)
@@ -305,9 +308,6 @@ const ProductDetailPage = () => {
       let nextIndex = prevIndex + newDirection;
       if (nextIndex < 0) nextIndex = images.length - 1;
       if (nextIndex >= images.length) nextIndex = 0;
-      if (images[nextIndex]) {
-        setCurrentMainImage(images[nextIndex]);
-      }
       return nextIndex;
     });
   };
@@ -315,32 +315,13 @@ const ProductDetailPage = () => {
   const handleThumbnailClick = (index) => {
     setSlideDirection(index > currentImgIndex ? 1 : -1);
     setCurrentImgIndex(index);
-    if (images[index]) {
-      setCurrentMainImage(images[index]);
-    }
   };
 
   const handleVariantSelect = (variant) => {
     setSelectedWeight(variant.weight);
-
-    const variantImg = variant.image || variant.imageUrl;
-    if (variantImg && typeof variantImg === 'string' && variantImg.trim()) {
-      const trimmedVariantImg = variantImg.trim();
-      // Instantly switch main product hero image to this variant's specific image
-      setCurrentMainImage(trimmedVariantImg);
-      const matchIdx = images.findIndex(
-        (img) => (typeof img === 'string' ? img.trim() : '') === trimmedVariantImg
-      );
-      if (matchIdx !== -1) {
-        setSlideDirection(matchIdx > currentImgIndex ? 1 : -1);
-        setCurrentImgIndex(matchIdx);
-      }
-    } else {
-      // Fallback smoothly to first general product image if variant doesn't have a specific image
-      const fallbackImg = images[0] || '/images/250g front.png';
-      setCurrentMainImage(fallbackImg);
-      setCurrentImgIndex(0);
-    }
+    // Dynamically switch viewer to the exact dual images of this pack size, starting at Image 1 (Front view)
+    setCurrentImgIndex(0);
+    setSlideDirection(1);
   };
 
   const handleAddToCart = () => {
@@ -351,12 +332,11 @@ const ProductDetailPage = () => {
 
   const handleBuyNow = () => {
     const targetWeight = currentVariant.weight || selectedWeight || '250g';
-    const variantImage = currentVariant.image || currentVariant.imageUrl;
     const primaryImage =
-      variantImage ||
+      (currentVariant.image ? resolveProductImageUrl(currentVariant.image) : null) ||
       displayedImage ||
       images[0] ||
-      '/images/250g front.png';
+      resolveProductImageUrl('/images/250g front.png');
 
     const buyNowItem = {
       itemKey: `${product._id || product.slug}-${targetWeight}`,
@@ -533,7 +513,7 @@ const ProductDetailPage = () => {
                       onError={(e) => {
                         if (e.target.dataset.failed) return;
                         e.target.dataset.failed = 'true';
-                        e.target.src = '/images/250g front.png';
+                        e.target.src = images[0] || '/images/250g front.png';
                       }}
                     />
                   </motion.div>
@@ -572,36 +552,44 @@ const ProductDetailPage = () => {
               </div>
             </div>
 
-            {/* Thumbnail Strip Gallery */}
+            {/* Thumbnail Strip Gallery (Front & Back Views of Selected Pack Size) */}
             {images.length > 1 && (
               <div className="flex items-center justify-center gap-3 overflow-x-auto py-2 px-1 custom-scrollbar">
                 {images.map((url, idx) => {
-                  const isSelected =
-                    displayedImage &&
-                    typeof displayedImage === 'string' &&
-                    displayedImage.trim() === url.trim();
+                  const isSelected = idx === currentImgIndex;
+                  const label = idx === 0 ? 'Front' : 'Back';
                   return (
                     <button
-                      key={`gallery-thumb-${url}-${idx}`}
+                      key={`variant-thumb-${selectedWeight}-${idx}`}
                       type="button"
                       onClick={() => handleThumbnailClick(idx)}
-                      className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-1.5 bg-white border-2 transition-all flex items-center justify-center flex-shrink-0 shadow-sm ${isSelected
-                        ? 'border-brand-pink-600 ring-4 ring-brand-pink-300/40 scale-105 shadow-md'
-                        : 'border-brand-coffee-200 hover:border-brand-pink-400 opacity-70 hover:opacity-100'
-                        }`}
+                      className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-1.5 bg-white border-2 transition-all flex flex-col items-center justify-center flex-shrink-0 shadow-sm ${
+                        isSelected
+                          ? 'border-brand-pink-600 ring-4 ring-brand-pink-300/40 scale-105 shadow-md'
+                          : 'border-brand-coffee-200 hover:border-brand-pink-400 opacity-70 hover:opacity-100'
+                      }`}
                     >
                       <img
                         src={url}
-                        alt={`${product.title} thumbnail ${idx + 1}`}
+                        alt={`${product.title} ${selectedWeight} ${label} View`}
                         loading="lazy"
                         decoding="async"
-                        className="max-h-full max-w-full object-contain"
+                        className="max-h-12 max-w-full object-contain drop-shadow-xs"
                         onError={(e) => {
                           if (e.target.dataset.failed) return;
                           e.target.dataset.failed = 'true';
-                          e.target.src = '/images/250g front.png';
+                          e.target.src = images[0] || '/images/250g front.png';
                         }}
                       />
+                      <span
+                        className={`text-[9px] font-extrabold uppercase mt-1 px-1.5 py-0.2 rounded ${
+                          isSelected
+                            ? 'bg-brand-pink-100 text-brand-pink-700'
+                            : 'bg-brand-coffee-100 text-brand-coffee-600'
+                        }`}
+                      >
+                        {label} View
+                      </span>
                     </button>
                   );
                 })}
@@ -711,7 +699,7 @@ const ProductDetailPage = () => {
                       {variantImg && (
                         <div className="w-8 h-8 rounded-lg bg-brand-coffee-50 p-0.5 flex items-center justify-center overflow-hidden border border-brand-coffee-200">
                           <img
-                            src={variantImg}
+                            src={resolveProductImageUrl(variantImg)}
                             alt={variant.weight}
                             className="w-full h-full object-contain"
                             onError={(e) => {

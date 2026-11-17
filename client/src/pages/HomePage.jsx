@@ -65,7 +65,7 @@ const HomePage = () => {
     <>
       <SEOMeta
         title="Pure & Fresh Filter Coffee Powder from Thanjavur | Nathan Coffee"
-        description="Buy 100% Pure South Indian Filter Coffee Powder Online from Nathan Coffee. Freshly roasted in Thanjavur and Thanjavur. Slow drum roast with intense aroma in 250g, 500g, 1kg packs with fast delivery across India."
+        description="Buy 100% Pure South Indian Filter Coffee Powder Online from Nathan Coffee. Freshly roasted in Thanjavur. Slow drum roast with intense aroma in 250g, 500g, 1kg packs with fast delivery across India."
         keywords="coffee powder, Nathan coffee, nathan coffee, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, degree coffee powder, kumbakonam degree coffee powder, best coffee powder in tamil nadu"
         canonicalUrl="/"
         ogImage="/images/hero-coffee.jpg"
@@ -314,7 +314,7 @@ const HomePage = () => {
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-brand-coffee-950">Fresh Batch Fast Dispatch</h3>
                 <p className="text-xs sm:text-sm text-brand-coffee-700 leading-relaxed">
-                  Every order is freshly packed in airtight multi-layer zip-lock kraft pouches and dispatched directly from our Thanjavur and Thanjavur roasteries to your doorstep.
+                  Every order is freshly packed in airtight multi-layer zip-lock kraft pouches and dispatched directly from our Thanjavur roasteries to your doorstep.
                 </p>
                 <div className="text-xs font-bold text-emerald-700 flex items-center gap-1">
                   <span>Shipped within 24 Hours</span>
@@ -335,22 +335,22 @@ const HomePage = () => {
                 <div className="w-56 sm:w-72 max-w-full rounded-3xl overflow-hidden border-4 border-brand-yellow-400 shadow-2xl ring-4 sm:ring-8 ring-brand-pink-50 bg-brand-coffee-900 mx-auto">
                   <img
                     src="/images/grandfather photo.jpg"
-                    alt="Beloved Founder Grandfather ofNathan Coffee "
+                    alt="Beloved Founder Grandfather of Nathan Coffee"
                     loading="lazy"
                     decoding="async"
                     className="w-full h-auto object-cover"
                   />
                 </div>
-                <div className="absolute -bottom-3 inset-x-0 mx-auto w-max max-w-[90%] bg-brand-pink-600 text-white text-[11px] sm:text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg border border-white flex items-center justify-center gap-1.5 truncate">
+                <div className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 w-max max-w-[95vw] sm:max-w-none bg-brand-pink-600 text-white text-[10.5px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 rounded-full shadow-lg border-2 border-white flex items-center justify-center gap-1.5 whitespace-nowrap z-10 select-none">
                   <Award className="w-3.5 h-3.5 text-brand-yellow-400 flex-shrink-0" />
-                  <span className="truncate">Founder G. Saravanan Pillai • Since 1950s</span>
+                  <span className="whitespace-nowrap">Founder G. Saravanan Pillai • Since 1950s</span>
                 </div>
               </div>
             </div>
 
             <div className="lg:col-span-7 space-y-4 sm:space-y-5 text-center lg:text-left w-full">
               <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-brand-pink-600 bg-brand-pink-50 px-3 py-1 rounded-full border border-brand-pink-200">
-                Our Roots in Thanjavur & Thanjavur
+                Our Roots in Thanjavur
               </span>
               <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-brand-coffee-950 leading-tight">
                 "Quality over quantity is the true essence of great coffee."

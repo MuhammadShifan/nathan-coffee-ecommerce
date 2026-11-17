@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, Zap, Star, Sparkles, Eye, CheckCircle2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { resolveProductImageUrl, isDefaultPlaceholderImage } from '../utils/imageUrl';
+import { resolveProductImageUrl } from '../utils/imageUrl';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
@@ -38,30 +38,18 @@ const ProductCard = ({ product }) => {
     inStock: true,
   };
 
-  const rawImages = Array.isArray(product.images) && product.images.length > 0
-    ? product.images.map((img) => (typeof img === 'object' && img?.url ? img.url : img)).filter(Boolean)
-    : [product.image || '/images/250g front.png'];
+  // Derive dual images directly from the currently active weight variant
+  const variantRawImages = Array.isArray(currentVariant.images) && currentVariant.images.length > 0
+    ? currentVariant.images
+    : [currentVariant.image, currentVariant.image2].filter(Boolean);
 
-  const images = rawImages.map((img) => resolveProductImageUrl(img));
-  const hasMultipleImages = images.length > 1;
+  const rawImg1 = variantRawImages[0] || currentVariant.image || product.image || '/images/250g front.png';
+  const rawImg2 = variantRawImages[1] || currentVariant.image2 || null;
 
-  // Smart dynamic image selection:
-  // If variant has a custom image (not generic placeholder), prefer it.
-  // Otherwise, if product.images[0] has been updated by admin, prefer it over generic placeholder.
-  const variantImg = currentVariant.image || currentVariant.imageUrl;
-  let candidateImage = null;
-  if (variantImg && !isDefaultPlaceholderImage(variantImg)) {
-    candidateImage = variantImg;
-  } else if (rawImages[0] && !isDefaultPlaceholderImage(rawImages[0])) {
-    candidateImage = rawImages[0];
-  } else if (product.image && !isDefaultPlaceholderImage(product.image)) {
-    candidateImage = product.image;
-  } else {
-    candidateImage = variantImg || rawImages[0] || '/images/250g front.png';
-  }
-
-  const primaryImage = resolveProductImageUrl(candidateImage);
-  const secondaryImage = images[1] || primaryImage;
+  const primaryImage = resolveProductImageUrl(rawImg1);
+  const secondaryImage = rawImg2 ? resolveProductImageUrl(rawImg2) : null;
+  const cardImages = [primaryImage, secondaryImage].filter(Boolean);
+  const hasMultipleImages = Boolean(secondaryImage && secondaryImage !== primaryImage);
 
   const discountPercent = currentVariant.mrp > currentVariant.price
     ? Math.round(((currentVariant.mrp - currentVariant.price) / currentVariant.mrp) * 100)
@@ -145,7 +133,7 @@ const ProductCard = ({ product }) => {
         {/* If manual pip index selected, show that specific image */}
         {activeImageIndex !== null ? (
           <img
-            src={resolveProductImageUrl(images[activeImageIndex] || primaryImage)}
+            src={cardImages[activeImageIndex] || primaryImage}
             alt={`${product.title} - View ${activeImageIndex + 1}`}
             loading="lazy"
             decoding="async"
@@ -209,7 +197,7 @@ const ProductCard = ({ product }) => {
         {/* Interactive Thumbnail Pips */}
         {hasMultipleImages && (
           <div className="absolute bottom-2.5 inset-x-0 flex justify-center gap-1.5 z-20">
-            {images.map((_, idx) => {
+            {cardImages.map((_, idx) => {
               const isCurrent =
                 activeImageIndex !== null
                   ? activeImageIndex === idx

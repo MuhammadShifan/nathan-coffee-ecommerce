@@ -22,6 +22,15 @@ const variantSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
+    image2: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    images: {
+      type: [String],
+      default: [],
+    },
     inStock: {
       type: Boolean,
       default: true,
@@ -108,10 +117,6 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: '22426461000422',
     },
-    images: {
-      type: [String],
-      default: ['/images/250g front.png'],
-    },
     variants: [variantSchema],
     selectedWeight: {
       type: String,
@@ -155,23 +160,39 @@ productSchema.pre('validate', function (next) {
   if (this.packagingType && !this.packaging) this.packaging = this.packagingType;
   if (this.origin && !this.heritageOrigin) this.heritageOrigin = this.origin;
 
-  if (this.images && Array.isArray(this.images)) {
-    this.images = this.images
-      .map((img) => (typeof img === 'object' && img?.url ? img.url : img))
-      .filter((img) => typeof img === 'string' && img.trim() !== '');
-  }
-  if (!this.images || this.images.length === 0) {
-    this.images = ['/images/250g front.png'];
-  }
-
-  // Ensure selectedWeight defaults to first variant weight if available
+  // Normalize each variant's dual images
   if (this.variants && this.variants.length > 0) {
+    this.variants.forEach((v) => {
+      const img1 = (v.image || (Array.isArray(v.images) ? v.images[0] : '') || '').trim();
+      const img2 = (v.image2 || (Array.isArray(v.images) ? v.images[1] : '') || '').trim();
+      v.image = img1;
+      v.image2 = img2;
+      v.images = [img1, img2].filter(Boolean);
+    });
+
+    // Ensure selectedWeight defaults to first variant weight if available
     const hasCurrent = this.variants.some((v) => v.weight === this.selectedWeight);
     if (!hasCurrent) {
       this.selectedWeight = this.variants[0].weight;
     }
   }
   next();
+});
+
+productSchema.virtual('image').get(function () {
+  const activeVar = this.variants?.find((v) => v.weight === this.selectedWeight) || this.variants?.[0];
+  return activeVar?.image || activeVar?.images?.[0] || '/images/250g front.png';
+});
+
+productSchema.virtual('images').get(function () {
+  const activeVar = this.variants?.find((v) => v.weight === this.selectedWeight) || this.variants?.[0];
+  if (activeVar?.images && activeVar.images.length > 0) {
+    return activeVar.images;
+  }
+  if (activeVar?.image) {
+    return [activeVar.image, activeVar.image2].filter(Boolean);
+  }
+  return ['/images/250g front.png'];
 });
 
 productSchema.virtual('price').get(function () {

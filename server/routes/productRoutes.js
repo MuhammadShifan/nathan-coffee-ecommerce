@@ -86,16 +86,16 @@ export const defaultProductsData = [
     blendRatio: '100% Pure Coffee',
     roastMaster: 'Medium-Dark Slow Roast',
     packaging: 'Airtight Kraft Stand-up Zip Pouch / Traditional Foil Pack',
-    heritageOrigin: 'Thanjavur & Thanjavur, Tamil Nadu',
+    heritageOrigin: 'Thanjavur, Tamil Nadu',
     roastLevel: 'Medium-Dark Slow Roast',
     packagingType: 'Airtight Kraft Stand-up Zip Pouch / Traditional Foil Pack',
-    origin: 'Thanjavur & Thanjavur, Tamil Nadu',
+    origin: 'Thanjavur, Tamil Nadu',
     fssaiNumber: '22426461000422',
     images: ['/images/250g front.png', '/images/250g back.png'],
     variants: [
-      { weight: '250g', mrp: 450, price: 399, image: '/images/250g front.png', inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
-      { weight: '500g', mrp: 680, price: 580, image: '/images/500g fornt.png', inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
-      { weight: '1kg', mrp: 1360, price: 1100, image: '/images/250g front.png', inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
+      { weight: '250g', mrp: 450, price: 399, image: '/images/250g front.png', image2: '/images/250g back.png', images: ['/images/250g front.png', '/images/250g back.png'], inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
+      { weight: '500g', mrp: 680, price: 580, image: '/images/500g fornt.png', image2: '/images/500g back.png', images: ['/images/500g fornt.png', '/images/500g back.png'], inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
+      { weight: '1kg', mrp: 1360, price: 1100, image: '/images/250g front.png', image2: '/images/250g back.png', images: ['/images/250g front.png', '/images/250g back.png'], inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
     ],
     selectedWeight: '250g',
     rating: 4.9,
@@ -113,16 +113,16 @@ export const defaultProductsData = [
     blendRatio: '100% Pure Coffee',
     roastMaster: 'Medium-Dark Rich Roast',
     packaging: 'Eco Kraft Stand-up Pouch with Air-tight Zip Lock',
-    heritageOrigin: 'Thanjavur & Thanjavur, Tamil Nadu',
+    heritageOrigin: 'Thanjavur, Tamil Nadu',
     roastLevel: 'Medium-Dark Rich Roast',
     packagingType: 'Eco Kraft Stand-up Pouch with Air-tight Zip Lock',
-    origin: 'Thanjavur & Thanjavur, Tamil Nadu',
+    origin: 'Thanjavur, Tamil Nadu',
     fssaiNumber: '22426461000422',
     images: ['/images/500g fornt.png', '/images/500g back.png'],
     variants: [
-      { weight: '500g', mrp: 680, price: 580, image: '/images/500g fornt.png', inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
-      { weight: '250g', mrp: 450, price: 399, image: '/images/250g front.png', inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
-      { weight: '1kg', mrp: 1360, price: 1100, image: '/images/500g fornt.png', inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
+      { weight: '500g', mrp: 680, price: 580, image: '/images/500g fornt.png', image2: '/images/500g back.png', images: ['/images/500g fornt.png', '/images/500g back.png'], inStock: true, stockCount: 120, sku: 'NC-500G-PURE' },
+      { weight: '250g', mrp: 450, price: 399, image: '/images/250g front.png', image2: '/images/250g back.png', images: ['/images/250g front.png', '/images/250g back.png'], inStock: true, stockCount: 150, sku: 'NC-250G-PURE' },
+      { weight: '1kg', mrp: 1360, price: 1100, image: '/images/500g fornt.png', image2: '/images/500g back.png', images: ['/images/500g fornt.png', '/images/500g back.png'], inStock: true, stockCount: 80, sku: 'NC-1KG-PURE' },
     ],
     selectedWeight: '500g',
     rating: 5.0,
@@ -140,16 +140,16 @@ export const defaultProductsData = [
     blendRatio: '80% Coffee : 20% Chicory',
     roastMaster: 'Dark Traditional Roast',
     packaging: 'Air-sealed Moisture Barrier Pouch',
-    heritageOrigin: 'Thanjavur & Thanjavur, Tamil Nadu',
+    heritageOrigin: 'Thanjavur, Tamil Nadu',
     roastLevel: 'Dark Traditional Roast',
     packagingType: 'Air-sealed Moisture Barrier Pouch',
-    origin: 'Thanjavur & Thanjavur, Tamil Nadu',
+    origin: 'Thanjavur, Tamil Nadu',
     fssaiNumber: '22426461000422',
     images: ['/images/chicory powder.jpg', '/images/250g back.png'],
     variants: [
-      { weight: '250g', mrp: 280, price: 240, image: '/images/chicory powder.jpg', inStock: true, stockCount: 200, sku: 'NC-250G-CHIC' },
-      { weight: '500g', mrp: 540, price: 450, image: '/images/chicory powder.jpg', inStock: true, stockCount: 160, sku: 'NC-500G-CHIC' },
-      { weight: '1kg', mrp: 1050, price: 850, image: '/images/chicory powder.jpg', inStock: true, stockCount: 90, sku: 'NC-1KG-CHIC' },
+      { weight: '250g', mrp: 280, price: 240, image: '/images/chicory powder.jpg', image2: '/images/250g back.png', images: ['/images/chicory powder.jpg', '/images/250g back.png'], inStock: true, stockCount: 200, sku: 'NC-250G-CHIC' },
+      { weight: '500g', mrp: 540, price: 450, image: '/images/chicory powder.jpg', image2: '/images/500g back.png', images: ['/images/chicory powder.jpg', '/images/500g back.png'], inStock: true, stockCount: 160, sku: 'NC-500G-CHIC' },
+      { weight: '1kg', mrp: 1050, price: 850, image: '/images/chicory powder.jpg', image2: '/images/250g back.png', images: ['/images/chicory powder.jpg', '/images/250g back.png'], inStock: true, stockCount: 90, sku: 'NC-1KG-CHIC' },
     ],
     selectedWeight: '250g',
     rating: 4.8,
@@ -210,9 +210,6 @@ const parseProductPayload = (req) => {
     }
   }
 
-  // Normalize Images
-  body.images = normalizeProductImages(body.images, body.imageUrl || body.image, rawFiles);
-
   // Normalize inStock
   if (body.inStock !== undefined) {
     body.inStock = body.inStock === true || body.inStock === 'true';
@@ -227,20 +224,31 @@ const parseProductPayload = (req) => {
     }
   }
 
-  // If variants array provided, sanitize each entry
+  // If variants array provided, sanitize each entry and preserve dedicated dual images
   if (Array.isArray(body.variants) && body.variants.length > 0) {
     body.variants = body.variants
-      .map((v) => ({
-        weight: String(v.weight || '').trim(),
-        price: Number(v.price) || 0,
-        mrp: Number(v.mrp) || Number(v.price) || 0,
-        image: String(v.image || v.imageUrl || '').trim(),
-        inStock: v.inStock !== false && v.inStock !== 'false',
-        stockCount: Number(v.stockCount) || 100,
-        sku: v.sku || `NC-${String(v.weight || '').toUpperCase().replace(/[^A-Z0-9]/g, '')}-${Date.now().toString().slice(-4)}`,
-      }))
+      .map((v) => {
+        const img1 = String(v.image || v.image1 || (Array.isArray(v.images) ? v.images[0] : '') || '').trim();
+        const img2 = String(v.image2 || (Array.isArray(v.images) ? v.images[1] : '') || '').trim();
+        const dualImages = [img1, img2].filter(Boolean);
+        return {
+          weight: String(v.weight || '').trim(),
+          price: Number(v.price) || 0,
+          mrp: Number(v.mrp) || Number(v.price) || 0,
+          image: img1,
+          image2: img2,
+          images: dualImages,
+          inStock: v.inStock !== false && v.inStock !== 'false',
+          stockCount: Number(v.stockCount) || 100,
+          sku: v.sku || `NC-${String(v.weight || '').toUpperCase().replace(/[^A-Z0-9]/g, '')}-${Date.now().toString().slice(-4)}`,
+        };
+      })
       .filter((v) => v.weight && v.price > 0);
   }
+
+  // Remove top-level general packaging images as per per-weight architecture
+  delete body.images;
+  delete body.image;
 
   // If variants not provided or empty but price / mrp / weight are provided, build variant
   if ((!body.variants || !Array.isArray(body.variants) || body.variants.length === 0) && (body.price || body.mrp)) {

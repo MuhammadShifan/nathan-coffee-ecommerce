@@ -44,7 +44,7 @@ const AboutPage = () => {
       year: '2026',
       title: 'Pan-India Online Store & Fresh Dispatch',
       description:
-        'LaunchedNathan Coffee  Online with high-barrier zip-lock kraft pouches, delivering 100% pure filter coffee fresh from our Thanjavur and Thanjavur roasteries to homes across all of India.',
+        'LaunchedNathan Coffee  Online with high-barrier zip-lock kraft pouches, delivering 100% pure filter coffee fresh from our Thanjavur roasteries to homes across all of India.',
     },
   ];
 
@@ -111,8 +111,8 @@ const AboutPage = () => {
 
               {/* Caption */}
               <div className="mt-5 sm:mt-6 text-center max-w-xs">
-                <p className="text-xs font-bold text-brand-coffee-950 leading-relaxed">
-                  Founded by our beloved Grandfather on South Street, Thanjavur.
+                <p className="text-sm font-bold text-brand-coffee-950 leading-relaxed">
+                  Founded by our beloved G. Saravanan Pillai on Thanjavur.
                 </p>
                 <p className="text-[11px] text-brand-coffee-600 font-medium font-tamil mt-1">
                   நமது அன்பிற்குரிய தாத்தாவால் உருவாக்கப்பட்ட நாதன் காப்பி

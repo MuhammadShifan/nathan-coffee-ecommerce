@@ -5,10 +5,6 @@
             "destination": "https://nathan-coffee-ecommerce.onrender.com/api/:path*"
         },
         {
-            "source": "/images/:path*",
-            "destination": "https://nathan-coffee-ecommerce.onrender.com/images/:path*"
-        },
-        {
             "source": "/uploads/:path*",
             "destination": "https://nathan-coffee-ecommerce.onrender.com/uploads/:path*"
         },
