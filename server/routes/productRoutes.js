@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import { protectAdmin } from '../middleware/auth.js';
 import multerInstance from '../middleware/uploadMiddleware.js';
-import { uploadToCloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
 
 const router = express.Router();
 

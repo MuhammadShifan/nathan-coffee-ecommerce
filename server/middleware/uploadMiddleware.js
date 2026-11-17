@@ -1,9 +1,44 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
-// Memory Storage: Files are stored purely in memory as Buffer objects.
-// No physical files are written to the local disk, preventing Render/Vercel ephemeral filesystem wipe issues.
-const storage = multer.memoryStorage();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Standard local uploads directory on the server
+export const uploadsDir = path.join(__dirname, '../uploads');
+
+// Ensure the local uploads directory exists
+if (!fs.existsSync(uploadsDir)) {
+  try {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  } catch (err) {
+    console.error('[Multer] Error ensuring uploads directory exists:', err);
+  }
+}
+
+// Standard Multer Disk Storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    if (!fs.existsSync(uploadsDir)) {
+      try {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      } catch (err) {}
+    }
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const sanitizedBase = path
+      .basename(file.originalname, ext)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-');
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
+    const filename = `${sanitizedBase}-${uniqueSuffix}${ext}`;
+    cb(null, filename);
+  },
+});
 
 // Supported image types
 const ALLOWED_EXTENSIONS = /jpeg|jpg|png|webp|avif|gif/;
@@ -71,7 +106,7 @@ export const uploadProductImagesMiddleware = handleMulterErrors(
   ])
 );
 
-// Middleware supporting hero banner upload
+// Middleware supporting hero banner upload (heroImage or image)
 export const uploadHeroImageMiddleware = handleMulterErrors(
   multerInstance.fields([
     { name: 'heroImage', maxCount: 1 },
@@ -80,4 +115,3 @@ export const uploadHeroImageMiddleware = handleMulterErrors(
 );
 
 export default multerInstance;
-

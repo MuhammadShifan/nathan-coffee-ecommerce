@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import api from '../../services/api';
+import { resolveProductImageUrl } from '../../utils/imageUrl';
 
 const DEFAULT_HERO_IMAGE = '/images/hero-coffee.jpg';
 
@@ -272,7 +273,7 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
 
           <div className="relative rounded-2xl overflow-hidden border-2 border-brand-coffee-200 bg-white shadow-sm group min-h-[200px] sm:min-h-[224px] flex items-center justify-center p-2">
             <img
-              src={currentHeroImage}
+              src={resolveProductImageUrl(currentHeroImage, DEFAULT_HERO_IMAGE)}
               alt="Current Live Homepage Hero Banner"
               className="w-full h-48 sm:h-56 object-contain transition-transform duration-500 group-hover:scale-[1.02]"
               onError={(e) => {

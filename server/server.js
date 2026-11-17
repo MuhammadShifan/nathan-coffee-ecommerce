@@ -113,9 +113,12 @@ if (fs.existsSync(clientPublicImagesDir)) {
 if (fs.existsSync(serverImagesDir)) {
   app.use('/images', express.static(serverImagesDir, staticImageOptions));
 }
-if (fs.existsSync(serverUploadsDir)) {
-  app.use('/uploads', express.static(serverUploadsDir, staticImageOptions));
+if (!fs.existsSync(serverUploadsDir)) {
+  try {
+    fs.mkdirSync(serverUploadsDir, { recursive: true });
+  } catch (e) {}
 }
+app.use('/uploads', express.static(serverUploadsDir, staticImageOptions));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -128,6 +131,7 @@ app.use('/api/seo', seoRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/admin/settings', settingsRoutes);
+app.use('/api/banner', settingsRoutes);
 
 // Root SEO sitemap & robots.txt
 app.use('/', seoRoutes);

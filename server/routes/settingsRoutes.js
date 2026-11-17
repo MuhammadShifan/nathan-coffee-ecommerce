@@ -2,18 +2,14 @@ import express from 'express';
 import SiteSettings from '../models/SiteSettings.js';
 import { protectAdmin } from '../middleware/auth.js';
 import { uploadHeroImageMiddleware } from '../middleware/uploadMiddleware.js';
-import { uploadToCloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
 
 const router = express.Router();
 
 // ============================================================================
-// 1. PUBLIC ROUTES
+// 1. PUBLIC ROUTES (Fetch Active Hero Banner)
 // ============================================================================
 
-// @route   GET /api/settings/hero-image
-// @desc    Get the current active homepage hero banner image URL
-// @access  Public
-router.get('/hero-image', async (req, res) => {
+const handleGetHeroBanner = async (req, res) => {
   try {
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.set('Pragma', 'no-cache');
@@ -28,22 +24,31 @@ router.get('/hero-image', async (req, res) => {
       });
     }
 
-    res.json({
+    const currentBannerUrl = settings.heroImageUrl || '/images/hero-coffee.jpg';
+
+    return res.json({
       success: true,
-      heroImageUrl: settings.heroImageUrl || '/images/hero-coffee.jpg',
+      heroImageUrl: currentBannerUrl,
+      bannerUrl: currentBannerUrl,
+      url: currentBannerUrl,
       title: settings.heroBannerTitle || '',
       subtitle: settings.heroBannerSubtitle || '',
       updatedAt: settings.updatedAt,
     });
   } catch (error) {
-    console.error('Error fetching hero image setting:', error);
-    // Graceful fallback so frontend never breaks
-    res.json({
+    console.error('[Settings] Error fetching hero banner:', error);
+    // Graceful fallback
+    return res.json({
       success: true,
       heroImageUrl: '/images/hero-coffee.jpg',
+      bannerUrl: '/images/hero-coffee.jpg',
+      url: '/images/hero-coffee.jpg',
     });
   }
-});
+};
+
+router.get('/hero-image', handleGetHeroBanner);
+router.get('/banner', handleGetHeroBanner);
 
 // @route   GET /api/settings
 // @desc    Get all site settings
@@ -54,63 +59,41 @@ router.get('/', async (req, res) => {
     if (!settings) {
       settings = await SiteSettings.create({ key: 'default' });
     }
-    res.json({ success: true, settings });
+    return res.json({ success: true, settings });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 });
 
 // ============================================================================
-// 2. ADMIN PROTECTED ROUTES
+// 2. ADMIN PROTECTED ROUTES (Publish & Save Hero Banner)
 // ============================================================================
 
 const handleUpdateHeroImage = async (req, res) => {
   try {
     let newHeroImageUrl = '';
 
-    // Check if an image file was uploaded via Multer memoryStorage
+    // Check if an image file was uploaded via Multer disk storage
     const uploadedFile =
-      req.files?.heroImage?.[0] || req.files?.image?.[0] || req.file;
+      req.files?.heroImage?.[0] ||
+      req.files?.image?.[0] ||
+      req.files?.banner?.[0] ||
+      req.file;
 
     if (uploadedFile) {
-      if (!isCloudinaryConfigured()) {
-        return res.status(500).json({
-          success: false,
-          message:
-            'Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your production environment variables (Render/Vercel).',
-        });
-      }
-
-      const sanitizedName = (uploadedFile.originalname || 'hero-banner')
-        .replace(/\.[^/.]+$/, '')
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '-');
-
-      const result = await uploadToCloudinary(uploadedFile.buffer, {
-        folder: 'nathan-coffee/hero',
-        public_id: `hero-${sanitizedName}-${Date.now()}`,
-        resource_type: 'image',
-      });
-
-      if (!result?.secure_url) {
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to upload hero image to Cloudinary.',
-        });
-      }
-
-      newHeroImageUrl = result.secure_url;
+      // Clean relative path saved directly into MongoDB
+      newHeroImageUrl = `/uploads/${uploadedFile.filename}`;
     } else if (req.body?.reset === true || req.body?.reset === 'true') {
       // Admin requested resetting to default banner
       newHeroImageUrl = '/images/hero-coffee.jpg';
-    } else if (req.body?.heroImageUrl) {
-      newHeroImageUrl = req.body.heroImageUrl.trim();
+    } else if (req.body?.heroImageUrl || req.body?.bannerUrl || req.body?.image) {
+      newHeroImageUrl = (req.body.heroImageUrl || req.body.bannerUrl || req.body.image).trim();
     }
 
     if (!newHeroImageUrl) {
       return res.status(400).json({
         success: false,
-        message: 'Please select an image file to upload or provide a hero image URL.',
+        message: 'Please choose an image file to upload or provide a valid banner URL.',
       });
     }
 
@@ -132,23 +115,29 @@ const handleUpdateHeroImage = async (req, res) => {
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
 
-    res.json({
+    return res.json({
       success: true,
-      message: 'Homepage hero banner image updated successfully!',
+      message: 'Homepage hero banner published and saved successfully!',
       heroImageUrl: updatedSettings.heroImageUrl,
+      bannerUrl: updatedSettings.heroImageUrl,
+      url: updatedSettings.heroImageUrl,
       settings: updatedSettings,
     });
   } catch (error) {
-    console.error('Error updating hero image setting:', error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Settings] Error saving hero banner:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to save hero banner.',
+    });
   }
 };
 
-// @route   POST /api/settings/hero-image OR /api/admin/settings/hero-image
-// @route   PUT  /api/settings/hero-image OR /api/admin/settings/hero-image
-// @desc    Upload & update the homepage hero banner (Admin)
-// @access  Private (Admin)
+// Mount handlers across all common endpoints: /hero-image, /banner, /
 router.post('/hero-image', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);
 router.put('/hero-image', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);
+router.post('/banner', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);
+router.put('/banner', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);
+router.post('/', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);
+router.put('/', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);
 
 export default router;

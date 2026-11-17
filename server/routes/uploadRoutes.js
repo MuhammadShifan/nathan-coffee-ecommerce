@@ -1,16 +1,15 @@
 import express from 'express';
 import { protectAdmin } from '../middleware/auth.js';
 import { uploadProductImagesMiddleware } from '../middleware/uploadMiddleware.js';
-import { uploadToCloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
 
 const router = express.Router();
 
 /**
  * @route   POST /api/upload
- * @desc    Upload product image file(s) directly to Cloudinary (Admin Protected)
+ * @desc    Upload product image file(s) via Multer disk storage (Admin Protected)
  * @access  Private/Admin
  */
-router.post('/', protectAdmin, uploadProductImagesMiddleware, async (req, res) => {
+router.post('/', protectAdmin, uploadProductImagesMiddleware, (req, res) => {
   try {
     const rawFiles = [];
     if (req.files?.images) rawFiles.push(...req.files.images);
@@ -24,53 +23,25 @@ router.post('/', protectAdmin, uploadProductImagesMiddleware, async (req, res) =
       });
     }
 
-    if (!isCloudinaryConfigured()) {
-      return res.status(500).json({
-        success: false,
-        message:
-          'Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your production environment variables (Render/Vercel).',
-      });
-    }
-
     const uploadedUrls = [];
     const fileDetails = [];
 
-    // Stream each in-memory buffer directly to Cloudinary
     for (const file of rawFiles) {
-      const sanitizedName = file.originalname
-        .replace(/\.[^/.]+$/, '')
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '-');
+      // Clean relative path saved directly in DB and served by express.static
+      const relativePath = `/uploads/${file.filename}`;
+      uploadedUrls.push(relativePath);
 
-      const result = await uploadToCloudinary(file.buffer, {
-        folder: 'nathan-coffee/products',
-        public_id: `${sanitizedName}-${Date.now()}`,
-        resource_type: 'image',
-      });
-
-      if (result?.secure_url) {
-        uploadedUrls.push(result.secure_url);
-        fileDetails.push({
-          url: result.secure_url,
-          public_id: result.public_id,
-          format: result.format,
-          bytes: result.bytes,
-          width: result.width,
-          height: result.height,
-        });
-      }
-    }
-
-    if (uploadedUrls.length === 0) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to upload images to Cloudinary.',
+      fileDetails.push({
+        url: relativePath,
+        filename: file.filename,
+        size: file.size,
+        mimetype: file.mimetype,
       });
     }
 
     return res.json({
       success: true,
-      message: `${uploadedUrls.length} image(s) uploaded successfully to Cloudinary!`,
+      message: `${uploadedUrls.length} image(s) uploaded successfully!`,
       urls: uploadedUrls,
       url: uploadedUrls[0],
       files: fileDetails,
@@ -79,7 +50,7 @@ router.post('/', protectAdmin, uploadProductImagesMiddleware, async (req, res) =
     console.error('[Upload Route Error]:', error);
     return res.status(500).json({
       success: false,
-      message: error.message || 'Error uploading file to cloud storage.',
+      message: error.message || 'Error uploading file to server.',
     });
   }
 });
