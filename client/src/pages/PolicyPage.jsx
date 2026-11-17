@@ -17,7 +17,7 @@ const PolicyPage = () => {
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">1. Dispatch Timelines</h3>
           <p>
-            All orders are freshly roasted and packaged in airtight stand-up zipper pouches. Orders placed before 1:00 PM are dispatched on the same business day, while orders placed after 1:00 PM are dispatched the next business day (excluding Sundays & National Holidays).
+            All orders are freshly roasted and carefully packaged to preserve their authentic aroma. Our Premium category coffee is packed in airtight stand-up zipper pouches, while our Super and Export categories are securely sealed in our standard packaging. Orders placed before 1:00 PM are dispatched on the same business day, while orders placed after 1:00 PM are dispatched the next business day (excluding Sundays & National Holidays).
           </p>
           <h3 className="text-base font-bold text-brand-coffee-950 mt-4">2. Delivery Timeframes</h3>
           <ul className="list-disc pl-5 space-y-1.5">
@@ -25,10 +25,6 @@ const PolicyPage = () => {
             <li><strong>South India (Karnataka, Kerala, Andhra Pradesh, Telangana):</strong> 2 – 3 Business Days.</li>
             <li><strong>Rest of India:</strong> 3 – 5 Business Days via Express Courier.</li>
           </ul>
-          <h3 className="text-base font-bold text-brand-coffee-950 mt-4">3. Shipping Rates</h3>
-          <p>
-            We provide <strong>FREE Standard Home Delivery across India on all orders of ₹500 and above</strong>. For orders below ₹500, a nominal standard shipping fee of ₹40 is applied at checkout.
-          </p>
         </div>
       ),
     },

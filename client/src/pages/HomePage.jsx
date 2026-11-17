@@ -101,7 +101,7 @@ const HomePage = () => {
                 >
                   <span className="w-2 h-2 rounded-full bg-brand-pink-600 animate-ping flex-shrink-0" />
                   <span className="uppercase tracking-wide font-extrabold text-[10px] sm:text-[11px]">
-                    South main street thanjavur 613007 | தெற்கு வீதி தஞ்சாவூர் 613007
+                    South main street, thanjavur 613007 | தெற்கு வீதி, தஞ்சாவூர் 613007
                   </span>
                   <span className="text-brand-pink-400 hidden xs:inline">•</span>
                   <span className="font-tamil font-bold text-brand-pink-900 text-[11px] sm:text-xs">
@@ -382,7 +382,7 @@ const HomePage = () => {
                 பாரம்பரியம் கலந்த நிறைந்தது என்று சொல்லுவதில்
                 நமக்கு பெருமை. அதே பாரம்பரிய மிக்க
                 தரத்துடனும், நூற்றுக்கு நூறு சுத்தமானது,
-                நமது தி நாதன் காபி. தஞ்சாவூருக்கு
+                நமது நாதன் காபி. தஞ்சாவூருக்கு
                 மற்றொரு பெருமை இந்த நாதன்காபி.
                 1964 களில் தெய்வத்திரு  . G.சரவணன் பிள்ளை
                 அவர்களால் நிறுவப்பட்டு இன்றும் அதே

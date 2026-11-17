@@ -26,7 +26,7 @@ const AboutPage = () => {
       year: '1950s',
       title: 'The Humble Roastery at South Street, Thanjavur',
       description:
-        'Our beloved Grandfather establishedNathan Coffee (Nathan Coffee) at 2928, South Main Street near Canara Bank in Thanjavur. Roasting small batches over seasoned wood fires, the intoxicating aroma drew coffee connoisseurs from all across the delta region.',
+        'Our beloved Grandfather established Nathan Coffee at 2928, South Main Street near Canara Bank in Thanjavur. Roasting small batches over seasoned wood fires, the intoxicating aroma drew coffee connoisseurs from all across the delta region.',
     },
     {
       year: '1985',
@@ -44,7 +44,7 @@ const AboutPage = () => {
       year: '2026',
       title: 'Pan-India Online Store & Fresh Dispatch',
       description:
-        'LaunchedNathan Coffee  Online with high-barrier zip-lock kraft pouches, delivering 100% pure filter coffee fresh from our Thanjavur roasteries to homes across all of India.',
+        'Launched Nathan Coffee  Online with high-barrier zip-lock kraft pouches, delivering 100% pure filter coffee fresh from our Thanjavur roasteries to homes across all of India.',
     },
   ];
 
@@ -76,7 +76,7 @@ const AboutPage = () => {
             </h1>
 
             <p className="text-xs sm:text-base text-brand-coffee-700 max-w-2xl mx-auto leading-relaxed">
-              For over seven decades,Nathan Coffee has been more than a roastery—it is an enduring devotion to the sacred ritual of authentic South Indian filter coffee.
+              For over seven decades, Nathan Coffee has been more than a roastery—it is an enduring devotion to the sacred ritual of authentic South Indian filter coffee.
             </p>
             <p className="text-xs sm:text-sm font-semibold text-brand-pink-700 font-tamil">
               பாரம்பரியமும் சுத்தமும் இணைந்த நாதன் காப்பியின் 70 ஆண்டுகால வரலாறு
@@ -131,7 +131,7 @@ const AboutPage = () => {
               </h2>
 
               <p className="text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
-                நமது தஞ்சாவூரின் பெருமை என்றுமே பாரம்பரியம் கலந்த நிறைந்தது என்று சொல்லுவதில் நமக்கு பெருமை. அதே பாரம்பரிய மிக்க தரத்துடனும், நூற்றுக்கு நூறு சுத்தமானது, நமது தி நாதன் காபி. தஞ்சாவூருக்கு மற்றொரு பெருமை இந்த நாதன்காபி. 1964 களில் திரு. G.சரவணன் பிள்ளை அவர்களால் நிறுவப்பட்டு இன்றும் அதே தரத்துடனும் நூற்றுக்கு நூறு சுத்தமானதாக காபியை மக்களுக்கு வழங்கப்பட்டு வருகிறது. தரமான காப்பி கொட்டைகளை சிக்மகளூர், ஹாசன் மற்றும் கூசல் நகரில் இருந்து Purchase செய்து தரமான முறையில் காப்பி கொட்டைகளில் (PB, Plantain AA, c coffee, ROB) சரியான அளவில் Roasted செய்து ஒரு தரமிக்க காபியை மக்களுக்கு கொடுப்பதில் எங்களுக்கு ஒரு பெருமிதம். அன்றும், இன்றும், என்றும் இதே தரமிக்க காபியினை நாதன் காப்பியை வழங்குவோம். நன்றி, உரிமையாளர் <br /> <br /> <span className="text-xs sm:text-sm font-extrabold text-brand-coffee-950 italic">S. ராஜ்குமார் சரவணன்.</span>
+                நமது தஞ்சாவூரின் பெருமை என்றுமே பாரம்பரியம் கலந்த நிறைந்தது என்று சொல்லுவதில் நமக்கு பெருமை. அதே பாரம்பரிய மிக்க தரத்துடனும், நூற்றுக்கு நூறு சுத்தமானது, நமது நாதன் காபி. தஞ்சாவூருக்கு மற்றொரு பெருமை இந்த நாதன்காபி. 1964 களில் தெய்வத்திரு. G.சரவணன் பிள்ளை அவர்களால் நிறுவப்பட்டு இன்றும் அதே தரத்துடனும் நூற்றுக்கு நூறு சுத்தமானதாக காபியை மக்களுக்கு வழங்கப்பட்டு வருகிறது. தரமான காப்பி கொட்டைகளை சிக்மகளூர், ஹாசன் மற்றும் கூசல் நகரில் இருந்து Purchase செய்து தரமான முறையில் காப்பி கொட்டைகளில் (PB, Plantain AA, c coffee, ROB) சரியான அளவில் Roasted செய்து ஒரு தரமிக்க காபியை மக்களுக்கு கொடுப்பதில் எங்களுக்கு ஒரு பெருமிதம். அன்றும், இன்றும், என்றும் இதே தரமிக்க காபியினை நாதன் காப்பியை வழங்குவோம். நன்றி, உரிமையாளர் <br /> <br /> <span className="text-xs sm:text-sm font-extrabold text-brand-coffee-950 italic">S. ராஜ்குமார் சரவணன்.</span>
               </p>
 
               {/* Famous Quote Box */}
@@ -140,7 +140,7 @@ const AboutPage = () => {
                   "Quality over quantity is the true essence of great coffee."
                 </p>
                 <p className="text-[11px] sm:text-xs font-bold text-brand-pink-700">
-                  — The Guiding Motto ofNathan Coffee  Since 1950
+                  — The Guiding Motto of Nathan Coffee  Since 1950
                 </p>
               </div>
 
