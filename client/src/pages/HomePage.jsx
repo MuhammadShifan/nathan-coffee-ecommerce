@@ -26,7 +26,8 @@ import { resolveProductImageUrl } from '../utils/imageUrl';
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [heroImageUrl, setHeroImageUrl] = useState('/images/hero-coffee.jpg');
+  const [heroImageUrl, setHeroImageUrl] = useState(null);
+  const [heroLoading, setHeroLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,9 +52,15 @@ const HomePage = () => {
         const res = await api.get('/api/settings/hero-image');
         if (res.data?.success && res.data?.heroImageUrl) {
           setHeroImageUrl(res.data.heroImageUrl);
+        } else {
+          // Fallback to default if API response is empty/null
+          setHeroImageUrl('/images/hero-coffee.jpg');
         }
       } catch (err) {
-        // Non-blocking fallback to default hero image
+        // Fallback to default only if API request completely fails
+        setHeroImageUrl('/images/hero-coffee.jpg');
+      } finally {
+        setHeroLoading(false);
       }
     };
 
@@ -188,21 +195,36 @@ const HomePage = () => {
                 >
                   {/* Decorative Frame */}
                   <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white ring-4 ring-brand-pink-500/20 bg-white w-full min-h-[300px] xs:min-h-[340px] sm:min-h-[400px] md:min-h-[420px] flex items-center justify-center p-2 sm:p-3">
-                    <img
-                      src={resolveProductImageUrl(heroImageUrl, '/images/hero-coffee.jpg')}
-                      alt="Nathan Coffee - Authentic South Indian Filter Coffee"
-                      fetchpriority="high"
-                      loading="eager"
-                      decoding="async"
-                      className="w-full h-auto max-h-[280px] xs:max-h-[340px] sm:max-h-[400px] md:max-h-[420px] object-contain rounded-2xl transition-transform duration-500 hover:scale-[1.02]"
-                      width="600"
-                      height="420"
-                      onError={(e) => {
-                        if (e.target.dataset.failed) return;
-                        e.target.dataset.failed = 'true';
-                        e.target.src = '/images/hero-coffee.jpg';
-                      }}
-                    />
+                    {heroLoading || !heroImageUrl ? (
+                      /* Blank / Skeleton placeholder while loading to prevent old default image flash */
+                      <div
+                        className="w-full h-full min-h-[280px] xs:min-h-[340px] sm:min-h-[400px] md:min-h-[420px] rounded-2xl bg-gradient-to-br from-brand-coffee-50/60 via-brand-pink-50/30 to-brand-coffee-100/40 flex flex-col items-center justify-center gap-2.5 animate-pulse"
+                        aria-hidden="true"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-brand-pink-100/60 flex items-center justify-center text-brand-pink-400">
+                          <Coffee className="w-6 h-6 animate-pulse" />
+                        </div>
+                        <span className="text-[11px] font-bold text-brand-coffee-400 tracking-wider uppercase">
+                          Loading Banner...
+                        </span>
+                      </div>
+                    ) : (
+                      <img
+                        src={resolveProductImageUrl(heroImageUrl, '/images/hero-coffee.jpg')}
+                        alt="Nathan Coffee - Authentic South Indian Filter Coffee"
+                        fetchpriority="high"
+                        loading="eager"
+                        decoding="async"
+                        className="w-full h-auto max-h-[280px] xs:max-h-[340px] sm:max-h-[400px] md:max-h-[420px] object-contain rounded-2xl transition-transform duration-500 hover:scale-[1.02]"
+                        width="600"
+                        height="420"
+                        onError={(e) => {
+                          if (e.target.dataset.failed) return;
+                          e.target.dataset.failed = 'true';
+                          e.target.src = '/images/hero-coffee.jpg';
+                        }}
+                      />
+                    )}
                   </div>
                 </motion.div>
               </div>
