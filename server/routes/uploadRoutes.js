@@ -1,89 +1,16 @@
 import express from 'express';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { protectAdmin } from '../middleware/auth.js';
+import { uploadProductImagesMiddleware } from '../middleware/uploadMiddleware.js';
+import { uploadToCloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// Target upload directories
-const serverUploadsDir = path.join(__dirname, '../uploads');
-const clientPublicImagesDir = path.join(__dirname, '../../client/public/images');
-const clientSrcImagesDir = path.join(__dirname, '../../client/src/assets/images');
-
-// Ensure directories exist
-if (!fs.existsSync(serverUploadsDir)) {
-  fs.mkdirSync(serverUploadsDir, { recursive: true });
-}
-if (!fs.existsSync(clientPublicImagesDir)) {
-  try { fs.mkdirSync(clientPublicImagesDir, { recursive: true }); } catch (e) {}
-}
-if (!fs.existsSync(clientSrcImagesDir)) {
-  try { fs.mkdirSync(clientSrcImagesDir, { recursive: true }); } catch (e) {}
-}
-
-// Multer Storage Configuration
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, serverUploadsDir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const sanitizedBase = path
-      .basename(file.originalname, ext)
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-');
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    const filename = `${sanitizedBase}-${uniqueSuffix}${ext}`;
-    cb(null, filename);
-  },
-});
-
-// File filter for images only
-const fileFilter = (req, file, cb) => {
-  const allowedExtensions = /jpeg|jpg|png|webp|avif/;
-  const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedExtensions.test(file.mimetype);
-
-  if (extname && mimetype) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files (JPG, PNG, WebP, AVIF) are allowed!'));
-  }
-};
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
-  fileFilter,
-});
-
-// Support uploading both 'images' array and single 'image' field for backwards compatibility
-const handleUploadMiddleware = (req, res, next) => {
-  const uploadArray = upload.fields([
-    { name: 'images', maxCount: 10 },
-    { name: 'image', maxCount: 10 },
-  ]);
-
-  uploadArray(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-        return res.status(400).json({ success: false, message: 'Too many files uploaded (Max: 10 images)' });
-      }
-      return res.status(400).json({ success: false, message: `Upload error: ${err.message}` });
-    } else if (err) {
-      return res.status(400).json({ success: false, message: err.message });
-    }
-    next();
-  });
-};
-
-// @route   POST /api/upload
-// @desc    Upload product image file(s) (Admin)
-router.post('/', protectAdmin, handleUploadMiddleware, (req, res) => {
+/**
+ * @route   POST /api/upload
+ * @desc    Upload product image file(s) directly to Cloudinary (Admin Protected)
+ * @access  Private/Admin
+ */
+router.post('/', protectAdmin, uploadProductImagesMiddleware, async (req, res) => {
   try {
     const rawFiles = [];
     if (req.files?.images) rawFiles.push(...req.files.images);
@@ -91,49 +18,69 @@ router.post('/', protectAdmin, handleUploadMiddleware, (req, res) => {
     if (req.file) rawFiles.push(req.file);
 
     if (rawFiles.length === 0) {
-      return res.status(400).json({ success: false, message: 'Please select at least one image file to upload' });
+      return res.status(400).json({
+        success: false,
+        message: 'Please select at least one image file to upload.',
+      });
+    }
+
+    if (!isCloudinaryConfigured()) {
+      return res.status(500).json({
+        success: false,
+        message:
+          'Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your production environment variables (Render/Vercel).',
+      });
     }
 
     const uploadedUrls = [];
     const fileDetails = [];
 
+    // Stream each in-memory buffer directly to Cloudinary
     for (const file of rawFiles) {
-      const uploadedPath = `/uploads/${file.filename}`;
-      uploadedUrls.push(uploadedPath);
+      const sanitizedName = file.originalname
+        .replace(/\.[^/.]+$/, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-');
 
-      // Also mirror copy to client/public/images if accessible
-      try {
-        const pubDest = path.join(clientPublicImagesDir, file.filename);
-        fs.copyFileSync(file.path, pubDest);
-      } catch (e) {
-        // Non-blocking copy
+      const result = await uploadToCloudinary(file.buffer, {
+        folder: 'nathan-coffee/products',
+        public_id: `${sanitizedName}-${Date.now()}`,
+        resource_type: 'image',
+      });
+
+      if (result?.secure_url) {
+        uploadedUrls.push(result.secure_url);
+        fileDetails.push({
+          url: result.secure_url,
+          public_id: result.public_id,
+          format: result.format,
+          bytes: result.bytes,
+          width: result.width,
+          height: result.height,
+        });
       }
+    }
 
-      // Also mirror copy to client/src/assets/images if accessible
-      try {
-        const srcDest = path.join(clientSrcImagesDir, file.filename);
-        fs.copyFileSync(file.path, srcDest);
-      } catch (e) {
-        // Non-blocking copy
-      }
-
-      fileDetails.push({
-        url: uploadedPath,
-        filename: file.filename,
-        size: file.size,
+    if (uploadedUrls.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to upload images to Cloudinary.',
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
-      message: `${uploadedUrls.length} image(s) uploaded successfully!`,
+      message: `${uploadedUrls.length} image(s) uploaded successfully to Cloudinary!`,
       urls: uploadedUrls,
       url: uploadedUrls[0],
       files: fileDetails,
     });
   } catch (error) {
-    console.error('File upload error:', error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Upload Route Error]:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Error uploading file to cloud storage.',
+    });
   }
 });
 

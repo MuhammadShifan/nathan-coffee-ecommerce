@@ -1,64 +1,17 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import Product from '../models/Product.js';
 import { protectAdmin } from '../middleware/auth.js';
+import multerInstance from '../middleware/uploadMiddleware.js';
+import { uploadToCloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// Target upload directories for direct multipart updates
-const clientPublicImagesDir = path.join(__dirname, '../../client/public/images');
-const clientSrcImagesDir = path.join(__dirname, '../../client/src/assets/images');
-
-if (!fs.existsSync(clientPublicImagesDir)) {
-  fs.mkdirSync(clientPublicImagesDir, { recursive: true });
-}
-if (!fs.existsSync(clientSrcImagesDir)) {
-  fs.mkdirSync(clientSrcImagesDir, { recursive: true });
-}
-
-// Multer Storage Configuration for product updates with file attachments
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, clientPublicImagesDir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const sanitizedBase = path
-      .basename(file.originalname, ext)
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-');
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    const filename = `${sanitizedBase}-${uniqueSuffix}${ext}`;
-    cb(null, filename);
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|webp|avif/;
-    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
-    const mime = allowed.test(file.mimetype);
-    if (ext && mime) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files (JPG, PNG, WebP, AVIF) are allowed!'));
-    }
-  },
-});
-
-// Middleware to gracefully handle multipart form-data or standard JSON
+// Middleware to gracefully handle optional multipart form-data (held in memory) or standard JSON
 const handleOptionalMultipart = (req, res, next) => {
   const contentType = req.headers['content-type'] || '';
   if (contentType.includes('multipart/form-data')) {
-    const multipartHandler = upload.fields([
+    const multipartHandler = multerInstance.fields([
       { name: 'images', maxCount: 10 },
       { name: 'image', maxCount: 10 },
       { name: 'files', maxCount: 10 },
@@ -193,22 +146,6 @@ const normalizeProductImages = (images, fallbackImage, uploadedFiles = []) => {
 // Helper to parse and sanitize product body from JSON or FormData
 const parseProductPayload = (req) => {
   const body = { ...req.body };
-  const rawFiles = [];
-  if (req.files?.images) rawFiles.push(...req.files.images);
-  if (req.files?.image) rawFiles.push(...req.files.image);
-  if (req.files?.files) rawFiles.push(...req.files.files);
-  if (req.files?.file) rawFiles.push(...req.files.file);
-  if (req.file) rawFiles.push(req.file);
-
-  // Copy uploaded files to src/assets/images if present
-  for (const file of rawFiles) {
-    try {
-      const srcDest = path.join(clientSrcImagesDir, file.filename);
-      fs.copyFileSync(file.path, srcDest);
-    } catch (e) {
-      // non-blocking
-    }
-  }
 
   // Normalize inStock
   if (body.inStock !== undefined) {

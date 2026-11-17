@@ -1,79 +1,10 @@
 import express from 'express';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import SiteSettings from '../models/SiteSettings.js';
 import { protectAdmin } from '../middleware/auth.js';
+import { uploadHeroImageMiddleware } from '../middleware/uploadMiddleware.js';
+import { uploadToCloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Target upload directories for hero images
-const clientPublicImagesDir = path.join(__dirname, '../../client/public/images');
-const clientSrcImagesDir = path.join(__dirname, '../../client/src/assets/images');
-
-// Ensure directories exist
-if (!fs.existsSync(clientPublicImagesDir)) {
-  fs.mkdirSync(clientPublicImagesDir, { recursive: true });
-}
-if (!fs.existsSync(clientSrcImagesDir)) {
-  fs.mkdirSync(clientSrcImagesDir, { recursive: true });
-}
-
-// Multer Storage Configuration
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, clientPublicImagesDir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const sanitizedBase = path
-      .basename(file.originalname, ext)
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-');
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    const filename = `hero-banner-${sanitizedBase}-${uniqueSuffix}${ext}`;
-    cb(null, filename);
-  },
-});
-
-// File filter for images only
-const fileFilter = (req, file, cb) => {
-  const allowedExtensions = /jpeg|jpg|png|webp|avif/;
-  const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedExtensions.test(file.mimetype);
-
-  if (extname && mimetype) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files (JPG, PNG, WebP, AVIF) are allowed!'));
-  }
-};
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
-  fileFilter,
-});
-
-// Middleware supporting single 'heroImage' or 'image' field
-const uploadHeroImageMiddleware = (req, res, next) => {
-  const uploadFields = upload.fields([
-    { name: 'heroImage', maxCount: 1 },
-    { name: 'image', maxCount: 1 },
-  ]);
-
-  uploadFields(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      return res.status(400).json({ success: false, message: `Upload error: ${err.message}` });
-    } else if (err) {
-      return res.status(400).json({ success: false, message: err.message });
-    }
-    next();
-  });
-};
 
 // ============================================================================
 // 1. PUBLIC ROUTES
@@ -137,22 +68,40 @@ const handleUpdateHeroImage = async (req, res) => {
   try {
     let newHeroImageUrl = '';
 
-    // Check if an image file was uploaded via Multer
+    // Check if an image file was uploaded via Multer memoryStorage
     const uploadedFile =
       req.files?.heroImage?.[0] || req.files?.image?.[0] || req.file;
 
     if (uploadedFile) {
-      newHeroImageUrl = `/images/${uploadedFile.filename}`;
-
-      // Mirror copy to client/src/assets/images if present
-      try {
-        const srcDest = path.join(clientSrcImagesDir, uploadedFile.filename);
-        fs.copyFileSync(uploadedFile.path, srcDest);
-      } catch (e) {
-        // Non-blocking mirror copy
+      if (!isCloudinaryConfigured()) {
+        return res.status(500).json({
+          success: false,
+          message:
+            'Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your production environment variables (Render/Vercel).',
+        });
       }
+
+      const sanitizedName = (uploadedFile.originalname || 'hero-banner')
+        .replace(/\.[^/.]+$/, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-');
+
+      const result = await uploadToCloudinary(uploadedFile.buffer, {
+        folder: 'nathan-coffee/hero',
+        public_id: `hero-${sanitizedName}-${Date.now()}`,
+        resource_type: 'image',
+      });
+
+      if (!result?.secure_url) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to upload hero image to Cloudinary.',
+        });
+      }
+
+      newHeroImageUrl = result.secure_url;
     } else if (req.body?.reset === true || req.body?.reset === 'true') {
-      // Admin requested resetting to factory default
+      // Admin requested resetting to default banner
       newHeroImageUrl = '/images/hero-coffee.jpg';
     } else if (req.body?.heroImageUrl) {
       newHeroImageUrl = req.body.heroImageUrl.trim();
@@ -203,4 +152,3 @@ router.post('/hero-image', protectAdmin, uploadHeroImageMiddleware, handleUpdate
 router.put('/hero-image', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);
 
 export default router;
-

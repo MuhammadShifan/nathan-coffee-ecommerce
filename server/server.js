@@ -95,17 +95,10 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static images and uploads with CORS and caching
+// Serve static bundled images if present (e.g. during local dev or legacy fallbacks)
 const clientPublicImagesDir = path.join(__dirname, '../client/public/images');
 const serverUploadsDir = path.join(__dirname, 'uploads');
 const serverImagesDir = path.join(__dirname, 'images');
-
-if (!fs.existsSync(clientPublicImagesDir)) {
-  try { fs.mkdirSync(clientPublicImagesDir, { recursive: true }); } catch (e) {}
-}
-if (!fs.existsSync(serverUploadsDir)) {
-  try { fs.mkdirSync(serverUploadsDir, { recursive: true }); } catch (e) {}
-}
 
 const staticImageOptions = {
   maxAge: '7d',
@@ -114,11 +107,15 @@ const staticImageOptions = {
   },
 };
 
-app.use('/images', express.static(clientPublicImagesDir, staticImageOptions));
+if (fs.existsSync(clientPublicImagesDir)) {
+  app.use('/images', express.static(clientPublicImagesDir, staticImageOptions));
+}
 if (fs.existsSync(serverImagesDir)) {
   app.use('/images', express.static(serverImagesDir, staticImageOptions));
 }
-app.use('/uploads', express.static(serverUploadsDir, staticImageOptions));
+if (fs.existsSync(serverUploadsDir)) {
+  app.use('/uploads', express.static(serverUploadsDir, staticImageOptions));
+}
 
 // API Routes
 app.use('/api/auth', authRoutes);
