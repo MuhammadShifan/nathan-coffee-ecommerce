@@ -1,11 +1,12 @@
 import axios from 'axios';
+import { safeLocalStorage, safeSessionStorage } from '../utils/storage';
 
 export const getAdminToken = () => {
   try {
     const localTokens = [
-      localStorage.getItem('Nathan_admin_token'),
-      localStorage.getItem('admin_token'),
-      localStorage.getItem('adminToken'),
+      safeLocalStorage.getItem('Nathan_admin_token'),
+      safeLocalStorage.getItem('admin_token'),
+      safeLocalStorage.getItem('adminToken'),
     ];
     for (const t of localTokens) {
       if (t && typeof t === 'string' && t.trim()) {
@@ -15,7 +16,7 @@ export const getAdminToken = () => {
 
     const adminInfoKeys = ['Nathan_admin_info', 'admin_info', 'admin'];
     for (const key of adminInfoKeys) {
-      const info = localStorage.getItem(key);
+      const info = safeLocalStorage.getItem(key);
       if (info) {
         const parsed = JSON.parse(info);
         const token = parsed?.token || parsed?.data?.token || parsed?.accessToken;
@@ -25,13 +26,11 @@ export const getAdminToken = () => {
       }
     }
 
-    if (typeof sessionStorage !== 'undefined') {
-      const sessionToken =
-        sessionStorage.getItem('Nathan_admin_token') ||
-        sessionStorage.getItem('admin_token');
-      if (sessionToken && sessionToken.trim()) {
-        return sessionToken.trim().replace(/^Bearer\s+/i, '');
-      }
+    const sessionToken =
+      safeSessionStorage.getItem('Nathan_admin_token') ||
+      safeSessionStorage.getItem('admin_token');
+    if (sessionToken && sessionToken.trim()) {
+      return sessionToken.trim().replace(/^Bearer\s+/i, '');
     }
   } catch (e) {
     console.warn('Failed to retrieve admin token:', e);
@@ -42,8 +41,8 @@ export const getAdminToken = () => {
 export const getUserToken = () => {
   try {
     const localTokens = [
-      localStorage.getItem('Nathan_user_token'),
-      localStorage.getItem('user_token'),
+      safeLocalStorage.getItem('Nathan_user_token'),
+      safeLocalStorage.getItem('user_token'),
     ];
     for (const t of localTokens) {
       if (t && typeof t === 'string' && t.trim()) {
@@ -51,7 +50,7 @@ export const getUserToken = () => {
       }
     }
 
-    const userInfo = localStorage.getItem('Nathan_user_info');
+    const userInfo = safeLocalStorage.getItem('Nathan_user_info');
     if (userInfo) {
       const parsed = JSON.parse(userInfo);
       const token = parsed?.token || parsed?.data?.token;
@@ -167,8 +166,8 @@ api.interceptors.response.use(
           url.includes('/api/auth/profile')
         ) {
           try {
-            localStorage.removeItem('Nathan_user_token');
-            localStorage.removeItem('Nathan_user_info');
+            safeLocalStorage.removeItem('Nathan_user_token');
+            safeLocalStorage.removeItem('Nathan_user_info');
             if (typeof window !== 'undefined') {
               window.dispatchEvent(new CustomEvent('nathan:user:session_expired'));
             }

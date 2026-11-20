@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { safeLocalStorage, safeSessionStorage, safeGetJSON, safeSetJSON } from '../utils/storage';
 import api from '../services/api';
 import { initiateCashfreeCheckout } from '../services/cashfree';
 import SEOMeta from '../components/SEOMeta';
@@ -45,25 +46,16 @@ const CheckoutPage = () => {
     if (location.state?.buyNowItem === null) {
       return null;
     }
-    try {
-      const saved = sessionStorage.getItem('Nathan_buy_now_item');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
+    return safeGetJSON('session', 'Nathan_buy_now_item', null);
   });
 
   useEffect(() => {
     if (location.state?.buyNowItem) {
       setBuyNowItem(location.state.buyNowItem);
-      try {
-        sessionStorage.setItem('Nathan_buy_now_item', JSON.stringify(location.state.buyNowItem));
-      } catch (e) { }
+      safeSetJSON('session', 'Nathan_buy_now_item', location.state.buyNowItem);
     } else if (location.state?.buyNowItem === null) {
       setBuyNowItem(null);
-      try {
-        sessionStorage.removeItem('Nathan_buy_now_item');
-      } catch (e) { }
+      safeSessionStorage.removeItem('Nathan_buy_now_item');
     }
   }, [location.state]);
 
@@ -105,13 +97,11 @@ const CheckoutPage = () => {
     (cleanPincode.length > 0 && pincodeStatus !== 'valid');
 
   const completeOrderSuccess = (confirmedOrderId, confirmedOrder, replace = false) => {
-    try {
-      localStorage.setItem('Nathan_last_order_id', confirmedOrderId);
-      sessionStorage.removeItem('Nathan_pending_checkout');
-      if (isBuyNow) {
-        sessionStorage.removeItem('Nathan_buy_now_item');
-      }
-    } catch (e) { }
+    safeLocalStorage.setItem('Nathan_last_order_id', confirmedOrderId);
+    safeSessionStorage.removeItem('Nathan_pending_checkout');
+    if (isBuyNow) {
+      safeSessionStorage.removeItem('Nathan_buy_now_item');
+    }
 
     if (!isBuyNow) {
       clearCart();
@@ -129,11 +119,7 @@ const CheckoutPage = () => {
 
     if (cfOrderId) {
       setProcessing(true);
-      let savedOrderDetails = null;
-      try {
-        const raw = sessionStorage.getItem('Nathan_pending_checkout');
-        if (raw) savedOrderDetails = JSON.parse(raw);
-      } catch (e) { }
+      const savedOrderDetails = safeGetJSON('session', 'Nathan_pending_checkout', null);
 
       api
         .post('/api/payment/verify', {
@@ -378,9 +364,7 @@ const CheckoutPage = () => {
         throw new Error(checkoutRes.data.message || 'Failed to initialize Cashfree payment session');
       }
 
-      try {
-        sessionStorage.setItem('Nathan_pending_checkout', JSON.stringify(orderDetailsPayload));
-      } catch (e) { }
+      safeSetJSON('session', 'Nathan_pending_checkout', orderDetailsPayload);
 
       await initiateCashfreeCheckout({
         paymentSessionId,

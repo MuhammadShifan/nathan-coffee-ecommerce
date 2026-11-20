@@ -27,6 +27,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import api from '../services/api';
+import { safeLocalStorage } from '../utils/storage';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import SEOMeta from '../components/SEOMeta';
@@ -49,11 +50,7 @@ const MyOrdersPage = () => {
   const [guestOrders, setGuestOrders] = useState(null);
 
   const [lastOrderId, setLastOrderId] = useState(() => {
-    try {
-      return localStorage.getItem('Nathan_last_order_id') || null;
-    } catch {
-      return null;
-    }
+    return safeLocalStorage.getItem('Nathan_last_order_id') || null;
   });
 
   const fetchOrders = async (isManualRefresh = false) => {

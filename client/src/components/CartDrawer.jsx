@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { safeSessionStorage } from '../utils/storage';
 
 const CartDrawer = () => {
   const {
@@ -23,9 +24,7 @@ const CartDrawer = () => {
 
   const handleCheckoutRedirect = () => {
     setIsCartOpen(false);
-    try {
-      sessionStorage.removeItem('Nathan_buy_now_item');
-    } catch (e) {}
+    safeSessionStorage.removeItem('Nathan_buy_now_item');
     if (!isUserAuthenticated) {
       openAuthModal(() => {
         navigate('/checkout', { state: { buyNowItem: null } });

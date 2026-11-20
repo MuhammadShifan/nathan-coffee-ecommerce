@@ -14,6 +14,7 @@ import {
   Lock,
 } from 'lucide-react';
 import api from '../services/api';
+import { safeLocalStorage, safeSetJSON } from '../utils/storage';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
@@ -193,9 +194,9 @@ const AuthModal = () => {
         const receivedToken = res.data.token;
         const receivedUser = res.data.user;
 
-        localStorage.setItem('Nathan_user_token', receivedToken);
+        safeLocalStorage.setItem('Nathan_user_token', receivedToken);
         if (receivedUser) {
-          localStorage.setItem('Nathan_user_info', JSON.stringify(receivedUser));
+          safeSetJSON('local', 'Nathan_user_info', receivedUser);
         }
 
         if (typeof setUser === 'function') setUser(receivedUser);

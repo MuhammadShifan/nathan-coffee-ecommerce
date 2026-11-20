@@ -1,16 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
+import { safeLocalStorage, safeGetJSON, safeSetJSON } from '../utils/storage';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(() => {
-    try {
-      const saved = localStorage.getItem('Nathan_admin_info');
-      return saved ? JSON.parse(saved) : null;
-    } catch (e) {
-      return null;
-    }
+    return safeGetJSON('local', 'Nathan_admin_info', null);
   });
   const [adminLoading, setAdminLoading] = useState(false);
 
@@ -22,11 +18,11 @@ export const AuthProvider = ({ children }) => {
         const adminData = res.data.data;
         const token = adminData.token;
         setAdmin(adminData);
-        localStorage.setItem('Nathan_admin_info', JSON.stringify(adminData));
+        safeSetJSON('local', 'Nathan_admin_info', adminData);
         if (token) {
-          localStorage.setItem('Nathan_admin_token', token);
-          localStorage.setItem('admin_token', token);
-          localStorage.setItem('adminToken', token);
+          safeLocalStorage.setItem('Nathan_admin_token', token);
+          safeLocalStorage.setItem('admin_token', token);
+          safeLocalStorage.setItem('adminToken', token);
         }
         setAdminLoading(false);
         return { success: true, data: adminData };
@@ -42,27 +38,18 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setAdmin(null);
-    localStorage.removeItem('Nathan_admin_info');
-    localStorage.removeItem('Nathan_admin_token');
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('adminToken');
+    safeLocalStorage.removeItem('Nathan_admin_info');
+    safeLocalStorage.removeItem('Nathan_admin_token');
+    safeLocalStorage.removeItem('admin_token');
+    safeLocalStorage.removeItem('adminToken');
   };
 
   const [user, setUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('Nathan_user_info');
-      return saved ? JSON.parse(saved) : null;
-    } catch (e) {
-      return null;
-    }
+    return safeGetJSON('local', 'Nathan_user_info', null);
   });
 
   const [userToken, setUserToken] = useState(() => {
-    try {
-      return localStorage.getItem('Nathan_user_token') || null;
-    } catch (e) {
-      return null;
-    }
+    return safeLocalStorage.getItem('Nathan_user_token') || null;
   });
 
   const [userLoading, setUserLoading] = useState(false);
@@ -71,14 +58,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const verifyCurrentUserSession = async () => {
-      const storedToken = localStorage.getItem('Nathan_user_token');
+      const storedToken = safeLocalStorage.getItem('Nathan_user_token');
       if (!storedToken) return;
 
       try {
         const res = await api.get('/api/auth/me');
         if (res.data.success && res.data.user) {
           setUser(res.data.user);
-          localStorage.setItem('Nathan_user_info', JSON.stringify(res.data.user));
+          safeSetJSON('local', 'Nathan_user_info', res.data.user);
         } else {
           logoutUser();
         }
@@ -148,8 +135,8 @@ export const AuthProvider = ({ children }) => {
         setUser(receivedUser);
         setUserToken(receivedToken);
 
-        localStorage.setItem('Nathan_user_token', receivedToken);
-        localStorage.setItem('Nathan_user_info', JSON.stringify(receivedUser));
+        safeLocalStorage.setItem('Nathan_user_token', receivedToken);
+        safeSetJSON('local', 'Nathan_user_info', receivedUser);
 
         setUserLoading(false);
         setIsAuthModalOpen(false);
@@ -175,8 +162,8 @@ export const AuthProvider = ({ children }) => {
   const logoutUser = () => {
     setUser(null);
     setUserToken(null);
-    localStorage.removeItem('Nathan_user_token');
-    localStorage.removeItem('Nathan_user_info');
+    safeLocalStorage.removeItem('Nathan_user_token');
+    safeLocalStorage.removeItem('Nathan_user_info');
   };
 
   const updateUserProfile = async (profileData) => {
@@ -184,7 +171,7 @@ export const AuthProvider = ({ children }) => {
       const res = await api.put('/api/auth/profile', profileData);
       if (res.data.success && res.data.user) {
         setUser(res.data.user);
-        localStorage.setItem('Nathan_user_info', JSON.stringify(res.data.user));
+        safeSetJSON('local', 'Nathan_user_info', res.data.user);
         return { success: true, user: res.data.user };
       }
       return { success: false, message: res.data.message };
@@ -199,7 +186,8 @@ export const AuthProvider = ({ children }) => {
         admin,
         isAuthenticated: Boolean(
           admin?.token ||
-          (typeof window !== 'undefined' && (localStorage.getItem('Nathan_admin_token') || localStorage.getItem('admin_token')))
+          safeLocalStorage.getItem('Nathan_admin_token') ||
+          safeLocalStorage.getItem('admin_token')
         ),
         adminLoading,
         login,

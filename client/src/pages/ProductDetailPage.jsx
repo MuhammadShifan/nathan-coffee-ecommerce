@@ -23,6 +23,7 @@ import {
   Heart,
 } from 'lucide-react';
 import api from '../services/api';
+import { safeSetJSON } from '../utils/storage';
 import { resolveProductImageUrl } from '../utils/imageUrl';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -333,9 +334,7 @@ const ProductDetailPage = () => {
       slug: product.slug,
     };
 
-    try {
-      sessionStorage.setItem('Nathan_buy_now_item', JSON.stringify(buyNowItem));
-    } catch (e) { }
+    safeSetJSON('session', 'Nathan_buy_now_item', buyNowItem);
 
     if (!isUserAuthenticated) {
       openAuthModal(() => {

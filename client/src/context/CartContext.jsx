@@ -1,15 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { safeLocalStorage, safeGetJSON, safeSetJSON } from '../utils/storage';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem('Nathan_cart');
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      return [];
-    }
+    return safeGetJSON('local', 'Nathan_cart', []);
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -17,11 +13,7 @@ export const CartProvider = ({ children }) => {
   const [cartBadgePulse, setCartBadgePulse] = useState(false);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('Nathan_cart', JSON.stringify(cartItems));
-    } catch (e) {
-      console.error('Failed to save cart to localStorage', e);
-    }
+    safeSetJSON('local', 'Nathan_cart', cartItems);
   }, [cartItems]);
 
   const showToast = (message, type = 'success') => {
@@ -107,9 +99,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setCartItems([]);
-    try {
-      localStorage.removeItem('Nathan_cart');
-    } catch (e) {}
+    safeLocalStorage.removeItem('Nathan_cart');
   };
 
   const totalItemsCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);

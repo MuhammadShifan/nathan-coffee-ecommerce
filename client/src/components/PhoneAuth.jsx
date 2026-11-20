@@ -9,6 +9,7 @@ import {
   Lock,
 } from 'lucide-react';
 import api from '../services/api';
+import { safeLocalStorage, safeSetJSON } from '../utils/storage';
 
 const PhoneAuth = ({
   onSuccess,
@@ -173,10 +174,10 @@ const PhoneAuth = ({
         const user = res.data.user;
 
         if (token) {
-          localStorage.setItem('Nathan_user_token', token);
+          safeLocalStorage.setItem('Nathan_user_token', token);
         }
         if (user) {
-          localStorage.setItem('Nathan_user_info', JSON.stringify(user));
+          safeSetJSON('local', 'Nathan_user_info', user);
         }
 
         if (onSuccess) {

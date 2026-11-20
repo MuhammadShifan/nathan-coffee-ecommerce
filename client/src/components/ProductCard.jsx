@@ -5,6 +5,7 @@ import { ShoppingBag, Zap, Star, Sparkles, Eye, CheckCircle2 } from 'lucide-reac
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { resolveProductImageUrl } from '../utils/imageUrl';
+import { safeSetJSON } from '../utils/storage';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
@@ -81,9 +82,7 @@ const ProductCard = ({ product }) => {
       slug: product.slug,
     };
 
-    try {
-      sessionStorage.setItem('Nathan_buy_now_item', JSON.stringify(buyNowItem));
-    } catch (err) {}
+    safeSetJSON('session', 'Nathan_buy_now_item', buyNowItem);
 
     if (!isUserAuthenticated) {
       openAuthModal(() => {
