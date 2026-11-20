@@ -14,7 +14,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import newLogo from '../assets/images/newLogo.png';
+import Nlogo from '../assets/Nlogo.jpg';
 
 const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
   const { admin, logout } = useAuth();
@@ -76,9 +76,9 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
           <div className="p-6 border-b border-brand-coffee-800 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
               <img
-                src={newLogo}
-                alt="Nathan Coffee Logo"
-                className="h-10 w-auto bg-white rounded-lg p-0.5 border border-brand-pink-500"
+                src={Nlogo}
+                alt="Nathan Coffee Thanjavur Logo"
+                className="h-10 w-10 rounded-full object-cover border border-brand-pink-500"
               />
               <div>
                 <div className="flex items-center gap-1">

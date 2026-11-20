@@ -6,3 +6,4 @@ Disallow: /my-orders
 Disallow: /order-success/
 
 Sitemap: https://www.nathancoffeethanjavur.com/sitemap.xml
+

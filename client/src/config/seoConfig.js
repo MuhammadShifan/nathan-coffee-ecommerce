@@ -44,7 +44,7 @@ export const SEO_CONFIG = {
     priceRange: '₹₹',
     currenciesAccepted: 'INR',
     paymentAccepted: 'Credit Card, Debit Card, UPI, Net Banking, Cashfree',
-    logoPath: '/images/logo.jpeg',
+    logoPath: '/Nlogo.jpg',
     heroImagePath: '/images/hero-coffee.jpg',
     addresses: [
       {

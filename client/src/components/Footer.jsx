@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Award, CheckCircle2, ShieldCheck, Heart, Coffee } from 'lucide-react';
-import newLogo from '../assets/images/newLogo.png';
+import Nlogo from '../assets/Nlogo.jpg';
 
 const Footer = () => {
   return (
@@ -14,9 +14,9 @@ const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="inline-flex items-center gap-3">
               <img
-                src={newLogo}
-                alt="Nathan Coffee Logo"
-                className="h-11 w-auto bg-white rounded-lg p-0.5 border-2 border-brand-pink-500"
+                src={Nlogo}
+                alt="Nathan Coffee Thanjavur Logo"
+                className="h-11 w-11 rounded-full object-cover border-2 border-brand-pink-500 shadow-sm"
               />
               <div>
                 <span className="font-extrabold text-xl tracking-tight text-brand-pink-400">Nathan </span>

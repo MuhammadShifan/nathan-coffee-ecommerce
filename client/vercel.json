@@ -17,7 +17,11 @@
             "destination": "/robots.txt"
         },
         {
-            "source": "/((?!api|uploads|sitemap\\.xml|robots\\.txt).*)",
+            "source": "/Nlogo.jpg",
+            "destination": "/Nlogo.jpg"
+        },
+        {
+            "source": "/((?!api|uploads|sitemap\\.xml|robots\\.txt|Nlogo\\.jpg).*)",
             "destination": "/index.html"
         }
     ]

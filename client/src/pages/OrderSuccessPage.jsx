@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import SEOMeta from '../components/SEOMeta';
-import newLogo from '../assets/images/newLogo.png';
+import Nlogo from '../assets/Nlogo.jpg';
 
 const OrderSuccessPage = () => {
   const { orderId } = useParams();
@@ -240,11 +240,11 @@ const OrderSuccessPage = () => {
           >
             <div className="receipt-header flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-brand-pink-500/30">
               <div className="flex items-start gap-3.5">
-                <div className="p-1.5 bg-brand-pink-600 rounded-xl border border-brand-yellow-400/40 flex-shrink-0 shadow-sm">
+                <div className="p-0.5 bg-white rounded-full border-2 border-brand-pink-500 flex-shrink-0 shadow-sm overflow-hidden">
                   <img
-                    src={newLogo}
-                    alt="Nathan Coffee Logo"
-                    className="receipt-logo h-12 sm:h-14 w-auto object-contain bg-white rounded-lg p-0.5"
+                    src={Nlogo}
+                    alt="Nathan Coffee Thanjavur Logo"
+                    className="receipt-logo h-12 w-12 sm:h-14 sm:w-14 rounded-full object-cover"
                     style={{
                       WebkitPrintColorAdjust: 'exact',
                       printColorAdjust: 'exact',
