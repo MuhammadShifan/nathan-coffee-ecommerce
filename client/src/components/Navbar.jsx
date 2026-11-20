@@ -15,7 +15,7 @@ import {
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import Nlogo from '../assets/Nlogo.jpg';
+import newLogo from '../assets/images/newLogo.png';
 
 const Navbar = () => {
   const { totalItemsCount, setIsCartOpen, cartBadgePulse, showToast } = useCart();
@@ -94,13 +94,13 @@ const Navbar = () => {
         <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0 flex-shrink-0">
             <div className="flex flex-col items-center justify-center flex-shrink-0">
-              <div className="relative overflow-hidden rounded-full border-2 border-brand-pink-500 shadow-sm flex-shrink-0 transition-transform group-hover:scale-105">
+              <div className="relative overflow-hidden rounded-lg border-2 border-brand-pink-500 shadow-sm bg-brand-pink-600 p-0.5 flex-shrink-0 transition-transform group-hover:scale-105">
                 <img
-                  src={Nlogo}
-                  alt="Nathan Coffee Thanjavur Logo"
-                  className="h-9 w-9 sm:h-11 sm:w-11 rounded-full object-cover"
-                  width="44"
-                  height="44"
+                  src={newLogo}
+                  alt="Nathan Coffee  Logo"
+                  className="h-8 sm:h-11 w-auto object-contain bg-white rounded"
+                  width="130"
+                  height="42"
                 />
               </div>
               <span className="block md:hidden text-[9px] font-bold tracking-widest uppercase mt-0.5 text-brand-pink-600 whitespace-nowrap">

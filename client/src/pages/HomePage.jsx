@@ -20,7 +20,7 @@ import api from '../services/api';
 import ProductCard from '../components/ProductCard';
 import SEOMeta from '../components/SEOMeta';
 import { defaultProductsData } from '../data/defaultProducts';
-import Nlogo from '../assets/Nlogo.jpg';
+import newLogo from '../assets/images/newLogo.png';
 import { resolveProductImageUrl } from '../utils/imageUrl';
 
 const HomePage = () => {
@@ -257,15 +257,15 @@ const HomePage = () => {
                 The Nathan Difference
               </span>
               <div className="flex items-center justify-center gap-3 flex-wrap sm:flex-nowrap">
-                <div className="relative overflow-hidden rounded-full border-2 border-brand-pink-500 shadow-sm flex-shrink-0">
+                <div className="relative overflow-hidden rounded-xl border-2 border-brand-pink-500 shadow-sm bg-brand-pink-600 p-0.5 flex-shrink-0">
                   <img
-                    src={Nlogo}
-                    alt="Nathan Coffee Thanjavur Logo"
+                    src={newLogo}
+                    alt="Nathan Coffee  Logo"
                     loading="lazy"
                     decoding="async"
-                    className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover"
-                    width="48"
-                    height="48"
+                    className="h-8 sm:h-10 w-auto object-contain bg-white rounded-lg"
+                    width="100"
+                    height="32"
                   />
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold text-brand-coffee-950 text-center">
