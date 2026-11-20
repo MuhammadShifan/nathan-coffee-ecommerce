@@ -16,16 +16,6 @@ import {
 import api, { uploadProductImages, getAdminToken } from '../services/api';
 import { resolveProductImageUrl } from '../utils/imageUrl';
 
-/**
- * ImageDropzone Component (Multi-Image Upload & Preview)
- *
- * Supports:
- * - Multi-file selection via file dialog or drag-and-drop
- * - Server-side upload via Express Multer /api/upload
- * - Live grid of thumbnail previews for ALL selected images
- * - Reordering / setting primary main image
- * - Removing individual images
- */
 const ImageDropzone = ({
   value = [],
   onChange,
@@ -39,7 +29,6 @@ const ImageDropzone = ({
   const [directUrl, setDirectUrl] = useState('');
   const fileInputRef = useRef(null);
 
-  // Normalize incoming value to an array of string URLs
   const imageList = Array.isArray(value)
     ? value.map((img) => (typeof img === 'object' && img?.url ? img.url : img)).filter(Boolean)
     : typeof value === 'string' && value.trim()
@@ -80,7 +69,6 @@ const ImageDropzone = ({
     if (files && files.length > 0) {
       handleFilesSelected(Array.from(files));
     }
-    // Reset input so same files can be re-selected if needed
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -92,7 +80,6 @@ const ImageDropzone = ({
       return;
     }
 
-    // Validate all file types & sizes
     const validFiles = [];
     for (const file of files) {
       if (!file.type.match(/^image\/(jpeg|jpg|png|webp|avif)$/)) {
@@ -130,7 +117,6 @@ const ImageDropzone = ({
       }
     } catch (err) {
       console.error('Multi-image upload failed:', err);
-      // Fallback local preview URLs
       const localUrls = validFiles.map((f) => URL.createObjectURL(f));
       const newImages = [...imageList, ...localUrls];
       onChange(newImages);
@@ -198,7 +184,6 @@ const ImageDropzone = ({
 
   return (
     <div className="space-y-2">
-      {/* Label and Count Header */}
       <div className="flex items-center justify-between">
         <label className="block text-xs font-bold text-brand-coffee-800">
           {label} *
@@ -219,7 +204,6 @@ const ImageDropzone = ({
         </div>
       </div>
 
-      {/* Hidden Multi-file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -229,7 +213,6 @@ const ImageDropzone = ({
         className="hidden"
       />
 
-      {/* Dropzone Container */}
       <div
         onDragOver={handleDragOver}
         onDragEnter={handleDragEnter}
@@ -244,10 +227,8 @@ const ImageDropzone = ({
         }`}
         onClick={imageList.length === 0 ? triggerFileInput : undefined}
       >
-        {/* If images exist: Show Multi-Image Thumbnail Gallery */}
         {imageList.length > 0 ? (
           <div className="space-y-3">
-            {/* Grid of Image Thumbnails */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {imageList.map((url, idx) => {
                 const isPrimary = idx === 0;
@@ -260,7 +241,6 @@ const ImageDropzone = ({
                         : 'border-brand-coffee-200 hover:border-brand-pink-300'
                     }`}
                   >
-                    {/* Badge: Primary Main or Order Index */}
                     <div className="absolute top-1.5 left-1.5 z-10">
                       {isPrimary ? (
                         <span className="bg-brand-pink-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-xs flex items-center gap-0.5">
@@ -273,7 +253,6 @@ const ImageDropzone = ({
                       )}
                     </div>
 
-                    {/* Delete Icon on top-right */}
                     <button
                       type="button"
                       onClick={(e) => handleRemoveImage(idx, e)}
@@ -283,7 +262,6 @@ const ImageDropzone = ({
                       <X className="w-3.5 h-3.5" />
                     </button>
 
-                    {/* Thumbnail Image Container */}
                     <div
                       className="h-28 w-full flex items-center justify-center overflow-hidden rounded-lg cursor-pointer bg-brand-coffee-50/50"
                       onClick={() => setPreviewModalImg(url)}
@@ -303,7 +281,6 @@ const ImageDropzone = ({
                       />
                     </div>
 
-                    {/* Action Bar per Thumbnail */}
                     <div className="mt-2 pt-1.5 border-t border-brand-coffee-100 flex items-center justify-between gap-1 text-[10px]">
                       {isPrimary ? (
                         <span className="text-[10px] font-bold text-brand-pink-700 flex items-center gap-1">
@@ -352,7 +329,6 @@ const ImageDropzone = ({
                 );
               })}
 
-              {/* "+ Add More" Tile if under limit */}
               {imageList.length < maxImages && (
                 <div
                   onClick={triggerFileInput}
@@ -375,7 +351,6 @@ const ImageDropzone = ({
               )}
             </div>
 
-            {/* Hint & Upload State */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-brand-coffee-200/60 text-[11px] text-brand-coffee-600">
               <span className="flex items-center gap-1">
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
@@ -402,7 +377,6 @@ const ImageDropzone = ({
             </div>
           </div>
         ) : (
-          /* Empty / Prompt State */
           <div className="p-6 text-center space-y-2.5">
             <div className="w-12 h-12 mx-auto rounded-2xl bg-brand-pink-100 text-brand-pink-600 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
               {uploading ? (
@@ -427,7 +401,6 @@ const ImageDropzone = ({
         )}
       </div>
 
-      {/* Direct Image URL Input Bar (Cloudinary, Firebase, Imgur, S3, CDN) */}
       <div className="flex items-center gap-2 pt-1">
         <div className="relative flex-1">
           <Link2 className="w-3.5 h-3.5 text-brand-coffee-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -455,7 +428,6 @@ const ImageDropzone = ({
         </button>
       </div>
 
-      {/* Upload Error Banner */}
       {uploadError && (
         <div className="text-[11px] text-rose-600 font-semibold flex items-center gap-1.5 p-2 bg-rose-50 rounded-xl border border-rose-200 mt-1">
           <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 text-rose-500" />
@@ -463,7 +435,6 @@ const ImageDropzone = ({
         </div>
       )}
 
-      {/* Modal Lightbox for Zoom Preview */}
       {previewModalImg && (
         <div
           className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"

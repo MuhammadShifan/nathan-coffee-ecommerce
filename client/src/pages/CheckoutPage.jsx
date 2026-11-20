@@ -38,7 +38,6 @@ const CheckoutPage = () => {
   const { user, isUserAuthenticated, openAuthModal, logoutUser } = useAuth();
   const navigate = useNavigate();
 
-  // Resolve Buy Now item independently from location.state or sessionStorage
   const [buyNowItem, setBuyNowItem] = useState(() => {
     if (location.state?.buyNowItem) {
       return location.state.buyNowItem;
@@ -71,7 +70,6 @@ const CheckoutPage = () => {
   const isBuyNow = Boolean(buyNowItem);
   const checkoutItems = isBuyNow ? [buyNowItem] : cartItems;
 
-  // Prepaid-only (Cashfree Online Payment)
   const paymentMethod = 'Prepaid';
 
   const subtotal = checkoutItems.reduce(
@@ -93,7 +91,7 @@ const CheckoutPage = () => {
     pincode: '',
   });
 
-  const [pincodeStatus, setPincodeStatus] = useState('idle'); // 'idle' | 'checking' | 'valid' | 'invalid'
+  const [pincodeStatus, setPincodeStatus] = useState('idle');
   const [pincodeInfo, setPincodeInfo] = useState('');
   const [pincodeError, setPincodeError] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -125,7 +123,6 @@ const CheckoutPage = () => {
     });
   };
 
-  // Check for Cashfree redirect callback in URL query params
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const cfOrderId = params.get('cf_order_id') || params.get('order_id');
@@ -161,7 +158,6 @@ const CheckoutPage = () => {
     }
   }, [location.search]);
 
-  // Real-time India Post API validation whenever a 6-digit pincode is entered
   useEffect(() => {
     if (!/^\d{6}$/.test(cleanPincode)) {
       return;
@@ -227,7 +223,6 @@ const CheckoutPage = () => {
     };
   }, [cleanPincode]);
 
-  // Auto-fill user information if logged in
   useEffect(() => {
     if (isUserAuthenticated && user) {
       const savedAddress = user.addresses && user.addresses.length > 0 ? user.addresses[0] : null;
@@ -254,7 +249,6 @@ const CheckoutPage = () => {
     }
   }, [isUserAuthenticated, user]);
 
-  // If guest lands on checkout with items, auto-prompt auth modal
   useEffect(() => {
     if (!isUserAuthenticated && checkoutItems.length > 0) {
       openAuthModal();
@@ -311,10 +305,8 @@ const CheckoutPage = () => {
     e.preventDefault();
     setErrorMessage(null);
 
-    // Require authentication before placing order
     if (!isUserAuthenticated) {
       openAuthModal(() => {
-        // Will auto-resume on modal close
       });
       return;
     }
@@ -333,7 +325,6 @@ const CheckoutPage = () => {
     setProcessing(true);
 
     try {
-      // Build order details payload
       const orderDetailsPayload = {
         userId: user?._id || undefined,
         paymentMethod,
@@ -370,7 +361,6 @@ const CheckoutPage = () => {
         finalTotal,
       };
 
-      // Step 1: Validate Tamil Nadu pincode & totals server-side and create Prepaid Cashfree order
       const checkoutRes = await api.post('/api/orders/checkout', {
         ...orderDetailsPayload,
         returnUrl: `${window.location.origin}/checkout?cf_order_id={order_id}`,
@@ -388,19 +378,16 @@ const CheckoutPage = () => {
         throw new Error(checkoutRes.data.message || 'Failed to initialize Cashfree payment session');
       }
 
-      // Sync authoritative backend pricing if needed and persist pending checkout for redirect fallback
       try {
         sessionStorage.setItem('Nathan_pending_checkout', JSON.stringify(orderDetailsPayload));
       } catch (e) { }
 
-      // Step 2: Open Cashfree Checkout Modal in production mode
       await initiateCashfreeCheckout({
         paymentSessionId,
         redirectTarget: '_modal',
         mode: 'production',
         onSuccess: async () => {
           try {
-            // Step 3: Verify Payment & Save confirmed order into MongoDB
             const verifyRes = await api.post('/api/payment/verify', {
               orderId: cfMerchantOrderId,
               orderDetails: orderDetailsPayload,
@@ -424,7 +411,6 @@ const CheckoutPage = () => {
         },
         onFailure: (err) => {
           console.warn('Payment failed or modal closed:', err);
-          // Check backend status in case payment was completed right before modal closed
           api
             .get(`/api/payment/order-status/${cfMerchantOrderId}`)
             .then(async (statusRes) => {
@@ -487,7 +473,6 @@ const CheckoutPage = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12 space-y-6 sm:space-y-8 w-full overflow-hidden">
-        {/* Navigation Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-brand-coffee-600 flex-wrap">
           <Link to="/" className="hover:text-brand-pink-600 transition-colors">
             Home
@@ -500,7 +485,6 @@ const CheckoutPage = () => {
           <span className="text-brand-pink-600 font-bold">Checkout & Payment</span>
         </nav>
 
-        {/* Page Title & User Auth State Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-coffee-950">
@@ -511,7 +495,6 @@ const CheckoutPage = () => {
             </p>
           </div>
 
-          {/* User Logged In Pill */}
           {isUserAuthenticated && user ? (
             <div className="flex items-center gap-2 px-3.5 py-2 bg-white rounded-2xl border border-brand-pink-200 shadow-sm self-start sm:self-auto">
               <div className="w-7 h-7 rounded-full bg-brand-pink-600 text-white flex items-center justify-center text-xs font-black">
@@ -541,7 +524,6 @@ const CheckoutPage = () => {
           )}
         </div>
 
-        {/* Guest Warning Banner if not logged in */}
         {!isUserAuthenticated && (
           <motion.div
             initial={{ opacity: 0, y: -5 }}
@@ -563,7 +545,6 @@ const CheckoutPage = () => {
           </motion.div>
         )}
 
-        {/* Error Alert */}
         {errorMessage && (
           <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -579,12 +560,9 @@ const CheckoutPage = () => {
           </div>
         )}
 
-        {/* Main Grid: Form + Order Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 w-full">
-          {/* Left Column: Shipping Address Form */}
           <div className="lg:col-span-7 space-y-6 sm:space-y-8 w-full">
             <form onSubmit={handleProcessPayment} className="space-y-6 w-full">
-              {/* Shipping Address Box */}
               <div className="bg-white p-4 sm:p-8 rounded-3xl border border-brand-coffee-200 shadow-md space-y-4 sm:space-y-5 w-full">
                 <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-brand-coffee-100">
                   <h2 className="text-base sm:text-lg font-bold text-brand-coffee-950 flex items-center gap-2">
@@ -740,13 +718,6 @@ const CheckoutPage = () => {
                     </p>
                   )}
 
-                  {/* {pincodeStatus === 'valid' && !pincodeError && pincodeInfo && (
-                    <p className="mt-1.5 text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-                      <span>Delivery available to {pincodeInfo}</span>
-                    </p>
-                  )} */}
-
                   {pincodeError && (
                     <p className="mt-1.5 text-xs font-semibold text-red-600 leading-snug" role="alert">
                       Delivery not available for this location. Please contact{' '}
@@ -764,7 +735,6 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              {/* Payment Method Selector */}
               <div className="bg-white p-6 sm:p-8 rounded-3xl border border-brand-coffee-200 shadow-md space-y-4">
                 <div className="flex items-center justify-between pb-4 border-b border-brand-coffee-100">
                   <h2 className="text-lg font-bold text-brand-coffee-950 flex items-center gap-2">
@@ -776,7 +746,6 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Online Payment Only (Cashfree Payments) */}
                   <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-brand-pink-600 bg-brand-pink-50/60 shadow-sm">
                     <div className="flex items-start sm:items-center gap-3">
                       <input
@@ -810,7 +779,6 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              {/* Submit / Pay Button */}
               <button
                 type="submit"
                 disabled={processing || isDeliveryUnavailable}
@@ -831,7 +799,6 @@ const CheckoutPage = () => {
             </form>
           </div>
 
-          {/* Right Column: Order Summary Card */}
           <div className="lg:col-span-5 w-full">
             <div className="bg-white p-4 sm:p-8 rounded-3xl border border-brand-coffee-200 shadow-xl space-y-4 sm:space-y-6 lg:sticky lg:top-24 w-full">
               <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-brand-coffee-100">
@@ -850,7 +817,6 @@ const CheckoutPage = () => {
                 </span>
               </div>
 
-              {/* Cart / Buy Now Items List */}
               <div className="space-y-3.5 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
                 {checkoutItems.map((item) => (
                   <div
@@ -881,7 +847,6 @@ const CheckoutPage = () => {
                 ))}
               </div>
 
-              {/* Price Calculation Breakdown */}
               <div className="space-y-2.5 pt-4 border-t border-brand-coffee-100 text-xs text-brand-coffee-700">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
@@ -897,7 +862,6 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              {/* Quality Guarantee Box */}
               <div className="p-4 rounded-2xl bg-brand-yellow-50 border border-brand-yellow-200 text-xs text-brand-coffee-900 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-brand-coffee-950">
                   <Sparkles className="w-4 h-4 text-brand-yellow-600" />

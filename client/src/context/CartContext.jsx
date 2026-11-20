@@ -40,7 +40,6 @@ export const CartProvider = ({ children }) => {
     const defaultWeight = product.selectedWeight || product.variants?.[0]?.weight || '250g';
     const targetWeight = selectedWeight || defaultWeight;
 
-    // Find matching variant
     const variant =
       product.variants?.find((v) => v.weight === targetWeight) ||
       product.variants?.[0] || {
@@ -113,10 +112,8 @@ export const CartProvider = ({ children }) => {
     } catch (e) {}
   };
 
-  // Calculations
   const totalItemsCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  // Standard delivery charge of ₹40 when cart has items
   const shippingFee = subtotal === 0 ? 0 : 40;
   const grandTotal = subtotal + shippingFee;
 

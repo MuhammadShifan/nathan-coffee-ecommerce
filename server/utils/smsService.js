@@ -1,29 +1,11 @@
 import axios from 'axios';
 
-/**
- * 2Factor SMS Service Utility
- * Official 2Factor.in API integration for sending and verifying transactional OTPs.
- */
-
-// Helper to sanitize & extract 10-digit Indian mobile number
 export const formatPhoneNumber = (rawNumber) => {
   if (!rawNumber) return '';
   const digitsOnly = String(rawNumber).replace(/\D/g, '');
   return digitsOnly.slice(-10);
 };
 
-/**
- * Send SMS OTP via 2Factor.in API
- * 
- * Supports both:
- * 1. Custom OTP Mode:   https://2factor.in/API/V1/${apiKey}/SMS/${phoneNumber}/${otp}/OTP1
- * 2. 2Factor AUTOGEN:  https://2factor.in/API/V1/${apiKey}/SMS/${phoneNumber}/AUTOGEN/OTP1
- * 
- * @param {string} phoneNumber - 10-digit Indian mobile number
- * @param {string|number} [otp] - Optional OTP code. If omitted or 'AUTOGEN', 2Factor auto-generates the OTP.
- * @param {string} [template='OTP1'] - DLT SMS Template Name (defaults to 'OTP1')
- * @returns {Promise<{success: boolean, sessionId?: string, details?: string, data?: any}>}
- */
 export const sendOTP = async (phoneNumber, otp = null, template = 'OTP1') => {
   try {
     const cleanPhone = formatPhoneNumber(phoneNumber);
@@ -37,13 +19,9 @@ export const sendOTP = async (phoneNumber, otp = null, template = 'OTP1') => {
       throw new Error('SMS service is currently unconfigured. Missing TWO_FACTOR_API_KEY in environment.');
     }
 
-    // Determine whether to use custom OTP or 2Factor AUTOGEN
     const otpSegment = otp && String(otp).toUpperCase() !== 'AUTOGEN' ? String(otp).trim() : 'AUTOGEN';
     const templateSegment = template ? `/${template}` : '';
 
-    // Construct the 2Factor URL dynamically:
-    // e.g. https://2factor.in/API/V1/${apiKey}/SMS/${phoneNumber}/${otp}/OTP1
-    // or   https://2factor.in/API/V1/${apiKey}/SMS/${phoneNumber}/AUTOGEN/OTP1
     const url = `https://2factor.in/API/V1/${apiKey}/SMS/${cleanPhone}/${otpSegment}${templateSegment}`;
 
     console.log(`📡 [2Factor] Requesting OTP dispatch to +91 ${cleanPhone} (Mode: ${otpSegment}, Template: ${template || 'DEFAULT'})`);
@@ -67,7 +45,6 @@ export const sendOTP = async (phoneNumber, otp = null, template = 'OTP1') => {
       };
     }
 
-    // Handle unexpected 2Factor response status
     console.warn('⚠️ [2Factor] Non-success response from 2Factor:', response.data);
     return {
       success: false,
@@ -82,13 +59,6 @@ export const sendOTP = async (phoneNumber, otp = null, template = 'OTP1') => {
   }
 };
 
-/**
- * Verify SMS OTP using 2Factor.in VERIFY API
- * 
- * @param {string} sessionId - SessionId returned by 2Factor during sendOTP
- * @param {string|number} otpCode - User entered OTP code
- * @returns {Promise<{success: boolean, message: string, data?: any}>}
- */
 export const verifyOTP = async (sessionId, otpCode) => {
   try {
     if (!sessionId) {

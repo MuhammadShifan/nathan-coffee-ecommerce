@@ -25,7 +25,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
 
   const fileInputRef = useRef(null);
 
-  // Fetch current live hero banner image from backend
   const fetchCurrentBanner = async () => {
     try {
       setLoading(true);
@@ -44,11 +43,9 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
     fetchCurrentBanner();
   }, []);
 
-  // Handle local file selection
   const handleFileSelect = (file) => {
     if (!file) return;
 
-    // Validate image format
     if (!file.type.startsWith('image/')) {
       setStatusMessage({
         type: 'error',
@@ -57,7 +54,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
       return;
     }
 
-    // Validate max file size (10MB)
     if (file.size > 10 * 1024 * 1024) {
       setStatusMessage({
         type: 'error',
@@ -69,7 +65,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
     setSelectedFile(file);
     setStatusMessage(null);
 
-    // Create instant local preview
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
@@ -82,7 +77,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
     handleFileSelect(file);
   };
 
-  // Drag and drop handlers
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -99,7 +93,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
     handleFileSelect(file);
   };
 
-  // Upload and save new hero banner
   const handleUploadAndSave = async () => {
     if (!selectedFile) {
       setStatusMessage({
@@ -156,7 +149,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
     }
   };
 
-  // Reset to default original banner
   const handleResetToDefault = async () => {
     if (!window.confirm('Reset the homepage hero banner back to the original default image?')) {
       return;
@@ -194,7 +186,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
     }
   };
 
-  // Cancel pending selection
   const handleCancelSelection = () => {
     setSelectedFile(null);
     if (previewUrl) {
@@ -208,7 +199,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
 
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-coffee-200 shadow-sm space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-brand-coffee-100">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-brand-pink-50 text-brand-pink-600 rounded-2xl border border-brand-pink-200">
@@ -241,7 +231,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
         </button>
       </div>
 
-      {/* Status Feedback Alert */}
       {statusMessage && (
         <div
           className={`p-4 rounded-2xl text-xs font-semibold flex items-center gap-2.5 border ${statusMessage.type === 'success'
@@ -258,9 +247,7 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
         </div>
       )}
 
-      {/* Preview Comparison & Upload Area */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left: Active Live Hero Banner */}
         <div className="lg:col-span-5 space-y-2">
           <div className="flex items-center justify-between text-xs font-bold text-brand-coffee-800">
             <span className="flex items-center gap-1.5">
@@ -284,7 +271,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
           </div>
         </div>
 
-        {/* Right: Upload Dropzone & New Selection Preview */}
         <div className="lg:col-span-7 space-y-4">
           <div className="text-xs font-bold text-brand-coffee-800 flex items-center justify-between">
             <span>Upload New Banner</span>
@@ -293,7 +279,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
             </span>
           </div>
 
-          {/* Hidden File Input */}
           <input
             ref={fileInputRef}
             type="file"
@@ -303,7 +288,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
           />
 
           {!previewUrl ? (
-            /* Dropzone Prompt */
             <div
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -333,7 +317,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
               </button>
             </div>
           ) : (
-            /* Selected Image Preview with Action Controls */
             <div className="space-y-3">
               <div className="relative rounded-2xl overflow-hidden border-2 border-brand-pink-500/50 bg-white shadow-md min-h-[200px] sm:min-h-[224px] flex items-center justify-center p-2">
                 <img
@@ -349,7 +332,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-2.5 pt-1">
                 <button
                   type="button"
@@ -382,7 +364,6 @@ const HeroBannerManager = ({ onBannerUpdated }) => {
             </div>
           )}
 
-          {/* Reset to Default Option */}
           {currentHeroImage !== DEFAULT_HERO_IMAGE && !previewUrl && (
             <div className="pt-2 border-t border-brand-coffee-100 flex items-center justify-between">
               <span className="text-[11px] text-brand-coffee-600">

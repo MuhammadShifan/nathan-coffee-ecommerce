@@ -1,9 +1,6 @@
 import { auth } from '../config/firebaseAdmin.js';
 import User from '../models/User.js';
 
-/**
- * Extracts the bearer token from the Authorization header or fallback headers/body
- */
 const extractBearerToken = (req) => {
   if (req.headers.authorization && typeof req.headers.authorization === 'string') {
     const parts = req.headers.authorization.trim().split(' ');
@@ -26,17 +23,6 @@ const extractBearerToken = (req) => {
   return null;
 };
 
-/**
- * Middleware: verifyFirebaseToken
- * Uses firebase-admin to verify the Firebase ID Token before allowing sensitive actions (e.g. placing orders).
- * 
- * Flow:
- * 1. Extracts ID token from Authorization: Bearer <firebase_id_token>
- * 2. Calls admin.auth().verifyIdToken(token)
- * 3. Extracts phone_number (+91XXXXXXXXXX)
- * 4. Resolves the User record in MongoDB (or creates an account on first checkout)
- * 5. Attaches req.user and req.firebaseUser to the request object
- */
 export const verifyFirebaseToken = async (req, res, next) => {
   const token = extractBearerToken(req);
 
@@ -48,11 +34,9 @@ export const verifyFirebaseToken = async (req, res, next) => {
   }
 
   try {
-    // 1. Verify token with Firebase Admin SDK
     const decodedToken = await auth.verifyIdToken(token);
     req.firebaseUser = decodedToken;
 
-    // 2. Extract phone number
     const rawPhone = decodedToken.phone_number || '';
     const cleanPhone = rawPhone.replace(/\D/g, '').slice(-10);
 
@@ -63,7 +47,6 @@ export const verifyFirebaseToken = async (req, res, next) => {
       });
     }
 
-    // 3. Find or auto-create User in MongoDB
     let user = await User.findOne({ mobileNumber: cleanPhone });
 
     if (!user) {
@@ -82,7 +65,6 @@ export const verifyFirebaseToken = async (req, res, next) => {
       await user.save();
     }
 
-    // 4. Attach verified user to request
     req.user = user;
     next();
   } catch (error) {
@@ -103,9 +85,6 @@ export const verifyFirebaseToken = async (req, res, next) => {
   }
 };
 
-/**
- * Optional Firebase Auth Middleware: Attaches req.user if a valid token is present, but allows guest access if absent.
- */
 export const verifyFirebaseTokenOptional = async (req, res, next) => {
   const token = extractBearerToken(req);
 
@@ -127,7 +106,6 @@ export const verifyFirebaseTokenOptional = async (req, res, next) => {
       }
     }
   } catch (err) {
-    // Silently continue for optional middleware
     req.user = null;
   }
 

@@ -18,9 +18,6 @@ import {
 
 const router = express.Router();
 
-// @route   POST /api/orders/checkout
-// @desc    Validate Tamil Nadu pincode & cart totals server-side and create Cashfree Prepaid order
-// @access  Public / Authenticated
 router.post('/checkout', protectUserOptional, async (req, res) => {
   try {
     const { customer, items, paymentMethod: rawPaymentMethod, returnUrl } = req.body;
@@ -32,7 +29,6 @@ router.post('/checkout', protectUserOptional, async (req, res) => {
       });
     }
 
-    // Security check: restrict delivery strictly to Tamil Nadu pincodes (60xxxx - 64xxxx)
     const incomingPincode = String(customer?.address?.pincode ?? req.body.pincode ?? '').trim();
     if (!isValidTamilNaduPincode(incomingPincode)) {
       return res.status(400).json({
@@ -48,7 +44,6 @@ router.post('/checkout', protectUserOptional, async (req, res) => {
       });
     }
 
-    // Recompute authoritative cart items and Prepaid total strictly on backend (₹399 product + ₹40 delivery = ₹439)
     const { verifiedItems, subtotal } = await resolveAuthoritativeCart(items, defaultProductsData);
     const totals = calculateCheckoutTotals(subtotal);
 
@@ -90,9 +85,6 @@ router.post('/checkout', protectUserOptional, async (req, res) => {
   }
 });
 
-// @route   POST /api/orders
-// @desc    Create new Prepaid customer order (Tamil Nadu only)
-// @access  Public / Authenticated
 router.post('/', protectUserOptional, async (req, res) => {
   try {
     const { customer, items, paymentMethod: rawPaymentMethod, userId } = req.body;
@@ -156,9 +148,6 @@ router.post('/', protectUserOptional, async (req, res) => {
   }
 });
 
-// @route   POST /api/orders/track
-// @desc    Track order or get orders by Order ID or Mobile Number (Public lookup for customer convenience)
-// @access  Public
 router.post('/track', async (req, res) => {
   try {
     const { orderId, phone } = req.body;
@@ -213,19 +202,12 @@ router.post('/track', async (req, res) => {
   }
 });
 
-// @route   GET /api/orders/my-orders
-// @desc    Fetch only the orders belonging to the authenticated customer
-// @access  Private (User)
 router.get('/my-orders', protectUser, async (req, res) => {
   try {
     const userPhone = req.user.mobileNumber;
     const cleanPhone = String(userPhone || '').replace(/\D/g, '').slice(-10);
     const userId = req.user._id;
 
-    // Comprehensive query:
-    // 1. By userId ObjectId
-    // 2. By customer.phone ending with clean 10-digit number (matches +91..., 0..., plain 10 digits)
-    // 3. By customer.email matching req.user.email (if set)
     const orConditions = [{ userId: userId }];
 
     if (cleanPhone && cleanPhone.length === 10) {
@@ -245,7 +227,6 @@ router.get('/my-orders', protectUser, async (req, res) => {
       .populate({ path: 'userId', select: 'mobileNumber name email' })
       .sort({ createdAt: -1 });
 
-    // Retroactively link any unlinked orders for this user in background
     if (orders.length > 0) {
       const unlinkedIds = orders.filter((o) => !o.userId).map((o) => o._id);
       if (unlinkedIds.length > 0) {
@@ -266,9 +247,6 @@ router.get('/my-orders', protectUser, async (req, res) => {
   }
 });
 
-// @route   GET /api/orders/stats/summary
-// @desc    Get dashboard metrics across all orders (Admin)
-// @access  Private (Admin)
 router.get('/stats/summary', protectAdmin, async (req, res) => {
   try {
     const totalOrders = await Order.countDocuments();
@@ -295,21 +273,14 @@ router.get('/stats/summary', protectAdmin, async (req, res) => {
   }
 });
 
-// @route   GET /api/orders/all
-// @desc    Get all orders with search & status filter (Admin alias)
-// @access  Private (Admin)
 router.get('/all', protectAdmin, async (req, res) => {
   return fetchAllAdminOrders(req, res);
 });
 
-// @route   GET /api/orders
-// @desc    Get all orders with search & status filter (Admin)
-// @access  Private (Admin)
 router.get('/', protectAdmin, async (req, res) => {
   return fetchAllAdminOrders(req, res);
 });
 
-// Shared helper to retrieve ALL orders for Admin without filtering by userId
 const fetchAllAdminOrders = async (req, res) => {
   try {
     const { status, search, limit = 50, page = 1 } = req.query;
@@ -330,7 +301,6 @@ const fetchAllAdminOrders = async (req, res) => {
       ];
     }
 
-    // Explicitly query all orders regardless of userId
     const orders = await Order.find(query)
       .populate({ path: 'userId', select: 'mobileNumber name email' })
       .sort({ createdAt: -1 })
@@ -351,9 +321,6 @@ const fetchAllAdminOrders = async (req, res) => {
   }
 };
 
-// @route   GET /api/orders/:idOrOrderId
-// @desc    Get single order details by MongoDB _id or orderId (e.g. NC-2026-123456)
-// @access  Public / Authenticated
 router.get('/:idOrOrderId', async (req, res) => {
   try {
     const { idOrOrderId } = req.params;
@@ -376,9 +343,6 @@ router.get('/:idOrOrderId', async (req, res) => {
   }
 });
 
-// @route   PUT /api/orders/:id/status
-// @desc    Update order shipping/delivery status (Admin)
-// @access  Private (Admin)
 router.put('/:id/status', protectAdmin, async (req, res) => {
   try {
     const { orderStatus, trackingNumber, courierPartner, notes } = req.body;

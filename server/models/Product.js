@@ -97,7 +97,6 @@ const productSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
-    // Legacy support fields maintained for existing documents
     roastLevel: {
       type: String,
       default: '',
@@ -151,7 +150,6 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.pre('validate', function (next) {
-  // Sync specification fields with legacy fields if present
   if (this.roastMaster && !this.roastLevel) this.roastLevel = this.roastMaster;
   if (this.packaging && !this.packagingType) this.packagingType = this.packaging;
   if (this.heritageOrigin && !this.origin) this.origin = this.heritageOrigin;
@@ -160,7 +158,6 @@ productSchema.pre('validate', function (next) {
   if (this.packagingType && !this.packaging) this.packaging = this.packagingType;
   if (this.origin && !this.heritageOrigin) this.heritageOrigin = this.origin;
 
-  // Normalize each variant's dual images
   if (this.variants && this.variants.length > 0) {
     this.variants.forEach((v) => {
       const img1 = (v.image || (Array.isArray(v.images) ? v.images[0] : '') || '').trim();
@@ -170,7 +167,6 @@ productSchema.pre('validate', function (next) {
       v.images = [img1, img2].filter(Boolean);
     });
 
-    // Ensure selectedWeight defaults to first variant weight if available
     const hasCurrent = this.variants.some((v) => v.weight === this.selectedWeight);
     if (!hasCurrent) {
       this.selectedWeight = this.variants[0].weight;

@@ -42,7 +42,6 @@ const AdminLoginPage = () => {
       />
 
       <div className="min-h-screen bg-gradient-to-br from-brand-coffee-950 via-brand-coffee-900 to-brand-pink-950 flex items-center justify-center p-4 relative overflow-hidden font-sans">
-        {/* Ambient background glows */}
         <div className="absolute -top-20 -left-20 w-96 h-96 bg-brand-pink-600/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-brand-yellow-500/15 rounded-full blur-3xl pointer-events-none" />
 
@@ -52,7 +51,6 @@ const AdminLoginPage = () => {
           transition={{ duration: 0.4 }}
           className="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-3xl p-8 sm:p-10 shadow-2xl border-2 border-brand-pink-500/30 relative z-10 space-y-6"
         >
-          {/* Logo & Portal Branding */}
           <div className="text-center space-y-3">
             <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-brand-pink-600 text-white shadow-lg ring-4 ring-brand-yellow-400/40">
               <Coffee className="w-8 h-8" />
@@ -67,7 +65,6 @@ const AdminLoginPage = () => {
             </div>
           </div>
 
-          {/* Error Alert */}
           {errorAlert && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -79,7 +76,6 @@ const AdminLoginPage = () => {
             </motion.div>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-brand-coffee-800 mb-1">

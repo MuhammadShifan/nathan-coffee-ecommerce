@@ -1,25 +1,7 @@
-/**
- * Central SEO Configuration - Backend (Node/Express)
- * 
- * NOTE FOR CUSTOM DOMAIN:
- * When you purchase and connect your custom domain (e.g., https://nathancoffeethanjavur.com),
- * you DO NOT need to touch this file.
- * Simply update the SITE_URL environment variable in your server .env / Render / host settings:
- * 
- *   SITE_URL=https://nathancoffeethanjavur.com
- * 
- * sitemap.xml and robots.txt will automatically output the dynamic production URLs.
- */
 
 const rawSiteUrl = (process.env.SITE_URL || process.env.CLIENT_URL || 'https://nathancoffeethanjavur.com').trim();
 export const SITE_URL = rawSiteUrl.replace(/\/+$/, '');
 
-/**
- * Resolves any relative path to a fully qualified production URL
- * 
- * @param {string} path - e.g. '/shop', '/sitemap.xml'
- * @returns {string} Fully qualified production URL
- */
 export const resolveUrl = (path = '') => {
   if (!path) return SITE_URL;
   if (path.startsWith('http://') || path.startsWith('https://')) {
@@ -44,7 +26,6 @@ export const SEO_CONFIG = {
     secondaryAddress: 'Avinashi Road / R.S. Puram, Thanjavur, Tamil Nadu - 641002, India',
   },
 
-  // Public indexable static routes for sitemap.xml
   staticPages: [
     { url: '/', changefreq: 'daily', priority: '1.0' },
     { url: '/shop', changefreq: 'daily', priority: '0.9' },
@@ -56,7 +37,6 @@ export const SEO_CONFIG = {
     { url: '/policy/cancellation-refund', changefreq: 'monthly', priority: '0.5' },
   ],
 
-  // Robots.txt configuration
   robots: {
     disallow: [
       '/admin/',

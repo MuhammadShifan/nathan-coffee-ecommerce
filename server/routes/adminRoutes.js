@@ -16,8 +16,6 @@ const generateToken = (id) => {
   );
 };
 
-// @route   POST /api/admin/login
-// @desc    Admin authentication & token generation
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -44,12 +42,10 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Default master admin fallback for instant setup if DB was freshly started or credentials updated
     const defaultEmail = (process.env.ADMIN_EMAIL || 'nathan@gmail.com').toLowerCase().trim();
     const defaultPassword = process.env.ADMIN_PASSWORD || '12345678';
 
     if (email.toLowerCase().trim() === defaultEmail && password === defaultPassword) {
-      // Find existing admin by new default email OR previous legacy admin email
       let existingAdmin = await Admin.findOne({
         $or: [{ email: defaultEmail }, { email: 'admin@gmail.com' }, { email: 'admin@nathancoffee.com' }],
       });
@@ -63,7 +59,6 @@ router.post('/login', async (req, res) => {
           lastLogin: new Date(),
         });
       } else {
-        // Update credentials and trigger bcrypt pre('save') hash
         existingAdmin.email = defaultEmail;
         existingAdmin.password = defaultPassword;
         existingAdmin.lastLogin = new Date();
@@ -88,8 +83,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// @route   GET /api/admin/me
-// @desc    Get current admin profile
 router.get('/me', protectAdmin, async (req, res) => {
   res.json({
     success: true,
@@ -97,8 +90,6 @@ router.get('/me', protectAdmin, async (req, res) => {
   });
 });
 
-// @route   GET /api/admin/orders
-// @desc    Get ALL customer orders without userId filtering (Admin)
 router.get('/orders', protectAdmin, async (req, res) => {
   try {
     const { status, search, limit = 50, page = 1 } = req.query;
@@ -139,8 +130,6 @@ router.get('/orders', protectAdmin, async (req, res) => {
   }
 });
 
-// @route   GET /api/admin/orders/stats/summary
-// @desc    Get dashboard metrics across all orders
 router.get('/orders/stats/summary', protectAdmin, async (req, res) => {
   try {
     const totalOrders = await Order.countDocuments();
@@ -167,8 +156,6 @@ router.get('/orders/stats/summary', protectAdmin, async (req, res) => {
   }
 });
 
-// @route   PUT /api/admin/orders/:id/status
-// @desc    Update order status, courier, tracking
 router.put('/orders/:id/status', protectAdmin, async (req, res) => {
   try {
     const { orderStatus, trackingNumber, courierPartner, notes } = req.body;

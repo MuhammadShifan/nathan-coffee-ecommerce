@@ -37,7 +37,6 @@ const AdminProductsPage = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [feedback, setFeedback] = useState(null);
 
-  // Form state for new / edit product with per-variant dual images
   const [formData, setFormData] = useState({
     title: '',
     tamilTitle: '',
@@ -101,14 +100,12 @@ const AdminProductsPage = () => {
     if (!result.destination) return;
     if (result.destination.index === result.source.index) return;
 
-    // 1. Immediately reorder local React state for instantaneous visual feedback
     const reordered = Array.from(products);
     const [movedProduct] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, movedProduct);
 
     setProducts(reordered);
 
-    // 2. Persist new sequence to backend API
     try {
       const productIds = reordered.map((p) => p._id || p.id || p.slug);
       const res = await reorderProducts(productIds);
@@ -443,7 +440,6 @@ const AdminProductsPage = () => {
   return (
     <AdminLayout title="Manage Products">
       <div className="space-y-6">
-        {/* Top Control Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-brand-coffee-200 shadow-sm">
           <div>
             <h2 className="text-xl font-extrabold text-brand-coffee-950">Product Inventory & Custom Ordering</h2>
@@ -475,7 +471,6 @@ const AdminProductsPage = () => {
           </div>
         </div>
 
-        {/* Feedback Alert */}
         {feedback && (
           <div
             className={`p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2 ${feedback.type === 'success'
@@ -488,7 +483,6 @@ const AdminProductsPage = () => {
           </div>
         )}
 
-        {/* Products Table Card with Drag-and-Drop Reordering */}
         <div className="bg-white rounded-3xl border border-brand-coffee-200 shadow-md overflow-hidden">
           <div className="overflow-x-auto">
             <DragDropContext onDragEnd={handleDragEnd}>
@@ -562,7 +556,6 @@ const AdminProductsPage = () => {
                                       : 'hover:bg-brand-pink-50/20'
                                     }`}
                                 >
-                                  {/* Drag Handle & Order Sequence Badge */}
                                   <td className="p-4 w-14 text-center">
                                     <div className="flex items-center justify-center gap-1.5">
                                       <div
@@ -578,7 +571,6 @@ const AdminProductsPage = () => {
                                     </div>
                                   </td>
 
-                                  {/* Product Thumbnail with Multi-image Badge */}
                                   <td className="p-4">
                                     <div className="relative w-16 h-16 bg-brand-coffee-50 rounded-xl p-1 border border-brand-coffee-200 flex items-center justify-center flex-shrink-0 group">
                                       <img
@@ -597,7 +589,6 @@ const AdminProductsPage = () => {
                                     </div>
                                   </td>
 
-                                  {/* Title & SEO Slug */}
                                   <td className="p-4">
                                     <div className="font-bold text-brand-coffee-950 text-sm">{product.title}</div>
                                     {product.tamilTitle && (
@@ -606,7 +597,6 @@ const AdminProductsPage = () => {
                                     <div className="text-[10px] text-brand-pink-600 font-mono mt-0.5">/{product.slug}</div>
                                   </td>
 
-                                  {/* Variants & Weights */}
                                   <td className="p-4">
                                     <div className="flex flex-wrap gap-1.5 max-w-xs">
                                       {Array.isArray(product.variants) && product.variants.length > 0 ? (
@@ -636,7 +626,6 @@ const AdminProductsPage = () => {
                                     </div>
                                   </td>
 
-                                  {/* Price & MRP */}
                                   <td className="p-4 font-bold text-brand-coffee-950">
                                     {(() => {
                                       const vars = Array.isArray(product.variants) && product.variants.length > 0 ? product.variants : [];
@@ -656,7 +645,6 @@ const AdminProductsPage = () => {
                                     })()}
                                   </td>
 
-                                  {/* Stock Switch Toggle */}
                                   <td className="p-4">
                                     <button
                                       onClick={() => handleStockToggle(product._id, product.inStock)}
@@ -673,7 +661,6 @@ const AdminProductsPage = () => {
                                     </button>
                                   </td>
 
-                                  {/* Action Buttons */}
                                   <td className="p-4">
                                     <div className="flex items-center justify-center gap-2">
                                       <button
@@ -707,7 +694,6 @@ const AdminProductsPage = () => {
           </div>
         </div>
 
-        {/* Modal: Add / Edit Product */}
         {modalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-coffee-950/60 backdrop-blur-sm">
             <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-brand-coffee-200 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -747,7 +733,6 @@ const AdminProductsPage = () => {
                   />
                 </div>
 
-                {/* Product Specifications & Roast Details */}
                 <div className="bg-brand-coffee-50/70 p-4 rounded-2xl border border-brand-coffee-200 space-y-3">
                   <div>
                     <h4 className="font-extrabold text-brand-coffee-950 text-xs flex items-center gap-1.5">
@@ -817,7 +802,6 @@ const AdminProductsPage = () => {
                   </div>
                 </div>
 
-                {/* Dynamic Variants & Pricing Section */}
                 <div className="bg-brand-coffee-50/70 p-4 rounded-2xl border border-brand-coffee-200 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -906,7 +890,6 @@ const AdminProductsPage = () => {
                           </div>
                         </div>
 
-                        {/* Dedicated Per-Variant Dual Images (Front & Back) */}
                         <div className="pt-3 border-t border-brand-coffee-100 space-y-2.5 bg-brand-coffee-50/70 p-3 rounded-xl">
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-extrabold text-brand-coffee-950 uppercase tracking-wider">
@@ -918,7 +901,6 @@ const AdminProductsPage = () => {
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {/* Slot 1: Image 1 (Front / Primary) */}
                             <div className="bg-white p-2.5 rounded-lg border border-brand-coffee-200 flex items-center justify-between gap-2 shadow-2xs">
                               <div className="flex items-center gap-2.5 min-w-0">
                                 {variant.image ? (
@@ -1003,7 +985,6 @@ const AdminProductsPage = () => {
                               </div>
                             </div>
 
-                            {/* Slot 2: Image 2 (Back / Secondary) */}
                             <div className="bg-white p-2.5 rounded-lg border border-brand-coffee-200 flex items-center justify-between gap-2 shadow-2xs">
                               <div className="flex items-center gap-2.5 min-w-0">
                                 {variant.image2 ? (

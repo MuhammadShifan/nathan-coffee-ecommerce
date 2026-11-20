@@ -1,32 +1,10 @@
-/**
- * Central SEO Configuration - Nathan Coffee
- * 
- * NOTE FOR CUSTOM DOMAIN:
- * When you purchase and connect your custom domain (e.g., https://nadhancoffee.com),
- * you DO NOT need to touch the codebase.
- * Simply set the VITE_SITE_URL environment variable in your client .env / deployment settings:
- * 
- *   VITE_SITE_URL=https://your-custom-domain.com
- * 
- * All canonical URLs, Open Graph tags, Twitter cards, and JSON-LD structured data
- * will automatically update to reflect your custom production domain.
- */
 
-// Resolves the production site base URL from environment or fallback placeholder
 const rawSiteUrl = (import.meta.env.VITE_SITE_URL || 'https://nathancoffeethanjavur.com').trim();
 export const SITE_URL = rawSiteUrl.replace(/\/+$/, '');
 
-/**
- * Resolves any relative or absolute path to a fully qualified URL
- * using the configured production domain.
- * 
- * @param {string} path - e.g. '/shop', 'images/hero.jpg', or full URL
- * @returns {string} Fully qualified production URL
- */
 export const resolveUrl = (path = '') => {
   if (!path) return SITE_URL;
   if (path.startsWith('http://') || path.startsWith('https://')) {
-    // If it's already an absolute URL using another temporary domain, strip and re-anchor to SITE_URL
     try {
       const parsed = new URL(path);
       return `${SITE_URL}${parsed.pathname}${parsed.search}${parsed.hash}`;
@@ -39,7 +17,6 @@ export const resolveUrl = (path = '') => {
 };
 
 export const SEO_CONFIG = {
-  // Brand & Business Details (Reused across all schema & metadata)
   business: {
     name: 'Nathan Coffee',
     legalName: 'Nathan Coffee Private Limited',
@@ -110,7 +87,6 @@ export const SEO_CONFIG = {
     ],
   },
 
-  // Default Page Metadata
   defaults: {
     title: 'Nathan Coffee | Pure & Fresh Filter Coffee Powder from Thanjavur',
     description:

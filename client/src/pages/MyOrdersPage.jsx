@@ -43,13 +43,11 @@ const MyOrdersPage = () => {
   const [searchFilter, setSearchFilter] = useState('');
   const [sessionExpiredNotice, setSessionExpiredNotice] = useState(false);
 
-  // Guest / Direct Tracking Lookup state
   const [trackQuery, setTrackQuery] = useState('');
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackError, setTrackError] = useState(null);
   const [guestOrders, setGuestOrders] = useState(null);
 
-  // Check if a recent order was placed from this browser
   const [lastOrderId, setLastOrderId] = useState(() => {
     try {
       return localStorage.getItem('Nathan_last_order_id') || null;
@@ -95,7 +93,6 @@ const MyOrdersPage = () => {
     fetchOrders();
   }, [isUserAuthenticated]);
 
-  // If guest lands on page with a lastOrderId saved, pre-populate trackQuery and auto-lookup
   useEffect(() => {
     if (!isUserAuthenticated && lastOrderId && !guestOrders) {
       const cleanId = String(lastOrderId).trim().replace(/^#+/, '');
@@ -111,7 +108,6 @@ const MyOrdersPage = () => {
     }
   }, [isUserAuthenticated, lastOrderId]);
 
-  // Copy order ID to clipboard
   const handleCopyOrderId = (orderId) => {
     navigator.clipboard.writeText(orderId);
     setCopiedOrderId(orderId);
@@ -119,7 +115,6 @@ const MyOrdersPage = () => {
     setTimeout(() => setCopiedOrderId(null), 2000);
   };
 
-  // Reorder items
   const handleReorder = (order) => {
     if (!order.items || order.items.length === 0) return;
 
@@ -142,7 +137,6 @@ const MyOrdersPage = () => {
     setIsCartOpen(true);
   };
 
-  // Handle Guest Direct Track Lookup
   const handleTrackSubmit = async (e) => {
     e?.preventDefault();
     const query = trackQuery.trim();
@@ -179,7 +173,6 @@ const MyOrdersPage = () => {
     }
   };
 
-  // Status Badge Helper
   const getStatusBadge = (status) => {
     switch (status) {
       case 'delivered':
@@ -222,7 +215,6 @@ const MyOrdersPage = () => {
     }
   };
 
-  // Payment Badge Helper
   const getPaymentBadge = (payment, paymentMethod) => {
     if (paymentMethod === 'COD' || payment?.method === 'cod') {
       return (
@@ -238,7 +230,6 @@ const MyOrdersPage = () => {
     );
   };
 
-  // Format Date
   const formatDate = (dateString) => {
     if (!dateString) return 'Recent';
     try {
@@ -257,10 +248,8 @@ const MyOrdersPage = () => {
     }
   };
 
-  // Orders to display: authenticated orders or guest tracked orders
   const activeOrders = isUserAuthenticated ? orders : (guestOrders || []);
 
-  // Filter orders by search term if provided
   const filteredOrders = searchFilter.trim()
     ? activeOrders.filter((o) => {
         const term = searchFilter.toLowerCase();
@@ -274,7 +263,6 @@ const MyOrdersPage = () => {
       })
     : activeOrders;
 
-  // Render Single Order Card
   const renderOrderCard = (order) => {
     const isLatestPlaced = lastOrderId && (order.orderId === lastOrderId);
 
@@ -289,7 +277,6 @@ const MyOrdersPage = () => {
             : 'border-brand-coffee-200/90 shadow-sm hover:shadow-md'
         } transition-all overflow-hidden`}
       >
-        {/* Latest Order Banner */}
         {isLatestPlaced && (
           <div className="bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 px-5 py-2 text-white text-xs font-extrabold flex items-center justify-between">
             <span className="flex items-center gap-1.5">
@@ -302,7 +289,6 @@ const MyOrdersPage = () => {
           </div>
         )}
 
-        {/* Order Header Bar */}
         <div className="p-5 sm:p-6 bg-brand-coffee-50/60 border-b border-brand-coffee-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
@@ -338,13 +324,11 @@ const MyOrdersPage = () => {
             </div>
           </div>
 
-          {/* Status Badge */}
           <div className="flex items-center gap-3 self-start md:self-auto">
             {getStatusBadge(order.orderStatus)}
           </div>
         </div>
 
-        {/* Items List */}
         <div className="p-5 sm:p-6 divide-y divide-brand-coffee-100">
           {order.items?.map((item, index) => (
             <div
@@ -386,9 +370,7 @@ const MyOrdersPage = () => {
           ))}
         </div>
 
-        {/* Footer Breakdown & Action Buttons */}
         <div className="p-5 sm:p-6 bg-brand-coffee-50/40 border-t border-brand-coffee-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          {/* Address Summary */}
           {order.customer?.address && (
             <div className="text-xs text-brand-coffee-600 space-y-0.5 max-w-sm">
               <div className="flex items-center gap-1 font-bold text-brand-coffee-900">
@@ -402,7 +384,6 @@ const MyOrdersPage = () => {
             </div>
           )}
 
-          {/* Price & Action Buttons */}
           <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
             <div className="text-right">
               <span className="text-[11px] text-brand-coffee-500 uppercase tracking-wider block font-bold">
@@ -414,7 +395,6 @@ const MyOrdersPage = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Reorder Button */}
               <button
                 onClick={() => handleReorder(order)}
                 className="px-3.5 py-2.5 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-pink-600/20 flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95"
@@ -423,7 +403,6 @@ const MyOrdersPage = () => {
                 <span className="hidden sm:inline">Reorder</span>
               </button>
 
-              {/* View Success Receipt */}
               <Link
                 to={`/order-success/${order.orderId}`}
                 state={{ order }}
@@ -433,7 +412,6 @@ const MyOrdersPage = () => {
                 <Printer className="w-4 h-4" />
               </Link>
 
-              {/* WhatsApp Support Button */}
               <a
                 href={`https://wa.me/916383805976?text=Hello%20Nathan%20Coffee%2C%20I%20have%20an%20inquiry%20regarding%20my%20Order%20%23${order.orderId}`}
                 target="_blank"
@@ -461,7 +439,6 @@ const MyOrdersPage = () => {
 
       <div className="bg-brand-coffee-50 min-h-[85vh] py-8 sm:py-12">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
-          {/* Header Card */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-coffee-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="p-3.5 bg-brand-pink-50 border border-brand-pink-200 text-brand-pink-600 rounded-2xl shadow-inner">
@@ -484,7 +461,6 @@ const MyOrdersPage = () => {
               </div>
             </div>
 
-            {/* Header Actions */}
             <div className="flex items-center gap-2.5 flex-wrap">
               {isUserAuthenticated && (
                 <button
@@ -521,7 +497,6 @@ const MyOrdersPage = () => {
             </div>
           </div>
 
-          {/* Session Expired Banner if user token expired */}
           {sessionExpiredNotice && (
             <motion.div
               initial={{ opacity: 0, y: -5 }}
@@ -543,10 +518,8 @@ const MyOrdersPage = () => {
             </motion.div>
           )}
 
-          {/* GUEST VIEW / DIRECT TRACKING BOX */}
           {!isUserAuthenticated && (
             <div className="space-y-6">
-              {/* Option 1: Direct Order Tracking Form */}
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-coffee-200 shadow-sm space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-brand-coffee-100">
                   <div className="flex items-center gap-2">
@@ -605,7 +578,6 @@ const MyOrdersPage = () => {
                 )}
               </div>
 
-              {/* Guest Tracked Orders Results */}
               {guestOrders && guestOrders.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -621,7 +593,6 @@ const MyOrdersPage = () => {
                 </div>
               )}
 
-              {/* Option 2: Full Mobile Login CTA Card */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -651,10 +622,8 @@ const MyOrdersPage = () => {
             </div>
           )}
 
-          {/* LOGGED IN VIEW */}
           {isUserAuthenticated && (
             <>
-              {/* Search & Filter Bar */}
               {orders.length > 0 && (
                 <div className="bg-white rounded-2xl p-3 border border-brand-coffee-200 shadow-xs flex items-center gap-3">
                   <Search className="w-4 h-4 text-brand-coffee-400 ml-2" />
@@ -677,7 +646,6 @@ const MyOrdersPage = () => {
               )}
 
               {loading ? (
-                /* Loading Skeleton */
                 <div className="space-y-4">
                   {[1, 2].map((n) => (
                     <div
@@ -691,7 +659,6 @@ const MyOrdersPage = () => {
                   ))}
                 </div>
               ) : orders.length === 0 ? (
-                /* Empty Orders State */
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -709,7 +676,6 @@ const MyOrdersPage = () => {
                     </p>
                   </div>
 
-                  {/* Manual Order ID Finder */}
                   <div className="max-w-md mx-auto pt-2">
                     <form onSubmit={handleTrackSubmit} className="flex gap-2">
                       <input
@@ -743,7 +709,6 @@ const MyOrdersPage = () => {
                   </div>
                 </motion.div>
               ) : filteredOrders.length === 0 ? (
-                /* No matching search filter */
                 <div className="bg-white rounded-3xl p-8 border border-brand-coffee-200 text-center space-y-3">
                   <p className="text-sm font-bold text-brand-coffee-800">
                     No orders matching "{searchFilter}"
@@ -756,7 +721,6 @@ const MyOrdersPage = () => {
                   </button>
                 </div>
               ) : (
-                /* Orders List */
                 <div className="space-y-6">
                   {filteredOrders.map((order) => renderOrderCard(order))}
                 </div>

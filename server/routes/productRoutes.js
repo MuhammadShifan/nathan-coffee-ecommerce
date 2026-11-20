@@ -6,7 +6,6 @@ import multerInstance from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
-// Middleware to gracefully handle optional multipart form-data (held in memory) or standard JSON
 const handleOptionalMultipart = (req, res, next) => {
   const contentType = req.headers['content-type'] || '';
   if (contentType.includes('multipart/form-data')) {
@@ -26,7 +25,6 @@ const handleOptionalMultipart = (req, res, next) => {
   next();
 };
 
-// Fallback seed data in case DB is newly initialized or connecting
 export const defaultProductsData = [
   {
     title: 'Pure Filter Coffee Powder (250g)',
@@ -111,7 +109,6 @@ export const defaultProductsData = [
   },
 ];
 
-// Helper to normalize images array from JSON or multipart uploads
 const normalizeProductImages = (images, fallbackImage, uploadedFiles = []) => {
   let list = [];
 
@@ -132,7 +129,6 @@ const normalizeProductImages = (images, fallbackImage, uploadedFiles = []) => {
     list = [fallbackImage.trim()];
   }
 
-  // Include newly uploaded files from multipart
   if (uploadedFiles && uploadedFiles.length > 0) {
     const newUrls = uploadedFiles.map((f) => `/images/${f.filename}`);
     list = [...list, ...newUrls];
@@ -142,25 +138,20 @@ const normalizeProductImages = (images, fallbackImage, uploadedFiles = []) => {
   return cleaned.length > 0 ? cleaned : ['/images/250g front.png'];
 };
 
-// Helper to parse and sanitize product body from JSON or FormData
 const parseProductPayload = (req) => {
   const body = { ...req.body };
 
-  // Normalize inStock
   if (body.inStock !== undefined) {
     body.inStock = body.inStock === true || body.inStock === 'true';
   }
 
-  // Normalize variants
   if (typeof body.variants === 'string') {
     try {
       body.variants = JSON.parse(body.variants);
     } catch (e) {
-      // ignore
     }
   }
 
-  // If variants array provided, sanitize each entry and preserve dedicated dual images
   if (Array.isArray(body.variants) && body.variants.length > 0) {
     body.variants = body.variants
       .map((v) => {
@@ -182,11 +173,9 @@ const parseProductPayload = (req) => {
       .filter((v) => v.weight && v.price > 0);
   }
 
-  // Remove top-level general packaging images as per per-weight architecture
   delete body.images;
   delete body.image;
 
-  // If variants not provided or empty but price / mrp / weight are provided, build variant
   if ((!body.variants || !Array.isArray(body.variants) || body.variants.length === 0) && (body.price || body.mrp)) {
     const weight = String(body.weight || body.selectedWeight || '250g').trim();
     const fallbackImg = Array.isArray(body.images) && body.images.length > 0 ? body.images[0] : (body.image || '');
@@ -203,7 +192,6 @@ const parseProductPayload = (req) => {
     ];
   }
 
-  // Sync selectedWeight
   if (Array.isArray(body.variants) && body.variants.length > 0) {
     const matched = body.variants.some((v) => v.weight === body.selectedWeight);
     if (!matched) {
@@ -214,16 +202,12 @@ const parseProductPayload = (req) => {
   return body;
 };
 
-// @route   GET /api/products
-// @desc    Get all products (public - sorted by sortOrder ascending, lean & un-cached for instant updates)
 router.get('/', async (req, res) => {
   try {
-    // Explicit cache-busting headers so newly uploaded images & edited prices appear immediately
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
 
-    // .lean() avoids Mongoose hydration overhead for lightning-fast JSON response
     const products = await Product.find({}).sort({ sortOrder: 1, createdAt: -1 }).lean();
 
     res.json({
@@ -241,8 +225,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// @route   GET /api/products/:idOrSlug
-// @desc    Get single product by ID or Slug
 router.get('/:idOrSlug', async (req, res) => {
   try {
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -269,8 +251,6 @@ router.get('/:idOrSlug', async (req, res) => {
   }
 });
 
-// @route   POST /api/products
-// @desc    Create new product (Admin - Supports JSON & FormData)
 router.post('/', protectAdmin, handleOptionalMultipart, async (req, res) => {
   try {
     const payload = parseProductPayload(req);
@@ -283,8 +263,6 @@ router.post('/', protectAdmin, handleOptionalMultipart, async (req, res) => {
   }
 });
 
-// @route   PUT /api/products/reorder
-// @desc    Bulk update product sortOrder based on new array order (Admin)
 router.put('/reorder', protectAdmin, async (req, res) => {
   try {
     const { productIds } = req.body;
@@ -339,8 +317,6 @@ router.put('/reorder', protectAdmin, async (req, res) => {
   }
 });
 
-// @route   PUT /api/products/:id
-// @desc    Update product details / price / stock (Admin - Supports JSON & FormData)
 router.put('/:id', protectAdmin, handleOptionalMultipart, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -360,8 +336,6 @@ router.put('/:id', protectAdmin, handleOptionalMultipart, async (req, res) => {
   }
 });
 
-// @route   PUT /api/products/:id/toggle-stock
-// @desc    Quick toggle inStock status (Admin)
 router.put('/:id/toggle-stock', protectAdmin, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -371,7 +345,6 @@ router.put('/:id/toggle-stock', protectAdmin, async (req, res) => {
     }
 
     product.inStock = !product.inStock;
-    // Also toggle variants stock
     if (Array.isArray(product.variants)) {
       product.variants.forEach((v) => {
         v.inStock = product.inStock;
@@ -385,8 +358,6 @@ router.put('/:id/toggle-stock', protectAdmin, async (req, res) => {
   }
 });
 
-// @route   DELETE /api/products/:idOrSlug
-// @desc    Permanently delete a product (Admin)
 router.delete('/:idOrSlug', protectAdmin, async (req, res) => {
   try {
     const { idOrSlug } = req.params;

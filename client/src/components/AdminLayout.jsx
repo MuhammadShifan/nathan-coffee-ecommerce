@@ -36,7 +36,6 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
 
   return (
     <div className="min-h-screen bg-brand-coffee-50 flex flex-col font-sans">
-      {/* Mobile Header */}
       <header className="lg:hidden bg-brand-coffee-950 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-brand-pink-600">
         <div className="flex items-center gap-2.5">
           <button
@@ -61,7 +60,6 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
         </button>
       </header>
 
-      {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
@@ -70,13 +68,11 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
         />
       )}
 
-      {/* Fixed Sidebar Navigation */}
       <aside
         className={`fixed top-0 left-0 z-50 h-screen w-72 overflow-y-auto bg-brand-coffee-950 text-white flex flex-col justify-between border-r-2 border-brand-pink-600/30 transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
         <div>
-          {/* Logo & Portal Branding */}
           <div className="p-6 border-b border-brand-coffee-800 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
               <img
@@ -96,7 +92,6 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
             </Link>
           </div>
 
-          {/* Nav Items */}
           <nav className="p-4 space-y-1.5">
             <div className="px-3 py-2 text-[11px] font-extrabold text-brand-coffee-400 uppercase tracking-wider">
               Management Menu
@@ -126,7 +121,6 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
           </nav>
         </div>
 
-        {/* User Profile & Footer Actions */}
         <div className="p-4 border-t border-brand-coffee-800 bg-brand-coffee-900/50 space-y-3">
           <div className="flex items-center gap-3 px-2 py-1">
             <div className="w-10 h-10 rounded-full bg-brand-pink-600 border-2 border-brand-yellow-400 flex items-center justify-center font-black text-sm text-white shadow">
@@ -156,9 +150,7 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 lg:ml-72">
-        {/* Top Desktop Bar */}
         <div className="hidden lg:flex items-center justify-between px-8 py-4 bg-white border-b border-brand-coffee-200/80 sticky top-0 z-30 shadow-xs">
           <div>
             <h1 className="text-xl font-extrabold text-brand-coffee-950">{title}</h1>
@@ -182,7 +174,6 @@ const AdminLayout = ({ children, title = 'Admin Dashboard' }) => {
           </div>
         </div>
 
-        {/* Page Children Container */}
         <div className="p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">{children}</div>
       </main>
     </div>

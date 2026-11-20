@@ -6,14 +6,11 @@ import newLogo from '../assets/images/newLogo.png';
 const Footer = () => {
   return (
     <footer className="bg-brand-coffee-950 text-brand-coffee-100 relative overflow-hidden border-t-4 border-brand-pink-600">
-      {/* Background ambient lighting */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-brand-pink-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-yellow-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* Brand Info & Story */}
           <div className="space-y-4">
             <Link to="/" className="inline-flex items-center gap-3">
               <img
@@ -36,7 +33,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h3 className="text-white font-bold text-base mb-4 flex items-center gap-2">
               <Coffee className="w-4 h-4 text-brand-pink-500" /> Quick Navigation
@@ -65,7 +61,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Policies & Quality Assurances */}
           <div>
             <h3 className="text-white font-bold text-base mb-4 flex items-center gap-2">
               <Award className="w-4 h-4 text-brand-yellow-400" /> Customer Assurance
@@ -99,7 +94,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Contact Details */}
           <div>
             <h3 className="text-white font-bold text-base mb-4 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-brand-pink-500" /> Store Locations & Contact
@@ -132,7 +126,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar with SEO Keywords */}
         <div className="mt-12 pt-8 border-t border-brand-coffee-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-brand-coffee-400">
           <p>© 2026Nathan Coffee . All Rights Reserved. Nathan Coffee from Thanjavur</p>
           <div className="flex items-center gap-3">

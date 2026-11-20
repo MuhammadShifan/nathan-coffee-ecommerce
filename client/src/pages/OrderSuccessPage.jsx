@@ -24,7 +24,6 @@ const OrderSuccessPage = () => {
   const [loading, setLoading] = useState(!location.state?.order);
 
   useEffect(() => {
-    // Fire confetti celebration
     try {
       confetti({
         particleCount: 120,
@@ -34,7 +33,6 @@ const OrderSuccessPage = () => {
       });
     } catch (e) { }
 
-    // Fetch order from DB if not passed in route state
     if (!order && orderId) {
       api
         .get(`/api/orders/${orderId}`)
@@ -114,12 +112,10 @@ const OrderSuccessPage = () => {
       />
 
       <div className="order-success-page-container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
-        {/* Success Banner Card (Hidden on Print) */}
         <div className="no-print bg-white rounded-3xl p-8 sm:p-12 border-2 border-emerald-200 shadow-2xl text-center space-y-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100/50 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-yellow-100/50 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Animated Success Icon */}
           <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner border-4 border-emerald-200">
             <CheckCircle className="w-10 h-10" />
           </div>
@@ -138,7 +134,6 @@ const OrderSuccessPage = () => {
             </p>
           </div>
 
-          {/* Order ID Pill */}
           <div className="inline-flex items-center gap-2 bg-brand-coffee-50 border border-brand-coffee-200 px-4 py-2 rounded-2xl">
             <span className="text-xs font-semibold text-brand-coffee-600">Order Reference:</span>
             <span className="font-mono text-sm font-extrabold text-brand-pink-600">
@@ -146,7 +141,6 @@ const OrderSuccessPage = () => {
             </span>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
               id="view-my-orders-btn"
@@ -179,7 +173,6 @@ const OrderSuccessPage = () => {
           </div>
         </div>
 
-        {/* Live Delivery Progress Tracker Card (Hidden on Print) */}
         <div className="no-print bg-white rounded-3xl p-6 sm:p-8 border border-brand-coffee-200 shadow-md space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-brand-coffee-100">
             <h3 className="text-sm sm:text-base font-extrabold text-brand-coffee-950 flex items-center gap-2">
@@ -229,7 +222,6 @@ const OrderSuccessPage = () => {
           </div>
         </div>
 
-        {/* Loading Spinner Fallback */}
         {loading && !order && (
           <div className="bg-white rounded-3xl p-12 text-center border border-brand-coffee-200 shadow-sm space-y-3">
             <div className="w-8 h-8 border-3 border-brand-pink-600 border-t-transparent rounded-full animate-spin mx-auto" />
@@ -237,7 +229,6 @@ const OrderSuccessPage = () => {
           </div>
         )}
 
-        {/* Printable Retail Invoice Card */}
         {order && (
           <div
             id="printable-receipt"
@@ -247,7 +238,6 @@ const OrderSuccessPage = () => {
               printColorAdjust: 'exact',
             }}
           >
-            {/* Invoice Top Header */}
             <div className="receipt-header flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-brand-pink-500/30">
               <div className="flex items-start gap-3.5">
                 <div className="p-1.5 bg-brand-pink-600 rounded-xl border border-brand-yellow-400/40 flex-shrink-0 shadow-sm">
@@ -302,9 +292,7 @@ const OrderSuccessPage = () => {
               </div>
             </div>
 
-            {/* Customer & Shipping / Payment Information */}
             <div className="receipt-info-grid grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-brand-coffee-900 pb-4 border-b border-brand-coffee-100">
-              {/* Shipping / Billed To */}
               <div className="p-3.5 rounded-xl bg-brand-coffee-50/70 border border-brand-coffee-200 space-y-1">
                 <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-coffee-500 mb-1 flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-brand-pink-600 no-print" />
@@ -324,7 +312,6 @@ const OrderSuccessPage = () => {
                 </p>
               </div>
 
-              {/* Order & Payment Summary */}
               <div className="p-3.5 rounded-xl bg-brand-coffee-50/70 border border-brand-coffee-200 space-y-1">
                 <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-coffee-500 mb-1 flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5 text-brand-yellow-600 no-print" />
@@ -355,7 +342,6 @@ const OrderSuccessPage = () => {
               </div>
             </div>
 
-            {/* Itemized Table */}
             <div className="receipt-table-wrapper space-y-2">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-black text-brand-coffee-950 uppercase tracking-wider">
@@ -408,7 +394,6 @@ const OrderSuccessPage = () => {
               </div>
             </div>
 
-            {/* Financial Totals Breakdown */}
             <div className="receipt-totals pt-3 border-t border-brand-coffee-100 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="text-[10px] text-brand-coffee-600 space-y-1 sm:max-w-xs">
                 <p className="font-bold text-brand-coffee-800">Order Notes & Quality Assurance:</p>
@@ -441,7 +426,6 @@ const OrderSuccessPage = () => {
               </div>
             </div>
 
-            {/* Receipt Bottom Note */}
             <div className="receipt-footer pt-3 border-t border-brand-coffee-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-brand-coffee-600">
               <p>This is a computer-generated invoice and requires no physical signature.</p>
               <p className="font-semibold text-brand-pink-600">Thank you for ordering with Nathan Coffee!</p>
@@ -449,7 +433,6 @@ const OrderSuccessPage = () => {
           </div>
         )}
 
-        {/* Navigation CTAs (Hidden on Print) */}
         <div className="no-print flex flex-wrap items-center justify-center gap-3 pt-4">
           <Link
             to="/my-orders"

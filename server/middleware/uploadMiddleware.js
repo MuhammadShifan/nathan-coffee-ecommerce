@@ -6,10 +6,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Standard local uploads directory on the server
 export const uploadsDir = path.join(__dirname, '../uploads');
 
-// Ensure the local uploads directory exists
 if (!fs.existsSync(uploadsDir)) {
   try {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -18,7 +16,6 @@ if (!fs.existsSync(uploadsDir)) {
   }
 }
 
-// Standard Multer Disk Storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (!fs.existsSync(uploadsDir)) {
@@ -40,7 +37,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// Supported image types
 const ALLOWED_EXTENSIONS = /jpeg|jpg|png|webp|avif|gif/;
 const ALLOWED_MIME_TYPES = /^image\/(jpeg|jpg|png|webp|avif|gif)$/;
 
@@ -59,14 +55,11 @@ const fileFilter = (req, file, cb) => {
 const multerInstance = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit per image
+    fileSize: 10 * 1024 * 1024,
   },
   fileFilter,
 });
 
-/**
- * Wraps Multer middleware to provide consistent JSON error responses.
- */
 const handleMulterErrors = (multerMiddleware) => {
   return (req, res, next) => {
     multerMiddleware(req, res, (err) => {
@@ -98,7 +91,6 @@ const handleMulterErrors = (multerMiddleware) => {
   };
 };
 
-// Middleware supporting product dual-image uploads (images array or single image)
 export const uploadProductImagesMiddleware = handleMulterErrors(
   multerInstance.fields([
     { name: 'images', maxCount: 10 },
@@ -106,7 +98,6 @@ export const uploadProductImagesMiddleware = handleMulterErrors(
   ])
 );
 
-// Middleware supporting hero banner upload (heroImage or image)
 export const uploadHeroImageMiddleware = handleMulterErrors(
   multerInstance.fields([
     { name: 'heroImage', maxCount: 1 },

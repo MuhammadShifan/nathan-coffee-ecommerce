@@ -5,10 +5,6 @@ import { uploadHeroImageMiddleware } from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
-// ============================================================================
-// 1. PUBLIC ROUTES (Fetch Active Hero Banner)
-// ============================================================================
-
 const handleGetHeroBanner = async (req, res) => {
   try {
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -37,7 +33,6 @@ const handleGetHeroBanner = async (req, res) => {
     });
   } catch (error) {
     console.error('[Settings] Error fetching hero banner:', error);
-    // Graceful fallback
     return res.json({
       success: true,
       heroImageUrl: '/images/hero-coffee.jpg',
@@ -50,9 +45,6 @@ const handleGetHeroBanner = async (req, res) => {
 router.get('/hero-image', handleGetHeroBanner);
 router.get('/banner', handleGetHeroBanner);
 
-// @route   GET /api/settings
-// @desc    Get all site settings
-// @access  Public
 router.get('/', async (req, res) => {
   try {
     let settings = await SiteSettings.findOne({ key: 'default' });
@@ -65,15 +57,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ============================================================================
-// 2. ADMIN PROTECTED ROUTES (Publish & Save Hero Banner)
-// ============================================================================
-
 const handleUpdateHeroImage = async (req, res) => {
   try {
     let newHeroImageUrl = '';
 
-    // Check if an image file was uploaded via Multer disk storage
     const uploadedFile =
       req.files?.heroImage?.[0] ||
       req.files?.image?.[0] ||
@@ -81,10 +68,8 @@ const handleUpdateHeroImage = async (req, res) => {
       req.file;
 
     if (uploadedFile) {
-      // Clean relative path saved directly into MongoDB
       newHeroImageUrl = `/uploads/${uploadedFile.filename}`;
     } else if (req.body?.reset === true || req.body?.reset === 'true') {
-      // Admin requested resetting to default banner
       newHeroImageUrl = '/images/hero-coffee.jpg';
     } else if (req.body?.heroImageUrl || req.body?.bannerUrl || req.body?.image) {
       newHeroImageUrl = (req.body.heroImageUrl || req.body.bannerUrl || req.body.image).trim();
@@ -132,7 +117,6 @@ const handleUpdateHeroImage = async (req, res) => {
   }
 };
 
-// Mount handlers across all common endpoints: /hero-image, /banner, /
 router.post('/hero-image', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);
 router.put('/hero-image', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);
 router.post('/banner', protectAdmin, uploadHeroImageMiddleware, handleUpdateHeroImage);

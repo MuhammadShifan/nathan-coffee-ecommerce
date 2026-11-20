@@ -8,9 +8,6 @@ const PRIMARY_JWT_SECRET =
 const FALLBACK_JWT_SECRET =
   'Nathan_coffee_super_secret_jwt_key_2026_Thanjavur_thanjavur';
 
-/**
- * Safely verify JWT using primary or secondary fallback secret
- */
 const verifyTokenSafely = (token) => {
   const secret = process.env.JWT_SECRET || PRIMARY_JWT_SECRET;
   try {
@@ -27,9 +24,6 @@ const verifyTokenSafely = (token) => {
   }
 };
 
-/**
- * Helper to extract Bearer or header token
- */
 const extractTokenFromRequest = (req) => {
   if (req.headers.authorization && typeof req.headers.authorization === 'string') {
     const parts = req.headers.authorization.trim().split(' ');
@@ -52,9 +46,6 @@ const extractTokenFromRequest = (req) => {
   return null;
 };
 
-/**
- * Protect routes for Admin access
- */
 export const protectAdmin = async (req, res, next) => {
   const token = extractTokenFromRequest(req);
 
@@ -75,14 +66,12 @@ export const protectAdmin = async (req, res, next) => {
       });
     }
 
-    // 1. Check Admin model by ID if valid ObjectId
     if (String(decoded.id).match(/^[0-9a-fA-F]{24}$/)) {
       req.admin = await Admin.findById(decoded.id).select('-password');
       if (req.admin) {
         return next();
       }
 
-      // 2. Check User model with admin role
       const user = await User.findById(decoded.id);
       if (user && user.role === 'admin') {
         req.admin = user;
@@ -90,7 +79,6 @@ export const protectAdmin = async (req, res, next) => {
       }
     }
 
-    // 3. Check if decoded role is admin directly
     if (decoded.role === 'admin') {
       req.admin = {
         _id: decoded.id,
@@ -114,9 +102,6 @@ export const protectAdmin = async (req, res, next) => {
   }
 };
 
-/**
- * Protect routes for Logged-in Customer access
- */
 export const protectUser = async (req, res, next) => {
   const token = extractTokenFromRequest(req);
 
@@ -150,9 +135,6 @@ export const protectUser = async (req, res, next) => {
   }
 };
 
-/**
- * Optional user middleware: attaches req.user if token is present without failing if absent
- */
 export const protectUserOptional = async (req, res, next) => {
   const token = extractTokenFromRequest(req);
   if (token) {

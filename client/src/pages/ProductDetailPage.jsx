@@ -30,9 +30,7 @@ import SEOMeta from '../components/SEOMeta';
 import ProductCard from '../components/ProductCard';
 import { defaultProductsData } from '../data/defaultProducts';
 
-// Product-specific Customer Reviews Dictionary
 const productReviewsDictionary = {
-  // Pure Filter Coffee Powder 250g
   'pure-filter-coffee-powder-250g': [
     {
       name: 'Venkatesh S.',
@@ -49,7 +47,6 @@ const productReviewsDictionary = {
       comment: "We have been buying Nathan Coffee since our grandparents' time in Thanjavur. The slow wood-fired drum roast preserves essential coffee oils and thick golden foam.",
     },
   ],
-  // Pure Filter Coffee Powder 500g
   'pure-filter-coffee-powder-500g': [
     {
       name: 'Dr. Aravind Swaminathan',
@@ -66,7 +63,6 @@ const productReviewsDictionary = {
       comment: 'Zero adulteration and 100% pure Arabica & Robusta beans. The golden froth and lingering aftertaste make it the best authentic filter coffee across South India.',
     },
   ],
-  // Traditional Chicory Blended Coffee (80:20)
   'traditional-chicory-blended-coffee-powder': [
     {
       name: 'Karthik Raja',
@@ -83,7 +79,6 @@ const productReviewsDictionary = {
       comment: 'Reminds me of traditional Kumbakonam wedding feast coffee. Heavy body and rich caramel notes that pairs heavenly with piping hot frothy milk in a brass davarah.',
     },
   ],
-  // Default / Fallback Reviews
   default: [
     {
       name: 'Suresh Kumar',
@@ -102,7 +97,6 @@ const productReviewsDictionary = {
   ],
 };
 
-// Helper to resolve reviews for a given product
 const getProductReviews = (prod) => {
   if (!prod) return productReviewsDictionary.default;
 
@@ -134,8 +128,6 @@ const ProductDetailPage = () => {
   const { addToCart } = useCart();
   const { isUserAuthenticated, openAuthModal } = useAuth();
 
-  // 1. Synchronously resolve product from local catalog matching slug or id
-  // This eliminates ANY flash of stale, loading, or incorrect placeholder images on initial render and refresh!
   const initialCatalogProduct = React.useMemo(() => {
     if (!slug) return null;
     return (
@@ -158,13 +150,11 @@ const ProductDetailPage = () => {
 
   const [selectedWeight, setSelectedWeight] = useState(initialWeight);
 
-  // Carousel & Image State
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
-  const [slideDirection, setSlideDirection] = useState(0); // 1 = next, -1 = prev
+  const [slideDirection, setSlideDirection] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isHoverZoom, setIsHoverZoom] = useState(false);
 
-  // Product Selection State
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
@@ -185,14 +175,12 @@ const ProductDetailPage = () => {
         let currentProd = prodRes?.data?.data || null;
         const productList = allRes?.data?.data?.length > 0 ? allRes.data.data : [];
 
-        // Fallback to searching in allProducts list if direct slug lookup failed
         if (!currentProd && productList.length > 0) {
           currentProd = productList.find(
             (p) => p.slug === slug || p._id === slug || p.id === slug
           );
         }
 
-        // Fallback to static catalog if backend is connecting/waking up
         if (!currentProd && Array.isArray(defaultProductsData)) {
           currentProd = defaultProductsData.find(
             (p) => p.slug === slug || p._id === slug || p.id === slug
@@ -246,7 +234,6 @@ const ProductDetailPage = () => {
     );
   }
 
-  // Current Variant Details & dynamic variants array
   const variants = Array.isArray(product?.variants) && product.variants.length > 0
     ? product.variants
     : [
@@ -271,7 +258,6 @@ const ProductDetailPage = () => {
     inStock: true,
   };
 
-  // Derive the 2 specific images assigned to the selected weight variant (Image 1 Front, Image 2 Back)
   const currentVariantImages = (() => {
     if (Array.isArray(currentVariant?.images) && currentVariant.images.length > 0) {
       const list = currentVariant.images
@@ -298,10 +284,8 @@ const ProductDetailPage = () => {
     ? Math.round(((currentVariant.mrp - currentVariant.price) / currentVariant.mrp) * 100)
     : 0;
 
-  // Product-specific reviews
   const currentReviews = getProductReviews(product);
 
-  // Carousel Slide Handlers
   const paginate = (newDirection) => {
     setSlideDirection(newDirection);
     setCurrentImgIndex((prevIndex) => {
@@ -319,7 +303,6 @@ const ProductDetailPage = () => {
 
   const handleVariantSelect = (variant) => {
     setSelectedWeight(variant.weight);
-    // Dynamically switch viewer to the exact dual images of this pack size, starting at Image 1 (Front view)
     setCurrentImgIndex(0);
     setSlideDirection(1);
   };
@@ -369,7 +352,6 @@ const ProductDetailPage = () => {
     setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  // Carousel slide variants for smooth animation
   const slideVariants = {
     enter: (direction) => ({
       x: direction > 0 ? 250 : -250,
@@ -398,7 +380,6 @@ const ProductDetailPage = () => {
     }),
   };
 
-  // Related products
   const relatedProducts = allProducts.filter(
     (p) => (p._id !== product._id && p.slug !== product.slug)
   ).slice(0, 3);
@@ -429,9 +410,6 @@ const ProductDetailPage = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-14">
-        {/* ========================================================================= */}
-        {/* BREADCRUMB NAVIGATION */}
-        {/* ========================================================================= */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-brand-coffee-600 flex-wrap">
           <Link to="/" className="hover:text-brand-pink-600 transition-colors">
             Home
@@ -446,16 +424,9 @@ const ProductDetailPage = () => {
           </span>
         </nav>
 
-        {/* ========================================================================= */}
-        {/* MAIN PRODUCT SHOWCASE (CAROUSEL & DETAILS) */}
-        {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-start">
-          {/* ===================================================================== */}
-          {/* LEFT: MULTI-IMAGE CAROUSEL SLIDER */}
-          {/* ===================================================================== */}
           <div className="lg:col-span-6 space-y-4">
             <div className="bg-white rounded-3xl border border-brand-coffee-200 shadow-lg p-4 sm:p-8 relative overflow-hidden group">
-              {/* Top Badges */}
               <div className="absolute top-4 left-4 z-20 flex flex-col gap-1.5 pointer-events-none">
                 {discountPercent > 0 && (
                   <span className="bg-brand-pink-600 text-white text-xs font-black px-3 py-1 rounded-full shadow-md tracking-wide">
@@ -467,7 +438,6 @@ const ProductDetailPage = () => {
                 </span>
               </div>
 
-              {/* Lightbox / Fullscreen Icon */}
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
@@ -477,7 +447,6 @@ const ProductDetailPage = () => {
                 <Maximize2 className="w-4 h-4" />
               </button>
 
-              {/* Main Carousel Viewport with Swipe Gesture */}
               <div
                 className="relative h-72 sm:h-96 w-full flex items-center justify-center overflow-hidden select-none cursor-grab active:cursor-grabbing"
                 onMouseEnter={() => setIsHoverZoom(true)}
@@ -519,7 +488,6 @@ const ProductDetailPage = () => {
                   </motion.div>
                 </AnimatePresence>
 
-                {/* Left & Right Arrow Navigation Controls */}
                 {images.length > 1 && (
                   <>
                     <button
@@ -541,7 +509,6 @@ const ProductDetailPage = () => {
                   </>
                 )}
 
-                {/* Pagination Pill */}
                 {images.length > 1 && (
                   <div className="absolute bottom-2 inset-x-0 flex justify-center z-20 pointer-events-none">
                     <span className="bg-brand-coffee-950/75 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-md">
@@ -552,7 +519,6 @@ const ProductDetailPage = () => {
               </div>
             </div>
 
-            {/* Thumbnail Strip Gallery (Front & Back Views of Selected Pack Size) */}
             {images.length > 1 && (
               <div className="flex items-center justify-center gap-3 overflow-x-auto py-2 px-1 custom-scrollbar">
                 {images.map((url, idx) => {
@@ -597,11 +563,7 @@ const ProductDetailPage = () => {
             )}
           </div>
 
-          {/* ===================================================================== */}
-          {/* RIGHT: PRODUCT INFO, VARIANTS, PRICING & BUY ACTIONS */}
-          {/* ===================================================================== */}
           <div className="lg:col-span-6 space-y-6">
-            {/* Header & Rating */}
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
@@ -617,7 +579,6 @@ const ProductDetailPage = () => {
                   )}
                 </div>
 
-                {/* Share Button */}
                 <button
                   type="button"
                   onClick={handleShare}
@@ -643,7 +604,6 @@ const ProductDetailPage = () => {
               </p>
             </div>
 
-            {/* Price Box */}
             <div className="p-4 sm:p-5 bg-white rounded-3xl border border-brand-coffee-200 shadow-sm flex items-center justify-between">
               <div>
                 <span className="text-xs font-bold text-brand-coffee-500 uppercase tracking-wider block">
@@ -671,7 +631,6 @@ const ProductDetailPage = () => {
               </span>
             </div>
 
-            {/* Weight Variant Selector */}
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-extrabold text-brand-coffee-800 uppercase tracking-wider">
@@ -725,7 +684,6 @@ const ProductDetailPage = () => {
               </div>
             </div>
 
-            {/* Quantity Selector & Action Buttons */}
             <div className="space-y-3 pt-2">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-bold text-brand-coffee-800">Quantity:</span>
@@ -781,15 +739,10 @@ const ProductDetailPage = () => {
               </div>
             </div>
 
-            {/* Delivery & Trust Highlights */}
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* TABBED SPECIFICATIONS & REVIEWS */}
-        {/* ========================================================================= */}
         <div className="bg-white rounded-3xl border border-brand-coffee-200 shadow-md p-6 sm:p-10 space-y-6">
-          {/* Tab Navigation */}
           <div className="flex items-center gap-2 sm:gap-4 border-b border-brand-coffee-200 pb-4 overflow-x-auto custom-scrollbar">
             <button
               onClick={() => setActiveTab('details')}
@@ -812,7 +765,6 @@ const ProductDetailPage = () => {
             </button>
           </div>
 
-          {/* Tab: Blend & Roast Profile */}
           {activeTab === 'details' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs sm:text-sm">
               <div className="space-y-4">
@@ -863,7 +815,6 @@ const ProductDetailPage = () => {
             </div>
           )}
 
-          {/* Tab 3: Reviews */}
           {activeTab === 'reviews' && (
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-brand-pink-50/50 rounded-2xl border border-brand-pink-200">
@@ -912,9 +863,6 @@ const ProductDetailPage = () => {
           )}
         </div>
 
-        {/* ========================================================================= */}
-        {/* RELATED PRODUCTS SHOWCASE */}
-        {/* ========================================================================= */}
         {relatedProducts.length > 0 && (
           <div className="space-y-6">
             <div className="flex items-end justify-between border-b border-brand-coffee-200 pb-4">
@@ -943,9 +891,6 @@ const ProductDetailPage = () => {
         )}
       </div>
 
-      {/* ========================================================================= */}
-      {/* LIGHTBOX FULLSCREEN ZOOM MODAL */}
-      {/* ========================================================================= */}
       {lightboxOpen && (
         <div
           className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"

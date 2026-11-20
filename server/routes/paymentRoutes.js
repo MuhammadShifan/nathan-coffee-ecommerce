@@ -17,8 +17,6 @@ import {
 
 const router = express.Router();
 
-// @route   GET /api/payment/config
-// @desc    Get Cashfree public config / environment
 router.get('/config', (req, res) => {
   res.json({
     success: true,
@@ -27,14 +25,10 @@ router.get('/config', (req, res) => {
   });
 });
 
-// @route   POST /api/payment/create-order
-// @desc    Create Cashfree Order and obtain payment_session_id
-// @access  Public / Authenticated
 router.post('/create-order', protectUserOptional, async (req, res) => {
   try {
     const { amount, items, currency = 'INR', customer, pincode, orderNote, returnUrl } = req.body;
 
-    // If delivery pincode is supplied on direct create-order calls, enforce Tamil Nadu restriction
     const incomingPincode = customer?.address?.pincode ?? pincode;
     if (incomingPincode !== undefined && !isValidTamilNaduPincode(incomingPincode)) {
       return res.status(400).json({
@@ -45,7 +39,6 @@ router.post('/create-order', protectUserOptional, async (req, res) => {
 
     let orderAmount = Number(Number(amount).toFixed(2));
 
-    // When items are provided, compute authoritative Prepaid total server-side
     if (Array.isArray(items) && items.length > 0) {
       const { subtotal } = await resolveAuthoritativeCart(items, defaultProductsData);
       const totals = calculateCheckoutTotals(subtotal);
@@ -96,8 +89,6 @@ router.post('/create-order', protectUserOptional, async (req, res) => {
   }
 });
 
-// @route   GET /api/payment/order-status/:orderId
-// @desc    Fetch order and payments status directly from Cashfree
 router.get('/order-status/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -113,7 +104,6 @@ router.get('/order-status/:orderId', async (req, res) => {
       const paymentsRes = await cashfree.PGOrderFetchPayments(orderId);
       payments = paymentsRes.data || [];
     } catch (e) {
-      // Payments list might be empty if no attempt made yet
     }
 
     res.json({
@@ -132,9 +122,6 @@ router.get('/order-status/:orderId', async (req, res) => {
   }
 });
 
-// @route   POST /api/payment/verify
-// @desc    Verify Cashfree order payment status & persist order into MongoDB
-// @access  Public / Authenticated
 router.post('/verify', protectUserOptional, async (req, res) => {
   try {
     const { orderId, orderDetails } = req.body;
@@ -148,11 +135,9 @@ router.post('/verify', protectUserOptional, async (req, res) => {
 
     const cashfree = getCashfreeClient();
 
-    // Fetch order state from Cashfree Gateway
     const orderRes = await cashfree.PGFetchOrder(orderId);
     const cfOrder = orderRes.data;
 
-    // Fetch payment entities to obtain cf_payment_id and verify payment success
     let payments = [];
     try {
       const paymentsRes = await cashfree.PGOrderFetchPayments(orderId);
@@ -176,7 +161,6 @@ router.post('/verify', protectUserOptional, async (req, res) => {
     const resolvedCfPaymentId = String(successfulPayment?.cf_payment_id || cfOrder.cf_order_id || '');
     const resolvedSessionId = String(cfOrder.payment_session_id || '');
 
-    // Idempotency: check if an order with this Cashfree order/payment already exists in MongoDB
     const existingOrder = await Order.findOne({
       $or: [
         { 'payment.cfOrderId': resolvedCfOrderId },

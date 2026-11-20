@@ -4,8 +4,6 @@ import { protectAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// @route   POST /api/contact
-// @desc    Submit customer message/inquiry
 router.post('/', async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
@@ -32,8 +30,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// @route   GET /api/contact
-// @desc    Get all messages (Admin)
 router.get('/', protectAdmin, async (req, res) => {
   try {
     const messages = await Message.find({}).sort({ createdAt: -1 });
@@ -47,8 +43,6 @@ router.get('/', protectAdmin, async (req, res) => {
   }
 });
 
-// @route   PUT /api/contact/:id/read
-// @desc    Mark message as read
 router.put('/:id/read', protectAdmin, async (req, res) => {
   try {
     const msg = await Message.findById(req.params.id);

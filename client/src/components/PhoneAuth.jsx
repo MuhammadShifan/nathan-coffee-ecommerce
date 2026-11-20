@@ -10,19 +10,6 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 
-/**
- * PhoneAuth Component
- * Takes an Indian mobile number (+91), uses 2Factor.in SMS OTP API,
- * and verifies the OTP with the backend to receive the authentication JWT.
- *
- * @param {Object} props
- * @param {Function} [props.onSuccess] - Callback when verification succeeds: (data: { token, user, phoneNumber }) => void
- * @param {Function} [props.onCancel] - Optional cancel callback
- * @param {string} [props.initialPhone] - Pre-filled 10-digit phone
- * @param {string} [props.title] - Custom title
- * @param {string} [props.subtitle] - Custom subtitle
- * @param {boolean} [props.showCard=true] - Wrap in styled card or render flat
- */
 const PhoneAuth = ({
   onSuccess,
   onCancel,
@@ -31,7 +18,7 @@ const PhoneAuth = ({
   subtitle = 'Login or verify your mobile number with instant SMS OTP',
   showCard = true,
 }) => {
-  const [step, setStep] = useState('phone'); // 'phone' | 'otp'
+  const [step, setStep] = useState('phone');
   const [mobileNumber, setMobileNumber] = useState(
     initialPhone ? initialPhone.replace(/\D/g, '').slice(-10) : ''
   );
@@ -57,7 +44,6 @@ const PhoneAuth = ({
     phoneInputRef.current?.focus();
   }, []);
 
-  // Resend Countdown Timer
   useEffect(() => {
     let timer;
     if (step === 'otp' && resendTimer > 0) {
@@ -82,7 +68,6 @@ const PhoneAuth = ({
     }
   };
 
-  // Step 1: Send SMS OTP via 2Factor.in
   const handleSendOtp = async (e) => {
     e?.preventDefault();
     setErrorMessage('');
@@ -120,7 +105,6 @@ const PhoneAuth = ({
     }
   };
 
-  // Handle segmented 6-digit OTP input
   const handleOtpChange = (index, value) => {
     const char = value.slice(-1).replace(/\D/g, '');
     const newOtp = [...otpValues];
@@ -161,7 +145,6 @@ const PhoneAuth = ({
     }
   };
 
-  // Step 2: Verify OTP via 2Factor.in
   const handleVerifyOtp = async (otpToVerify) => {
     const code = otpToVerify || otpValues.join('');
     if (code.length !== 6) {
@@ -225,7 +208,6 @@ const PhoneAuth = ({
         <p className="text-xs text-brand-coffee-600">{subtitle}</p>
       </div>
 
-      {/* Error Banner */}
       {errorMessage && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-xs text-red-700 font-semibold">
           <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-600" />
@@ -233,7 +215,6 @@ const PhoneAuth = ({
         </div>
       )}
 
-      {/* STEP 1: Phone Number */}
       {step === 'phone' ? (
         <form onSubmit={handleSendOtp} className="space-y-4">
           <div>
@@ -293,7 +274,6 @@ const PhoneAuth = ({
           )}
         </form>
       ) : (
-        /* STEP 2: OTP Verification */
         <div className="space-y-4">
           <div className="flex items-center justify-between p-3 rounded-xl bg-brand-pink-50/70 border border-brand-pink-200 text-xs">
             <div className="flex items-center gap-2">
@@ -319,7 +299,6 @@ const PhoneAuth = ({
               Enter 6-Digit Verification Code
             </label>
 
-            {/* Segmented 6-digit inputs */}
             <div className="flex items-center justify-center gap-2 sm:gap-2.5" onPaste={handlePaste}>
               {otpValues.map((val, idx) => (
                 <input
@@ -356,7 +335,6 @@ const PhoneAuth = ({
             )}
           </button>
 
-          {/* Resend Option */}
           <div className="text-center pt-1">
             {canResend ? (
               <button

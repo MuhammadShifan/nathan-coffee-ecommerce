@@ -37,7 +37,6 @@ const PolicyPage = () => {
             At <strong>Nathan Coffee</strong>, uncompromising freshness and customer trust are our foundational principles. Because our pure filter coffee powder is freshly roasted in small batches and ground immediately to lock in authentic aroma, please review our strict cancellation and refund terms:
           </p>
 
-          {/* Critical Notice Callout Banner */}
           <div className="p-4 bg-amber-50 rounded-2xl border border-amber-300 text-amber-950 space-y-2">
             <div className="flex items-center gap-2 text-amber-900 font-extrabold text-sm">
               <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
@@ -48,7 +47,6 @@ const PolicyPage = () => {
             </p>
           </div>
 
-          {/* Section 1: Order Cancellations */}
           <div className="space-y-2">
             <h3 className="text-base font-bold text-brand-coffee-950 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-brand-pink-100 text-brand-pink-700 flex items-center justify-center text-xs font-black">1</span>
@@ -62,7 +60,6 @@ const PolicyPage = () => {
             </p>
           </div>
 
-          {/* Section 2: Damaged or Incorrect Items */}
           <div className="space-y-2">
             <h3 className="text-base font-bold text-brand-coffee-950 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-brand-pink-100 text-brand-pink-700 flex items-center justify-center text-xs font-black">2</span>
@@ -88,7 +85,6 @@ const PolicyPage = () => {
             </div>
           </div>
 
-          {/* Section 3: Replacement & Refund Resolution */}
           <div className="space-y-2">
             <h3 className="text-base font-bold text-brand-coffee-950 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-brand-pink-100 text-brand-pink-700 flex items-center justify-center text-xs font-black">3</span>
@@ -103,7 +99,6 @@ const PolicyPage = () => {
             </ul>
           </div>
 
-          {/* Section 4: How to Reach Support */}
           <div className="space-y-2">
             <h3 className="text-base font-bold text-brand-coffee-950 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-brand-pink-100 text-brand-pink-700 flex items-center justify-center text-xs font-black">4</span>
@@ -172,7 +167,6 @@ const PolicyPage = () => {
     },
   };
 
-  // Support both /policy/refund and /policy/cancellation-refund
   policies['cancellation-refund'] = policies.refund;
 
   const activePolicy = policies[type] || policies.shipping;

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /order-success/
+
+Sitemap: https://www.nathancoffeethanjavur.com/sitemap.xml
+

@@ -38,7 +38,6 @@ const ProductCard = ({ product }) => {
     inStock: true,
   };
 
-  // Derive dual images directly from the currently active weight variant
   const variantRawImages = Array.isArray(currentVariant.images) && currentVariant.images.length > 0
     ? currentVariant.images
     : [currentVariant.image, currentVariant.image2].filter(Boolean);
@@ -109,7 +108,6 @@ const ProductCard = ({ product }) => {
       onClick={handleCardClick}
       className="bg-white rounded-3xl border border-brand-coffee-200/80 hover:border-brand-pink-400/80 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between overflow-hidden group relative cursor-pointer"
     >
-      {/* Discount & Purity Badges */}
       <div className="absolute top-3.5 left-3.5 z-20 flex flex-col gap-1.5 pointer-events-none">
         {discountPercent > 0 && (
           <span className="bg-brand-pink-600 text-white text-[11px] font-black px-2.5 py-1 rounded-full shadow-md tracking-wide">
@@ -128,9 +126,7 @@ const ProductCard = ({ product }) => {
         </span>
       </div>
 
-      {/* Product Image Section with Smooth Hover Fade & Slide Transition */}
       <div className="relative pt-6 px-6 pb-4 bg-gradient-to-b from-brand-coffee-50/60 to-white flex items-center justify-center min-h-[230px] sm:min-h-[270px] overflow-hidden select-none">
-        {/* If manual pip index selected, show that specific image */}
         {activeImageIndex !== null ? (
           <img
             src={cardImages[activeImageIndex] || primaryImage}
@@ -145,9 +141,7 @@ const ProductCard = ({ product }) => {
             }}
           />
         ) : (
-          /* Multi-image smooth dual-layer crossfade on hover */
           <div className="relative w-full h-48 sm:h-60 flex items-center justify-center">
-            {/* Primary Image Layer */}
             <img
               src={primaryImage}
               alt={product.title}
@@ -165,7 +159,6 @@ const ProductCard = ({ product }) => {
               }}
             />
 
-            {/* Secondary Image Layer (fades & slides smoothly into view on hover) */}
             {hasMultipleImages && (
               <img
                 src={secondaryImage}
@@ -187,14 +180,12 @@ const ProductCard = ({ product }) => {
           </div>
         )}
 
-        {/* Quick View Prompt Badge on Hover */}
         <div className="absolute inset-x-0 bottom-8 flex justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
           <span className="bg-brand-coffee-950/80 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
             <Eye className="w-3.5 h-3.5 text-brand-yellow-400" /> Click for 360° Carousel
           </span>
         </div>
 
-        {/* Interactive Thumbnail Pips */}
         {hasMultipleImages && (
           <div className="absolute bottom-2.5 inset-x-0 flex justify-center gap-1.5 z-20">
             {cardImages.map((_, idx) => {
@@ -226,10 +217,8 @@ const ProductCard = ({ product }) => {
         )}
       </div>
 
-      {/* Content Section */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3.5 sm:space-y-4">
         <div>
-          {/* Rating and Reviews */}
           <div className="flex items-center justify-between text-xs text-brand-coffee-600 mb-1">
             <div className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 text-amber-900 font-bold text-[11px]">
               <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
@@ -243,7 +232,6 @@ const ProductCard = ({ product }) => {
             )}
           </div>
 
-          {/* Title & Tamil Subtitle */}
           <h3 className="font-bold text-base sm:text-lg text-brand-coffee-950 leading-snug group-hover:text-brand-pink-700 transition-colors">
             {product.title}
           </h3>
@@ -253,12 +241,10 @@ const ProductCard = ({ product }) => {
             </p>
           )}
 
-          {/* Short Description */}
           <p className="text-xs text-brand-coffee-700 mt-1.5 line-clamp-2 leading-relaxed">
             {product.shortDescription}
           </p>
 
-          {/* Weight Variant Selector */}
           <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-brand-coffee-100">
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-[10px] sm:text-[11px] font-bold text-brand-coffee-700 uppercase tracking-wider block">
@@ -299,7 +285,6 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
 
-        {/* Pricing & CTA Buttons */}
         <div className="pt-2 border-t border-brand-coffee-100" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-baseline justify-between mb-2.5 sm:mb-3">
             <div>

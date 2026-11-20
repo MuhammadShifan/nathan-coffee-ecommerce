@@ -1,20 +1,11 @@
 import User from '../models/User.js';
 
-/**
- * Generate a human-readable Nathan Coffee Order ID (e.g. NC-2026-123456).
- */
 export const generateNathanOrderId = () =>
   `NC-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
 
-/**
- * Generate a default tracking number.
- */
 export const generateTrackingNumber = () =>
   `NCTRACK-${Math.floor(10000000 + Math.random() * 90000000)}`;
 
-/**
- * Resolve User ObjectId from authenticated req.user, explicit userId string, or customer 10-digit mobile.
- */
 export const resolveEffectiveUserId = async ({ reqUser, candidateUserId, customerPhone }) => {
   let effectiveUserId =
     reqUser?._id ||

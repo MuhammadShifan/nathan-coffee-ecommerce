@@ -35,7 +35,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close dropdown & mobile menu on route change or click outside
   useEffect(() => {
     setMobileMenuOpen(false);
     setUserDropdownOpen(false);
@@ -66,7 +65,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Top Notification Bar */}
       <div className="bg-brand-pink-900 text-white text-xs sm:text-sm py-1.5 px-4 font-medium border-b border-brand-pink-800">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -87,7 +85,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Main Sticky Navbar */}
       <header
         className={`sticky top-0 z-40 transition-all duration-300 w-full ${scrolled
           ? 'bg-white/95 backdrop-blur-md shadow-md border-b border-brand-pink-100 py-2'
@@ -95,7 +92,6 @@ const Navbar = () => {
           }`}
       >
         <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
-          {/* Brand Logo & Name (Left Side) */}
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0 flex-shrink-0">
             <div className="flex flex-col items-center justify-center flex-shrink-0">
               <div className="relative overflow-hidden rounded-lg border-2 border-brand-pink-500 shadow-sm bg-brand-pink-600 p-0.5 flex-shrink-0 transition-transform group-hover:scale-105">
@@ -124,7 +120,6 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation Links (Visible on md and above) */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2 flex-shrink-0">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
@@ -149,9 +144,7 @@ const Navbar = () => {
             })}
           </nav>
 
-          {/* Right Action Icons & Auth CTA */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            {/* Cart Button with animated Counter badge */}
             <motion.button
               id="cart-toggle-btn"
               onClick={() => setIsCartOpen(true)}
@@ -172,11 +165,8 @@ const Navbar = () => {
               )}
             </motion.button>
 
-            {/* AUTHENTICATION STATE: USER LOGGED IN vs GUEST */}
             {isUserAuthenticated && user ? (
-              /* LOGGED IN: My Orders Button & Account Dropdown */
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                {/* My Orders Button */}
                 <Link
                   id="my-orders-nav-btn"
                   to="/my-orders"
@@ -189,7 +179,6 @@ const Navbar = () => {
                   <span className="hidden sm:inline">My Orders</span>
                 </Link>
 
-                {/* User Profile / Logout Dropdown */}
                 <div className="relative flex-shrink-0" ref={dropdownRef}>
                   <button
                     id="user-profile-menu-btn"
@@ -206,7 +195,6 @@ const Navbar = () => {
                     <ChevronDown className="w-3 h-3 text-brand-coffee-600 flex-shrink-0" />
                   </button>
 
-                  {/* Dropdown Menu */}
                   <AnimatePresence>
                     {userDropdownOpen && (
                       <motion.div
@@ -255,9 +243,7 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              /* GUEST: Track Order Link, Login Button & Order Now CTA */
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                {/* Track Order Button for Guests */}
                 <Link
                   id="track-orders-nav-btn"
                   to="/my-orders"
@@ -272,7 +258,6 @@ const Navbar = () => {
                   <span className="hidden xs:inline sm:inline">Track Order</span>
                 </Link>
 
-                {/* Login Button */}
                 <button
                   id="nav-login-btn"
                   onClick={() => openAuthModal()}
@@ -282,7 +267,6 @@ const Navbar = () => {
                   <span>Login</span>
                 </button>
 
-                {/* Order Now CTA Button */}
                 <Link
                   id="order-now-nav-btn"
                   to="/shop"
@@ -294,7 +278,6 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* Mobile Menu Hamburger (Visible on < md) */}
             <button
               id="mobile-menu-toggle-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -306,7 +289,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
@@ -316,7 +298,6 @@ const Navbar = () => {
               className="md:hidden border-t border-brand-coffee-100 bg-white/95 backdrop-blur-md px-4 pt-3 pb-6 shadow-xl"
             >
               <nav className="flex flex-col gap-1.5">
-                {/* Logged in User info banner in mobile menu */}
                 {isUserAuthenticated && user && (
                   <div className="p-3 bg-brand-pink-50/70 border border-brand-pink-200 rounded-2xl flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -337,7 +318,6 @@ const Navbar = () => {
                   </div>
                 )}
 
-                {/* My Orders link in mobile menu */}
                 <Link
                   to="/my-orders"
                   className={`px-4 py-3 rounded-xl text-base font-semibold flex items-center justify-between ${location.pathname === '/my-orders'
@@ -366,7 +346,6 @@ const Navbar = () => {
                   );
                 })}
 
-                {/* Mobile Auth action */}
                 {!isUserAuthenticated && (
                   <button
                     onClick={() => {

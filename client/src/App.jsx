@@ -7,10 +7,8 @@ import Toast from './components/Toast';
 import AuthModal from './components/AuthModal';
 import ScrollToTop from './components/ScrollToTop';
 
-// HomePage is statically imported for instant First Contentful Paint (no waterfall)
 import HomePage from './pages/HomePage';
 
-// Lazy-loaded secondary user pages
 const ShopPage = lazy(() => import('./pages/ShopPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
@@ -20,7 +18,6 @@ const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage'));
 const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'));
 const PolicyPage = lazy(() => import('./pages/PolicyPage'));
 
-// Lazy-loaded admin pages (drastically reduces visitor bundle size)
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
 const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
@@ -29,7 +26,6 @@ const AdminMessagesPage = lazy(() => import('./pages/admin/AdminMessagesPage'));
 
 import { useAuth } from './context/AuthContext';
 
-// Protected Admin Route Component
 const ProtectedAdminRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) {
@@ -38,7 +34,6 @@ const ProtectedAdminRoute = ({ children }) => {
   return children;
 };
 
-// Lightweight branded page loading fallback
 const PageLoader = () => (
   <div className="min-h-[50vh] flex items-center justify-center p-8">
     <div className="flex flex-col items-center gap-3">
@@ -56,26 +51,19 @@ const App = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-coffee-50 font-sans selection:bg-brand-pink-500 selection:text-white">
-      {/* Scroll restoration on route change */}
       <ScrollToTop />
 
-      {/* Toast Notification Container */}
       <Toast />
 
-      {/* Global OTP Auth Modal */}
       <AuthModal />
 
-      {/* Cart Slide-out Drawer */}
       <CartDrawer />
 
-      {/* Render Public Header on user-facing pages */}
       {!isAdminRoute && <Navbar />}
 
-      {/* Main Page Routes wrapped in Suspense */}
       <main className="flex-1">
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Public User Pages */}
             <Route path="/" element={<HomePage />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/products" element={<ShopPage />} />
@@ -92,7 +80,6 @@ const App = () => {
             <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
             <Route path="/policy/:type" element={<PolicyPage />} />
 
-            {/* Admin Pages */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route
               path="/admin"
@@ -135,13 +122,11 @@ const App = () => {
               }
             />
 
-            {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </main>
 
-      {/* Render Public Footer on user-facing pages */}
       {!isAdminRoute && <Footer />}
     </div>
   );

@@ -5,7 +5,6 @@ import { SITE_URL, resolveUrl, SEO_CONFIG } from '../config/seoConfig.js';
 
 const router = express.Router();
 
-// Dynamic sitemap.xml generator
 router.get('/sitemap.xml', async (req, res) => {
   try {
     let products = await Product.find({}, 'slug updatedAt');
@@ -20,7 +19,6 @@ router.get('/sitemap.xml', async (req, res) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
-    // Static core pages
     SEO_CONFIG.staticPages.forEach((page) => {
       xml += `  <url>
     <loc>${resolveUrl(page.url)}</loc>
@@ -31,7 +29,6 @@ router.get('/sitemap.xml', async (req, res) => {
 `;
     });
 
-    // Dynamic individual product detail pages
     products.forEach((prod) => {
       if (prod.slug) {
         xml += `  <url>
@@ -55,7 +52,6 @@ router.get('/sitemap.xml', async (req, res) => {
   }
 });
 
-// Dynamic robots.txt
 router.get('/robots.txt', (req, res) => {
   try {
     const disallowRules = SEO_CONFIG.robots.disallow

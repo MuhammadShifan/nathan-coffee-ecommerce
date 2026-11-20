@@ -39,7 +39,6 @@ const CartDrawer = () => {
     <AnimatePresence>
       {isCartOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -56,7 +55,6 @@ const CartDrawer = () => {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between border-l border-brand-coffee-200"
             >
-              {/* Header */}
               <div className="p-5 border-b border-brand-coffee-100 bg-brand-pink-50/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="p-2 bg-brand-pink-600 text-white rounded-xl shadow-sm">
@@ -79,8 +77,6 @@ const CartDrawer = () => {
                 </button>
               </div>
 
-
-              {/* Cart Items List */}
               <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
                 {cartItems.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
@@ -114,7 +110,6 @@ const CartDrawer = () => {
                       exit={{ opacity: 0, scale: 0.9 }}
                       className="flex gap-3.5 p-3 rounded-2xl border border-brand-coffee-200 bg-white hover:border-brand-pink-200 shadow-sm transition-all"
                     >
-                      {/* Product Thumbnail */}
                       <div className="w-20 h-20 bg-brand-coffee-50 rounded-xl overflow-hidden flex-shrink-0 border border-brand-coffee-100 p-1 flex items-center justify-center">
                         <img
                           src={item.image}
@@ -123,7 +118,6 @@ const CartDrawer = () => {
                         />
                       </div>
 
-                      {/* Product Details */}
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
                           <div className="flex items-start justify-between gap-1">
@@ -150,7 +144,6 @@ const CartDrawer = () => {
                           </div>
                         </div>
 
-                        {/* Price & Quantity Controls */}
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-brand-coffee-50">
                           <div className="flex items-center border border-brand-coffee-200 rounded-lg bg-brand-coffee-50 overflow-hidden">
                             <button
@@ -181,7 +174,6 @@ const CartDrawer = () => {
                 )}
               </div>
 
-              {/* Footer Summary & Checkout CTA */}
               {cartItems.length > 0 && (
                 <div className="p-5 border-t border-brand-coffee-200 bg-brand-coffee-50/70 space-y-3">
                   <div className="space-y-1.5 text-xs text-brand-coffee-700">

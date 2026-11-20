@@ -14,18 +14,15 @@ const seedDatabase = async () => {
     await mongoose.connect(mongoUri);
     console.log('🌱 Connected to MongoDB for seeding...');
 
-    // Clear existing data
     await Product.deleteMany({});
     await Admin.deleteMany({});
     await Order.deleteMany({});
     await Message.deleteMany({});
     console.log('🧹 Cleared old collections');
 
-    // Seed Products
     const createdProducts = await Product.insertMany(defaultProductsData);
     console.log(`✅ Seeded ${createdProducts.length} Products`);
 
-    // Seed Master Admin
     const adminEmail = (process.env.ADMIN_EMAIL || 'nathan@gmail.com').toLowerCase();
     const adminPassword = process.env.ADMIN_PASSWORD || '12345678';
 
@@ -37,7 +34,6 @@ const seedDatabase = async () => {
     });
     console.log(`✅ Seeded Master Admin: ${admin.email}`);
 
-    // Seed Sample Realistic Orders
     const sampleOrders = [
       {
         orderId: 'NC-2026-881920',
@@ -193,7 +189,6 @@ const seedDatabase = async () => {
     await Order.insertMany(sampleOrders);
     console.log(`✅ Seeded ${sampleOrders.length} Sample Orders`);
 
-    // Seed Sample Messages
     await Message.create({
       name: 'Karthik Raja',
       email: 'karthik@southcafes.in',

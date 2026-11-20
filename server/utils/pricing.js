@@ -5,25 +5,15 @@ export const BASE_PRODUCT_PRICE = 399;
 export const STANDARD_DELIVERY_CHARGE = 40;
 export const TAMIL_NADU_PINCODE_REGEX = /^6[0-4]\d{4}$/;
 
-/**
- * Validate whether a 6-digit Indian pincode belongs to Tamil Nadu (starts with 60, 61, 62, 63, or 64).
- */
 export const isValidTamilNaduPincode = (pincode) =>
   TAMIL_NADU_PINCODE_REGEX.test(String(pincode || '').trim());
 
-/**
- * Validate prepaid payment method only (COD is disabled).
- */
 export const isPrepaidPaymentMethod = (rawMethod) => {
   if (!rawMethod) return true;
   const normalized = String(rawMethod).trim().toLowerCase();
   return normalized === 'prepaid' || normalized === 'online' || normalized === 'cashfree';
 };
 
-/**
- * Resolve product & variant price strictly on the backend (MongoDB Product collection first,
- * then fallback defaultProducts catalog, then BASE_PRODUCT_PRICE ₹399) — never trusting frontend totals.
- */
 export const resolveAuthoritativeCart = async (items = [], fallbackCatalog = []) => {
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error('No order items provided.');
@@ -99,9 +89,6 @@ export const resolveAuthoritativeCart = async (items = [], fallbackCatalog = [])
   };
 };
 
-/**
- * Compute authoritative Prepaid-only deliveryCharge and finalTotal (subtotal + ₹40 delivery).
- */
 export const calculateCheckoutTotals = (subtotal) => {
   const cleanSubtotal = Number(Number(subtotal || 0).toFixed(2));
   const deliveryCharge = cleanSubtotal > 0 ? STANDARD_DELIVERY_CHARGE : 0;

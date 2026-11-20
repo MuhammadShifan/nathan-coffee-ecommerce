@@ -53,11 +53,9 @@ const HomePage = () => {
         if (res.data?.success && res.data?.heroImageUrl) {
           setHeroImageUrl(res.data.heroImageUrl);
         } else {
-          // Fallback to default if API response is empty/null
           setHeroImageUrl('/images/hero-coffee.jpg');
         }
       } catch (err) {
-        // Fallback to default only if API request completely fails
         setHeroImageUrl('/images/hero-coffee.jpg');
       } finally {
         setHeroLoading(false);
@@ -81,19 +79,13 @@ const HomePage = () => {
       />
 
       <div className="space-y-12 sm:space-y-20 lg:space-y-24 pb-16 w-full overflow-hidden">
-        {/* ========================================================================= */}
-        {/* HERO SECTION */}
-        {/* ========================================================================= */}
         <section className="relative overflow-hidden bg-gradient-to-b from-brand-pink-50/70 via-white to-brand-coffee-50 pt-6 sm:pt-12 lg:pt-14 pb-12 sm:pb-16 border-b border-brand-coffee-200/60 w-full">
-          {/* Subtle Ambient Brand Glow */}
           <div className="absolute top-0 right-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-brand-pink-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-10 left-10 w-72 sm:w-96 h-72 sm:h-96 bg-brand-yellow-400/15 rounded-full blur-3xl pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
-              {/* Hero Left Content */}
               <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left w-full">
-                {/* Vintage Badge */}
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -109,7 +101,6 @@ const HomePage = () => {
                   </span>
                 </motion.div>
 
-                {/* H1 Tag for Aggressive SEO */}
                 <motion.h1
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -123,7 +114,6 @@ const HomePage = () => {
                   from Thanjavur
                 </motion.h1>
 
-                {/* Sub-heading & Tamil Slogan */}
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -138,7 +128,6 @@ const HomePage = () => {
                   </p>
                 </motion.div>
 
-                {/* CTA Action Buttons */}
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -164,7 +153,6 @@ const HomePage = () => {
                   </Link>
                 </motion.div>
 
-                {/* Trust Highlights Grid */}
                 <div className="pt-5 sm:pt-6 border-t border-brand-coffee-200/80 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-left">
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
@@ -185,7 +173,6 @@ const HomePage = () => {
                 </div>
               </div>
 
-              {/* Hero Right Visuals */}
               <div className="lg:col-span-5 relative w-full">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -193,10 +180,8 @@ const HomePage = () => {
                   transition={{ duration: 0.6 }}
                   className="relative mx-auto w-full max-w-sm sm:max-w-md lg:max-w-none"
                 >
-                  {/* Decorative Frame */}
                   <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white ring-4 ring-brand-pink-500/20 bg-white w-full min-h-[300px] xs:min-h-[340px] sm:min-h-[400px] md:min-h-[420px] flex items-center justify-center p-2 sm:p-3">
                     {heroLoading || !heroImageUrl ? (
-                      /* Blank / Skeleton placeholder while loading to prevent old default image flash */
                       <div
                         className="w-full h-full min-h-[280px] xs:min-h-[340px] sm:min-h-[400px] md:min-h-[420px] rounded-2xl bg-gradient-to-br from-brand-coffee-50/60 via-brand-pink-50/30 to-brand-coffee-100/40 flex flex-col items-center justify-center gap-2.5 animate-pulse"
                         aria-hidden="true"
@@ -232,9 +217,6 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* ========================================================================= */}
-        {/* FEATURED PRODUCTS SECTION */}
-        {/* ========================================================================= */}
         <section id="products-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 space-y-2.5 sm:space-y-3">
             <div className="inline-flex items-center gap-1.5 bg-brand-pink-100 text-brand-pink-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -249,7 +231,6 @@ const HomePage = () => {
             </p>
           </div>
 
-          {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
             {products.slice(0, 6).map((product) => (
               <ProductCard key={product._id || product.slug} product={product} />
@@ -269,9 +250,6 @@ const HomePage = () => {
           )}
         </section>
 
-        {/* ========================================================================= */}
-        {/* WHY CHOOSE US / VALUE PROPOSITION */}
-        {/* ========================================================================= */}
         <section className="bg-brand-coffee-100/60 py-12 sm:py-16 lg:py-20 border-y border-brand-coffee-200/80 w-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-2.5 sm:space-y-3">
@@ -300,7 +278,6 @@ const HomePage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 w-full">
-              {/* Feature 1 */}
               <div className="bg-white p-6 sm:p-8 rounded-3xl border border-brand-coffee-200 shadow-md hover:shadow-xl hover:border-brand-pink-300 transition-all space-y-3.5 sm:space-y-4">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-brand-pink-50 border border-brand-pink-200 flex items-center justify-center text-brand-pink-600 shadow-inner">
                   <Award className="w-6 h-6 sm:w-7 sm:h-7" />
@@ -315,7 +292,6 @@ const HomePage = () => {
                 </div>
               </div>
 
-              {/* Feature 2 */}
               <div className="bg-white p-6 sm:p-8 rounded-3xl border border-brand-coffee-200 shadow-md hover:shadow-xl hover:border-brand-pink-300 transition-all space-y-3.5 sm:space-y-4">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-brand-yellow-50 border border-brand-yellow-300 flex items-center justify-center text-brand-yellow-600 shadow-inner">
                   <Flame className="w-6 h-6 sm:w-7 sm:h-7" />
@@ -329,7 +305,6 @@ const HomePage = () => {
                 </div>
               </div>
 
-              {/* Feature 3 */}
               <div className="bg-white p-6 sm:p-8 rounded-3xl border border-brand-coffee-200 shadow-md hover:shadow-xl hover:border-brand-pink-300 transition-all space-y-3.5 sm:space-y-4">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-inner">
                   <Truck className="w-6 h-6 sm:w-7 sm:h-7" />
@@ -347,9 +322,6 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* ========================================================================= */}
-        {/* HERITAGE TEASER SECTION */}
-        {/* ========================================================================= */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="bg-white rounded-3xl border-2 border-brand-pink-100 p-6 sm:p-10 lg:p-12 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center w-full">
             <div className="lg:col-span-5 flex justify-center w-full">
@@ -420,9 +392,6 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* ========================================================================= */}
-        {/* CUSTOMER REVIEWS */}
-        {/* ========================================================================= */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 space-y-2">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-coffee-950">
@@ -481,9 +450,6 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* ========================================================================= */}
-        {/* AGGRESSIVE SEO CONTENT BLOCK */}
-        {/* ========================================================================= */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="bg-brand-coffee-100/50 rounded-3xl p-6 sm:p-8 border border-brand-coffee-200/80 space-y-3 sm:space-y-4">
             <h2 className="text-base sm:text-lg font-bold text-brand-coffee-950 flex items-center gap-2">

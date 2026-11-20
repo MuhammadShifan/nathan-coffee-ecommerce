@@ -64,7 +64,6 @@ const AdminMessagesPage = () => {
           </button>
         </div>
 
-        {/* Messages List */}
         <div className="space-y-4">
           {messages.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center text-brand-coffee-500 border border-brand-coffee-200">
@@ -108,12 +107,10 @@ const AdminMessagesPage = () => {
                   </div>
                 </div>
 
-                {/* Message Body */}
                 <p className="text-xs sm:text-sm text-brand-coffee-800 leading-relaxed">
                   {msg.message}
                 </p>
 
-                {/* Sender Contact Info */}
                 <div className="flex flex-wrap items-center gap-4 pt-3 border-t border-brand-coffee-100 text-xs text-brand-coffee-700">
                   {msg.phone && (
                     <a

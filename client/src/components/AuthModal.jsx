@@ -27,7 +27,7 @@ const AuthModal = () => {
 
   const { showToast } = useCart();
 
-  const [step, setStep] = useState('phone'); // 'phone' | 'otp'
+  const [step, setStep] = useState('phone');
   const [mobileNumber, setMobileNumber] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
@@ -47,7 +47,6 @@ const AuthModal = () => {
   ];
   const phoneInputRef = useRef(null);
 
-  // Initialize or clear state when modal opens/closes
   useEffect(() => {
     if (isAuthModalOpen) {
       setStep('phone');
@@ -62,7 +61,6 @@ const AuthModal = () => {
     }
   }, [isAuthModalOpen]);
 
-  // Resend Countdown Timer
   useEffect(() => {
     let timer;
     if (step === 'otp' && resendTimer > 0) {
@@ -81,7 +79,6 @@ const AuthModal = () => {
 
   if (!isAuthModalOpen) return null;
 
-  // Handle Phone input formatting (digits only, max 10)
   const handlePhoneChange = (e) => {
     const rawVal = e.target.value.replace(/\D/g, '');
     if (rawVal.length <= 10) {
@@ -90,7 +87,6 @@ const AuthModal = () => {
     }
   };
 
-  // Step 1: Submit Phone Number -> Request OTP via 2Factor.in
   const handleSendOtpSubmit = async (e) => {
     e?.preventDefault();
     setErrorMessage('');
@@ -130,7 +126,6 @@ const AuthModal = () => {
     }
   };
 
-  // Handle segmented OTP input typing & backspace
   const handleOtpChange = (index, value) => {
     const char = value.slice(-1).replace(/\D/g, '');
     const newOtp = [...otpValues];
@@ -138,12 +133,10 @@ const AuthModal = () => {
     setOtpValues(newOtp);
     setErrorMessage('');
 
-    // Auto advance focus
     if (char && index < 5) {
       inputRefs[index + 1].current?.focus();
     }
 
-    // Auto submit if 6 digits filled
     const joined = newOtp.join('');
     if (joined.length === 6 && index === 5 && char) {
       triggerVerify(joined);
@@ -173,7 +166,6 @@ const AuthModal = () => {
     }
   };
 
-  // Step 2: Submit OTP -> Verify via 2Factor.in with backend
   const triggerVerify = async (otpToVerify) => {
     const otpCode = otpToVerify || otpValues.join('');
     if (otpCode.length !== 6) {
@@ -201,17 +193,14 @@ const AuthModal = () => {
         const receivedToken = res.data.token;
         const receivedUser = res.data.user;
 
-        // 1. Save authentication token in localStorage
         localStorage.setItem('Nathan_user_token', receivedToken);
         if (receivedUser) {
           localStorage.setItem('Nathan_user_info', JSON.stringify(receivedUser));
         }
 
-        // 2. Update user's authenticated state in context
         if (typeof setUser === 'function') setUser(receivedUser);
         if (typeof setUserToken === 'function') setUserToken(receivedToken);
 
-        // 3. Close the modal
         closeAuthModal();
 
         showToast(`Welcome to Nathan Coffee, +91 ${mobileNumber}! ☕`, 'success');
@@ -232,7 +221,6 @@ const AuthModal = () => {
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -241,7 +229,6 @@ const AuthModal = () => {
           className="fixed inset-0 bg-brand-coffee-950/70 backdrop-blur-md transition-opacity"
         />
 
-        {/* Modal Card */}
         <motion.div
           initial={{ opacity: 0, scale: 0.92, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -249,12 +236,10 @@ const AuthModal = () => {
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-brand-pink-100 overflow-hidden z-10 my-8"
         >
-          {/* Top Decorative Header */}
           <div className="bg-gradient-to-r from-brand-pink-700 via-brand-pink-600 to-brand-pink-800 p-6 text-white text-center relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-yellow-400/20 rounded-full blur-xl pointer-events-none" />
             <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-pink-400/30 rounded-full blur-xl pointer-events-none" />
 
-            {/* Close Button */}
             <button
               onClick={closeAuthModal}
               className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -263,7 +248,6 @@ const AuthModal = () => {
               <X className="w-5 h-5" />
             </button>
 
-            {/* Brand Logo & Tag */}
             <div className="inline-flex items-center justify-center p-2 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 mb-3 shadow-inner">
               <Coffee className="w-7 h-7 text-brand-yellow-300" />
             </div>
@@ -278,9 +262,7 @@ const AuthModal = () => {
             </p>
           </div>
 
-          {/* Form Content */}
           <div className="p-6 sm:p-7 space-y-5">
-            {/* Error Notification Banner */}
             {errorMessage && (
               <motion.div
                 initial={{ opacity: 0, y: -5 }}
@@ -292,7 +274,6 @@ const AuthModal = () => {
               </motion.div>
             )}
 
-            {/* STEP 1: MOBILE NUMBER INPUT */}
             {step === 'phone' && (
               <form onSubmit={handleSendOtpSubmit} className="space-y-4">
                 <div>
@@ -304,7 +285,6 @@ const AuthModal = () => {
                   </label>
 
                   <div className="relative flex items-center">
-                    {/* Country Code Prefix */}
                     <div className="absolute left-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-brand-coffee-100/80 border border-brand-coffee-200 text-brand-coffee-900 font-extrabold text-sm select-none">
                       <span className="text-sm">🇮🇳</span>
                       <span>+91</span>
@@ -349,10 +329,8 @@ const AuthModal = () => {
               </form>
             )}
 
-            {/* STEP 2: 6-DIGIT OTP VERIFICATION */}
             {step === 'otp' && (
               <div className="space-y-4">
-                {/* Active Phone Display + Change Action */}
                 <div className="flex items-center justify-between p-3 rounded-2xl bg-brand-pink-50/70 border border-brand-pink-200 text-xs">
                   <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-brand-pink-600" />
@@ -379,7 +357,6 @@ const AuthModal = () => {
                     Enter 6-Digit OTP Code
                   </label>
 
-                  {/* Segmented OTP Input Grid */}
                   <div
                     className="flex items-center justify-center gap-2 sm:gap-2.5"
                     onPaste={handlePaste}
@@ -400,7 +377,6 @@ const AuthModal = () => {
                   </div>
                 </div>
 
-                {/* Submit OTP Button */}
                 <button
                   type="button"
                   onClick={() => triggerVerify()}
@@ -420,7 +396,6 @@ const AuthModal = () => {
                   )}
                 </button>
 
-                {/* Resend OTP Section */}
                 <div className="text-center pt-2">
                   {canResend ? (
                     <button
@@ -442,7 +417,6 @@ const AuthModal = () => {
             )}
           </div>
 
-          {/* Footer Highlights */}
           <div className="px-6 py-4 bg-brand-coffee-50 border-t border-brand-coffee-100 flex items-center justify-between text-[11px] text-brand-coffee-600">
             <span className="flex items-center gap-1 font-semibold">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />

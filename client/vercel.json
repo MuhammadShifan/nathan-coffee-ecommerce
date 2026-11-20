@@ -10,14 +10,14 @@
         },
         {
             "source": "/sitemap.xml",
-            "destination": "https://nathan-coffee-ecommerce.onrender.com/sitemap.xml"
+            "destination": "/sitemap.xml"
         },
         {
             "source": "/robots.txt",
-            "destination": "https://nathan-coffee-ecommerce.onrender.com/robots.txt"
+            "destination": "/robots.txt"
         },
         {
-            "source": "/(.*)",
+            "source": "/((?!api|uploads|sitemap\\.xml|robots\\.txt).*)",
             "destination": "/index.html"
         }
     ]

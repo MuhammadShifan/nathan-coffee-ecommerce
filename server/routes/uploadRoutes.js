@@ -4,11 +4,6 @@ import { uploadProductImagesMiddleware } from '../middleware/uploadMiddleware.js
 
 const router = express.Router();
 
-/**
- * @route   POST /api/upload
- * @desc    Upload product image file(s) via Multer disk storage (Admin Protected)
- * @access  Private/Admin
- */
 router.post('/', protectAdmin, uploadProductImagesMiddleware, (req, res) => {
   try {
     const rawFiles = [];
@@ -27,7 +22,6 @@ router.post('/', protectAdmin, uploadProductImagesMiddleware, (req, res) => {
     const fileDetails = [];
 
     for (const file of rawFiles) {
-      // Clean relative path saved directly in DB and served by express.static
       const relativePath = `/uploads/${file.filename}`;
       uploadedUrls.push(relativePath);
 

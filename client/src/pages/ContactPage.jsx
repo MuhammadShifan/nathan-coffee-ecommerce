@@ -64,7 +64,6 @@ const ContactPage = () => {
       }
     } catch (err) {
       console.error('Contact submission error:', err);
-      // Friendly fallback success simulation if DB is quiet
       setStatusMessage({
         type: 'success',
         text: 'Thank you! Your message has been safely recorded. You can also call us at +91 63838 05976 for instant dispatch.',
@@ -86,9 +85,6 @@ const ContactPage = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12 space-y-8 sm:space-y-12 w-full overflow-hidden">
-        {/* ========================================================================= */}
-        {/* HEADER & BREADCRUMBS */}
-        {/* ========================================================================= */}
         <div className="space-y-2.5 sm:space-y-3">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-brand-coffee-600 flex-wrap">
             <Link to="/" className="hover:text-brand-pink-600 transition-colors">
@@ -98,7 +94,6 @@ const ContactPage = () => {
             <span className="text-brand-pink-600 font-bold">Contact Us</span>
           </nav>
 
-          {/* H1 Tag for SEO */}
           <h1 className="text-2xl xs:text-3xl sm:text-5xl font-extrabold text-brand-coffee-950 tracking-tight">
             Contact Us - <span className="text-brand-pink-600">Nathan Coffee</span>
           </h1>
@@ -108,11 +103,7 @@ const ContactPage = () => {
           </p>
         </div>
 
-        {/* ========================================================================= */}
-        {/* DIRECT FAST CONTACT CARDS */}
-        {/* ========================================================================= */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6 w-full">
-          {/* Direct Call */}
           <div className="p-6 rounded-3xl bg-white border border-brand-coffee-200 shadow-md hover:shadow-xl hover:border-brand-pink-300 transition-all space-y-3 flex flex-col justify-between">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-brand-pink-50 border border-brand-pink-200 flex items-center justify-center text-brand-pink-600">
@@ -145,7 +136,6 @@ const ContactPage = () => {
             </div>
           </div>
 
-          {/* WhatsApp Direct Chat */}
           <div className="p-6 rounded-3xl bg-white border border-brand-coffee-200 shadow-md hover:shadow-xl hover:border-emerald-300 transition-all space-y-3 flex flex-col justify-between">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
@@ -182,7 +172,6 @@ const ContactPage = () => {
             </div>
           </div>
 
-          {/* Email Support */}
           <div className="p-6 rounded-3xl bg-white border border-brand-coffee-200 shadow-md hover:shadow-xl hover:border-brand-yellow-400 transition-all space-y-3 flex flex-col justify-between">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-brand-yellow-50 border border-brand-yellow-200 flex items-center justify-center text-brand-yellow-600">
@@ -217,11 +206,7 @@ const ContactPage = () => {
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* LOCATIONS & INQUIRY FORM GRID */}
-        {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          {/* Left: Physical Locations & Working Hours */}
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-brand-coffee-200 shadow-md space-y-6">
               <div className="space-y-1">
@@ -231,7 +216,6 @@ const ContactPage = () => {
                 <h2 className="text-xl font-extrabold text-brand-coffee-950">Where to Find Us</h2>
               </div>
 
-              {/* Thanjavur Location */}
               <div className="p-4 rounded-2xl bg-brand-coffee-50 border border-brand-coffee-200 space-y-2">
                 <div className="flex items-center gap-2 text-brand-pink-600 font-bold text-sm">
                   <MapPin className="w-4 h-4" />
@@ -245,21 +229,6 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              {/* Thanjavur Location */}
-              {/* <div className="p-4 rounded-2xl bg-brand-coffee-50 border border-brand-coffee-200 space-y-2">
-                <div className="flex items-center gap-2 text-brand-pink-600 font-bold text-sm">
-                  <MapPin className="w-4 h-4" />
-                  <span>Thanjavur Hub & Roastery:</span>
-                </div>
-                <p className="text-xs text-brand-coffee-800 leading-relaxed">
-                  <strong>Avinashi Road / R.S. Puram,</strong> Thanjavur, Tamil Nadu - 641002
-                </p>
-                <p className="text-[11px] text-brand-coffee-500">
-                  Primary Online Order Dispatch Center
-                </p>
-              </div> */}
-
-              {/* Working Hours */}
               <div className="p-4 rounded-2xl bg-brand-yellow-50 border border-brand-yellow-200/80 flex items-start gap-3">
                 <Clock className="w-5 h-5 text-brand-yellow-600 flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-brand-coffee-900 leading-relaxed">
@@ -271,7 +240,6 @@ const ContactPage = () => {
             </div>
           </div>
 
-          {/* Right: Message Form */}
           <div className="lg:col-span-7">
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-brand-coffee-200 shadow-xl space-y-6">
               <div className="space-y-1">

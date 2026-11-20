@@ -43,7 +43,6 @@ const AdminOrdersPage = () => {
       }
     } catch (err) {
       console.error('Error fetching admin orders:', err);
-      // Fallback to /api/orders if /api/admin/orders failed
       try {
         const fallbackRes = await api.get(
           `/api/orders?status=${activeTab}&search=${encodeURIComponent(searchTerm)}`
@@ -53,7 +52,6 @@ const AdminOrdersPage = () => {
           return;
         }
       } catch (fallbackErr) {
-        // use main error
       }
       setFetchError(
         err.response?.data?.message || err.message || 'Failed to connect to server'
@@ -116,7 +114,6 @@ const AdminOrdersPage = () => {
       }
     } catch (err) {
       console.error('Error updating order status:', err);
-      // Optimistic update
       setOrders((prev) =>
         prev.map((o) =>
           o._id === orderId
@@ -148,7 +145,6 @@ const AdminOrdersPage = () => {
   return (
     <AdminLayout title="Manage Orders">
       <div className="space-y-6">
-        {/* Top Control Bar: Search & Status Tabs */}
         <div className="bg-white p-6 rounded-3xl border border-brand-coffee-200 shadow-sm space-y-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
@@ -158,7 +154,6 @@ const AdminOrdersPage = () => {
               </p>
             </div>
 
-            {/* Search Input */}
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full md:w-auto">
               <div className="relative flex-1 md:w-80">
                 <Search className="w-4 h-4 text-brand-coffee-400 absolute left-3.5 top-3" />
@@ -190,7 +185,6 @@ const AdminOrdersPage = () => {
             </form>
           </div>
 
-          {/* Filter Tabs */}
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-brand-coffee-100">
             {filterTabs.map((tab) => (
               <button
@@ -208,7 +202,6 @@ const AdminOrdersPage = () => {
           </div>
         </div>
 
-        {/* Notification Alert */}
         {notification && (
           <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 shadow-sm">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
@@ -216,7 +209,6 @@ const AdminOrdersPage = () => {
           </div>
         )}
 
-        {/* Error Alert */}
         {fetchError && (
           <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center justify-between gap-3 shadow-sm">
             <div className="flex items-center gap-2">
@@ -232,7 +224,6 @@ const AdminOrdersPage = () => {
           </div>
         )}
 
-        {/* Orders Table Card */}
         <div className="bg-white rounded-3xl border border-brand-coffee-200 shadow-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-brand-coffee-900">
@@ -292,7 +283,6 @@ const AdminOrdersPage = () => {
 
                     return (
                       <tr key={order._id} className="hover:bg-brand-pink-50/20 transition-colors">
-                        {/* Order ID & Date */}
                         <td className="p-4 font-mono font-bold text-brand-coffee-950">
                           <div className="text-brand-pink-700 font-extrabold">{order.orderId}</div>
                           <div className="text-[10px] font-sans text-brand-coffee-500 font-normal mt-0.5">
@@ -308,7 +298,6 @@ const AdminOrdersPage = () => {
                           </div>
                         </td>
 
-                        {/* Customer & Account Details */}
                         <td className="p-4">
                           <div className="font-bold text-brand-coffee-950">
                             {order.customer?.name || 'Valued Customer'}
@@ -329,7 +318,6 @@ const AdminOrdersPage = () => {
                           )}
                         </td>
 
-                        {/* Address */}
                         <td className="p-4 max-w-[180px] text-brand-coffee-700 text-[11px] leading-snug">
                           {order.customer?.address ? (
                             <>
@@ -342,7 +330,6 @@ const AdminOrdersPage = () => {
                           )}
                         </td>
 
-                        {/* Items */}
                         <td className="p-4">
                           <div className="space-y-1">
                             {order.items?.map((item, idx) => (
@@ -357,7 +344,6 @@ const AdminOrdersPage = () => {
                           </div>
                         </td>
 
-                        {/* Payment Status & Tracking */}
                         <td className="p-4 space-y-1.5">
                           <span
                             className={`inline-block text-[10px] font-black px-2 py-0.5 rounded uppercase ${
@@ -384,12 +370,10 @@ const AdminOrdersPage = () => {
                           </div>
                         </td>
 
-                        {/* Total Amount */}
                         <td className="p-4 font-black text-brand-coffee-950 text-sm">
                           ₹{order.finalTotal ?? order.pricing?.totalAmount ?? 0}
                         </td>
 
-                        {/* Status Dropdown & Update Button */}
                         <td className="p-4">
                           <div className="flex items-center gap-1.5">
                             <select
@@ -416,7 +400,6 @@ const AdminOrdersPage = () => {
                           </div>
                         </td>
 
-                        {/* Customer Direct Contact */}
                         <td className="p-4">
                           <div className="flex items-center justify-center gap-1.5">
                             <a

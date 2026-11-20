@@ -60,9 +60,6 @@ const AboutPage = () => {
       />
 
       <div className="space-y-12 sm:space-y-20 lg:space-y-24 pb-16 w-full overflow-hidden">
-        {/* ========================================================================= */}
-        {/* HERO SECTION */}
-        {/* ========================================================================= */}
         <section className="bg-gradient-to-b from-brand-pink-50 via-white to-brand-coffee-50 pt-8 sm:pt-12 pb-12 sm:pb-16 border-b border-brand-coffee-200/60 w-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3.5 sm:space-y-4 w-full">
             <div className="inline-flex items-center gap-1.5 bg-brand-pink-100 text-brand-pink-800 text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider">
@@ -70,7 +67,6 @@ const AboutPage = () => {
               <span>Generations of Authentic Coffee Passion</span>
             </div>
 
-            {/* H1 Tag for SEO */}
             <h1 className="text-2xl xs:text-3xl sm:text-5xl font-extrabold text-brand-coffee-950 tracking-tight max-w-4xl mx-auto">
               Our Legacy & Heritage - <span className="text-brand-pink-600">Nathan Coffee</span>
             </h1>
@@ -84,12 +80,8 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* ========================================================================= */}
-        {/* LEGACY & GRANDFATHER SECTION */}
-        {/* ========================================================================= */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="bg-white rounded-3xl border-2 border-brand-pink-100 shadow-2xl p-6 sm:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center w-full">
-            {/* Grandfather Photo Container */}
             <div className="lg:col-span-5 flex flex-col items-center w-full">
               <div className="relative group max-w-full">
                 <div className="w-60 sm:w-80 max-w-full rounded-3xl overflow-hidden border-4 border-brand-yellow-400 shadow-2xl ring-4 sm:ring-8 ring-brand-pink-100 bg-brand-coffee-950 transition-transform duration-500 group-hover:scale-105 mx-auto">
@@ -102,14 +94,12 @@ const AboutPage = () => {
                   />
                 </div>
 
-                {/* Seal Badge */}
                 <div className="absolute -top-3 -right-2 sm:-right-3 bg-brand-pink-600 text-white p-2.5 sm:p-3 rounded-2xl shadow-xl border-2 border-white ring-2 ring-brand-yellow-400 rotate-6 flex items-center gap-1 text-[11px] sm:text-xs font-black">
                   <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-yellow-400" />
                   <span>EST. 1950</span>
                 </div>
               </div>
 
-              {/* Caption */}
               <div className="mt-5 sm:mt-6 text-center max-w-xs">
                 <p className="text-sm font-bold text-brand-coffee-950 leading-relaxed">
                   Founded by our beloved G. Saravanan Pillai on Thanjavur.
@@ -120,7 +110,6 @@ const AboutPage = () => {
               </div>
             </div>
 
-            {/* Story & Sacred Quote */}
             <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-left w-full">
               <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-widest text-brand-pink-600 bg-brand-pink-50 px-3 py-1 rounded-full border border-brand-pink-200">
                 The Heritage Story
@@ -134,7 +123,6 @@ const AboutPage = () => {
                 நமது தஞ்சாவூரின் பெருமை என்றுமே பாரம்பரியம் கலந்த நிறைந்தது என்று சொல்லுவதில் நமக்கு பெருமை. அதே பாரம்பரிய மிக்க தரத்துடனும், நூற்றுக்கு நூறு சுத்தமானது, நமது நாதன் காபி. தஞ்சாவூருக்கு மற்றொரு பெருமை இந்த நாதன்காபி. 1964 களில் தெய்வத்திரு. G.சரவணன் பிள்ளை அவர்களால் நிறுவப்பட்டு இன்றும் அதே தரத்துடனும் நூற்றுக்கு நூறு சுத்தமானதாக காபியை மக்களுக்கு வழங்கப்பட்டு வருகிறது. தரமான காப்பி கொட்டைகளை சிக்மகளூர், ஹாசன் மற்றும் கூசல் நகரில் இருந்து Purchase செய்து தரமான முறையில் காப்பி கொட்டைகளில் (PB, Plantain AA, c coffee, ROB) சரியான அளவில் Roasted செய்து ஒரு தரமிக்க காபியை மக்களுக்கு கொடுப்பதில் எங்களுக்கு ஒரு பெருமிதம். அன்றும், இன்றும், என்றும் இதே தரமிக்க காபியினை நாதன் காப்பியை வழங்குவோம். நன்றி, உரிமையாளர் <br /> <br /> <span className="text-xs sm:text-sm font-extrabold text-brand-coffee-950 italic">S. ராஜ்குமார் சரவணன்.</span>
               </p>
 
-              {/* Famous Quote Box */}
               <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-brand-yellow-50 to-brand-pink-50 border-l-4 border-brand-pink-600 shadow-sm space-y-1.5 sm:space-y-2">
                 <p className="text-sm sm:text-lg font-extrabold text-brand-coffee-950 italic">
                   "Quality over quantity is the true essence of great coffee."
@@ -144,7 +132,6 @@ const AboutPage = () => {
                 </p>
               </div>
 
-              {/* Trust Features */}
               <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-2">
                 <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-bold text-brand-coffee-900">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
@@ -167,9 +154,6 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* ========================================================================= */}
-        {/* TIMELINE SECTION */}
-        {/* ========================================================================= */}
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center max-w-xl mx-auto mb-8 sm:mb-12 space-y-2">
             <span className="text-[11px] sm:text-xs font-extrabold text-brand-pink-600 uppercase tracking-wider bg-brand-pink-50 px-3 py-1 rounded-full border border-brand-pink-200">
@@ -183,14 +167,12 @@ const AboutPage = () => {
           <div className="relative border-l-2 border-brand-pink-400 ml-3 sm:ml-32 space-y-8 sm:space-y-10">
             {timelineMilestones.map((item, idx) => (
               <div key={item.year} className="relative pl-5 sm:pl-8 group">
-                {/* Year Marker (Left on desktop, badge on mobile) */}
                 <div className="sm:absolute sm:-left-32 sm:top-0 sm:w-24 sm:text-right font-black text-brand-pink-600 text-base sm:text-xl mb-1 sm:mb-0">
                   <span className="bg-brand-pink-100 sm:bg-transparent px-2.5 py-0.5 sm:px-0 sm:py-0 rounded-full text-xs sm:text-xl font-black">
                     {item.year}
                   </span>
                 </div>
 
-                {/* Dot */}
                 <div className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-white border-4 border-brand-pink-600 group-hover:scale-125 transition-transform" />
 
                 <div className="bg-white p-5 sm:p-6 rounded-2xl border border-brand-coffee-200 shadow-sm group-hover:border-brand-pink-300 group-hover:shadow-md transition-all space-y-2">
@@ -204,9 +186,6 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* ========================================================================= */}
-        {/* CALL TO ACTION */}
-        {/* ========================================================================= */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="bg-gradient-to-r from-brand-pink-600 via-brand-pink-700 to-brand-coffee-950 rounded-3xl p-6 sm:p-10 lg:p-12 text-white shadow-2xl text-center space-y-5 sm:space-y-6 border-2 border-brand-yellow-400 w-full">
             <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold">

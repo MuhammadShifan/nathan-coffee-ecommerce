@@ -4,9 +4,6 @@ import api from '../services/api';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // ----------------------------------------------------
-  // Admin State & Methods
-  // ----------------------------------------------------
   const [admin, setAdmin] = useState(() => {
     try {
       const saved = localStorage.getItem('Nathan_admin_info');
@@ -51,9 +48,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('adminToken');
   };
 
-  // ----------------------------------------------------
-  // Customer / User OTP Auth State & Methods
-  // ----------------------------------------------------
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem('Nathan_user_info');
@@ -75,7 +69,6 @@ export const AuthProvider = ({ children }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authSuccessCallback, setAuthSuccessCallback] = useState(null);
 
-  // Sync token & verify current user on mount if token exists
   useEffect(() => {
     const verifyCurrentUserSession = async () => {
       const storedToken = localStorage.getItem('Nathan_user_token');
@@ -99,7 +92,6 @@ export const AuthProvider = ({ children }) => {
 
     verifyCurrentUserSession();
 
-    // Listen for global session expiration events from api response interceptor
     const handleSessionExpired = () => {
       setUser(null);
       setUserToken(null);
@@ -111,10 +103,6 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  /**
-   * Open the login modal with an optional callback to execute upon successful login
-   * @param {Function} [onSuccess] - Callback function, e.g. () => navigate('/checkout')
-   */
   const openAuthModal = (onSuccess = null) => {
     if (typeof onSuccess === 'function') {
       setAuthSuccessCallback(() => onSuccess);
@@ -129,9 +117,6 @@ export const AuthProvider = ({ children }) => {
     setAuthSuccessCallback(null);
   };
 
-  /**
-   * Request OTP for a 10-digit mobile number via 2Factor
-   */
   const sendOtp = async (phoneNumber) => {
     setUserLoading(true);
     try {
@@ -148,9 +133,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Verify OTP via 2Factor and log the user in
-   */
   const verifyOtp = async (phoneNumber, otp, sessionId) => {
     setUserLoading(true);
     try {
@@ -172,7 +154,6 @@ export const AuthProvider = ({ children }) => {
         setUserLoading(false);
         setIsAuthModalOpen(false);
 
-        // If a callback was pending (e.g. checkout redirect), trigger it
         if (typeof authSuccessCallback === 'function') {
           const cb = authSuccessCallback;
           setAuthSuccessCallback(null);
@@ -191,9 +172,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Log out current user customer session
-   */
   const logoutUser = () => {
     setUser(null);
     setUserToken(null);
@@ -201,9 +179,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('Nathan_user_info');
   };
 
-  /**
-   * Update user profile
-   */
   const updateUserProfile = async (profileData) => {
     try {
       const res = await api.put('/api/auth/profile', profileData);
@@ -221,7 +196,6 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        // Admin
         admin,
         isAuthenticated: Boolean(
           admin?.token ||
@@ -231,7 +205,6 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
 
-        // Customer User
         user,
         setUser,
         userToken,

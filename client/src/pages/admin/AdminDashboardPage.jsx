@@ -89,9 +89,7 @@ const AdminDashboardPage = () => {
   return (
     <AdminLayout title="Dashboard Overview">
       <div className="space-y-8">
-        {/* Top Summary Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Total Revenue */}
           <div className="bg-white p-6 rounded-3xl border border-brand-coffee-200 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-brand-coffee-600 uppercase tracking-wider">
@@ -112,7 +110,6 @@ const AdminDashboardPage = () => {
             </div>
           </div>
 
-          {/* Total Orders Count */}
           <div className="bg-white p-6 rounded-3xl border border-brand-coffee-200 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-brand-coffee-600 uppercase tracking-wider">
@@ -132,7 +129,6 @@ const AdminDashboardPage = () => {
             </div>
           </div>
 
-          {/* Active Products Count */}
           <div className="bg-white p-6 rounded-3xl border border-brand-coffee-200 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-brand-coffee-600 uppercase tracking-wider">
@@ -152,7 +148,6 @@ const AdminDashboardPage = () => {
             </div>
           </div>
 
-          {/* Pending Shipments */}
           <div className="bg-white p-6 rounded-3xl border border-brand-coffee-200 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-brand-coffee-600 uppercase tracking-wider">
@@ -173,7 +168,6 @@ const AdminDashboardPage = () => {
           </div>
         </div>
 
-        {/* Quick Actions Bar */}
         <div className="p-4 rounded-2xl bg-brand-coffee-100/70 border border-brand-coffee-200 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-brand-pink-600" />
@@ -202,10 +196,8 @@ const AdminDashboardPage = () => {
           </div>
         </div>
 
-        {/* Homepage Hero Banner Manager */}
         <HeroBannerManager />
 
-        {/* Recent Orders Table */}
         <div className="bg-white rounded-3xl border border-brand-coffee-200 shadow-md overflow-hidden space-y-4">
           <div className="p-6 border-b border-brand-coffee-100 flex items-center justify-between">
             <div>
@@ -247,7 +239,6 @@ const AdminDashboardPage = () => {
                 ) : (
                   recentOrders.map((order) => (
                     <tr key={order._id} className="hover:bg-brand-pink-50/30 transition-colors">
-                      {/* Order ID */}
                       <td className="p-4 font-mono font-bold text-brand-coffee-950">
                         <div>{order.orderId}</div>
                         <div className="text-[10px] font-sans text-brand-coffee-400 font-normal">
@@ -260,18 +251,15 @@ const AdminDashboardPage = () => {
                         </div>
                       </td>
 
-                      {/* Customer */}
                       <td className="p-4">
                         <div className="font-bold text-brand-coffee-950">{order.customer?.name}</div>
                         <div className="text-[11px] text-brand-coffee-600">{order.customer?.phone}</div>
                       </td>
 
-                      {/* Destination */}
                       <td className="p-4 max-w-[150px] truncate text-brand-coffee-700">
                         {order.customer?.address?.city}, {order.customer?.address?.state} - {order.customer?.address?.pincode}
                       </td>
 
-                      {/* Items */}
                       <td className="p-4">
                         {order.items?.map((item, idx) => (
                           <div key={idx} className="text-[11px]">
@@ -280,12 +268,10 @@ const AdminDashboardPage = () => {
                         ))}
                       </td>
 
-                      {/* Amount */}
                       <td className="p-4 font-black text-brand-coffee-950 text-sm">
                         ₹{order.finalTotal ?? order.pricing?.totalAmount ?? 0}
                       </td>
 
-                      {/* Payment */}
                       <td className="p-4">
                         <span
                           className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase ${
@@ -298,10 +284,8 @@ const AdminDashboardPage = () => {
                         </span>
                       </td>
 
-                      {/* Status */}
                       <td className="p-4">{getStatusBadge(order.orderStatus)}</td>
 
-                      {/* Actions */}
                       <td className="p-4">
                         <div className="flex items-center justify-center gap-1.5">
                           <a

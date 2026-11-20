@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
@@ -15,7 +14,7 @@ export default {
             300: '#f9a8d4',
             400: '#f472b6',
             500: '#ec4899',
-            600: '#e60067', // Main Brand Magenta Pink
+            600: '#e60067',
             700: '#be0055',
             800: '#980044',
             900: '#6f0032',
@@ -27,7 +26,7 @@ export default {
             200: '#fef08a',
             300: '#ffea00',
             400: '#facc15',
-            500: '#ffd700', // Main Brand Bright Yellow
+            500: '#ffd700',
             600: '#ca8a04',
             700: '#a16207',
             DEFAULT: '#ffd700',

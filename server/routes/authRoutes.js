@@ -10,9 +10,6 @@ const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'nadhan_coffee_super_secret_jwt_key_2026_coimbatore_thanjavur';
 
-// @route   POST /api/auth/send-otp
-// @desc    Send SMS OTP using 2Factor.in API (supports AUTOGEN and custom OTP with OTP1 template)
-// @access  Public
 const sendOTP = async (req, res) => {
   try {
     const { phoneNumber, mobileNumber, otp } = req.body;
@@ -25,7 +22,6 @@ const sendOTP = async (req, res) => {
       });
     }
 
-    // Call 2Factor SMS service (appends template OTP1 as configured in 2Factor)
     const result = await dispatchSMSOTP(cleanNumber, otp, 'OTP1');
 
     if (result.success) {
@@ -50,9 +46,6 @@ const sendOTP = async (req, res) => {
   }
 };
 
-// @route   POST /api/auth/verify-otp
-// @desc    Verify SMS OTP using 2Factor.in VERIFY API & login/create user
-// @access  Public
 const verifyOTP = async (req, res) => {
   try {
     const { phoneNumber, mobileNumber, otp, otpCode, sessionId } = req.body;
@@ -80,7 +73,6 @@ const verifyOTP = async (req, res) => {
       });
     }
 
-    // Call 2Factor verification via SMS Service
     const verification = await verifySMSOTP(sessionId, code);
 
     if (!verification.success) {
@@ -93,7 +85,6 @@ const verifyOTP = async (req, res) => {
 
     console.log(`✅ [2Factor] OTP matched successfully for +91 ${cleanNumber}`);
 
-    // Find existing user or create a new user
     let user = await User.findOne({ mobileNumber: cleanNumber });
 
     if (!user) {
@@ -110,7 +101,6 @@ const verifyOTP = async (req, res) => {
       console.log(`🔓 [AUTH] Customer verified & logged in: +91 ${cleanNumber}`);
     }
 
-    // Auto-link any past orders placed with this mobile number that are missing userId
     try {
       await Order.updateMany(
         {
@@ -135,7 +125,6 @@ const verifyOTP = async (req, res) => {
       console.warn('Failed to auto-link past orders on login:', linkErr.message);
     }
 
-    // Generate backend JWT token (valid for 30 days)
     const token = jwt.sign(
       {
         id: user._id,
@@ -177,15 +166,11 @@ const verifyOTP = async (req, res) => {
   }
 };
 
-// Route definitions (with aliases for standard conventions)
 router.post('/send-otp', sendOTP);
 router.post('/sendOTP', sendOTP);
 router.post('/verify-otp', verifyOTP);
 router.post('/verifyOTP', verifyOTP);
 
-// @route   GET /api/auth/me
-// @desc    Get currently logged in user profile
-// @access  Private (User)
 router.get('/me', protectUser, async (req, res) => {
   try {
     res.json({
@@ -205,9 +190,6 @@ router.get('/me', protectUser, async (req, res) => {
   }
 });
 
-// @route   PUT /api/auth/profile
-// @desc    Update user profile & address
-// @access  Private (User)
 router.put('/profile', protectUser, async (req, res) => {
   try {
     const { name, email, address } = req.body;

@@ -1,9 +1,5 @@
 import { Cashfree, CFEnvironment } from 'cashfree-pg';
 
-/**
- * Initialize Cashfree PG SDK Instance.
- * Defaults to SANDBOX unless CASHFREE_ENV is explicitly 'PRODUCTION'.
- */
 export const getCashfreeClient = () => {
   const appId = process.env.CASHFREE_APP_ID || '';
   const secretKey = process.env.CASHFREE_SECRET_KEY || '';
@@ -17,9 +13,6 @@ export const getCashfreeClient = () => {
   return new Cashfree(environment, appId, secretKey);
 };
 
-/**
- * Sanitize customer payload and create a Cashfree PG order returning orderData (including payment_session_id).
- */
 export const createCashfreeOrder = async ({
   amount,
   currency = 'INR',

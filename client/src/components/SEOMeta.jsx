@@ -20,7 +20,6 @@ const SEOMeta = ({
   const logoUrl = resolveUrl(SEO_CONFIG.business.logoPath);
   const heroImageUrl = resolveUrl(SEO_CONFIG.business.heroImagePath);
 
-  // 1. WebSite Schema (Enables Google Search sitelinks & brand recognition)
   const websiteSchema = includeWebSiteSchema
     ? {
       '@context': 'https://schema.org',
@@ -37,7 +36,6 @@ const SEOMeta = ({
     }
     : null;
 
-  // 2. Organization & LocalBusiness Schema (Reusing verified business details)
   const localBusinessSchema = includeLocalBusiness
     ? {
       '@context': 'https://schema.org',
@@ -83,7 +81,6 @@ const SEOMeta = ({
     }
     : null;
 
-  // 3. BreadcrumbList Schema
   const breadcrumbsSchema = breadcrumbs
     ? {
       '@context': 'https://schema.org',
@@ -97,7 +94,6 @@ const SEOMeta = ({
     }
     : null;
 
-  // 4. Product Schema (if on product detail page or shop item)
   const productSchema = productData
     ? {
       '@context': 'https://schema.org',
@@ -147,7 +143,6 @@ const SEOMeta = ({
     }
     : null;
 
-  // 5. FAQ Schema for Search Snippets
   const faqSchema = includeFAQ
     ? {
       '@context': 'https://schema.org',
@@ -183,7 +178,6 @@ const SEOMeta = ({
 
   return (
     <Helmet>
-      {/* HTML Meta */}
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
@@ -193,7 +187,6 @@ const SEOMeta = ({
         content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
       />
 
-      {/* Open Graph / Facebook */}
       <meta property="og:site_name" content={SEO_CONFIG.business.name} />
       <meta property="og:type" content={ogType} />
       <meta property="og:url" content={fullCanonical} />
@@ -202,14 +195,12 @@ const SEOMeta = ({
       <meta property="og:image" content={fullOgImage} />
       <meta property="og:locale" content="en_IN" />
 
-      {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:url" content={fullCanonical} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullOgImage} />
 
-      {/* JSON-LD Schemas */}
       {websiteSchema && (
         <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
       )}

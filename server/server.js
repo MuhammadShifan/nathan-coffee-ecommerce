@@ -23,20 +23,17 @@ import { notFound, errorHandler } from './middleware/errorHandler.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize DB
 connectDB();
 
 const app = express();
 
-// Security headers
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
-    contentSecurityPolicy: false, // Allows embedding Cashfree checkout & images
+    contentSecurityPolicy: false,
   })
 );
 
-// CORS configuration - explicitly allow production domains, Vercel deployments, and local development
 const rawClientUrl = process.env.CLIENT_URL || 'https://nathancoffeethanjavur.com';
 const normalizedClientUrl = rawClientUrl.replace(/\/+$/, '');
 
@@ -55,7 +52,6 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, Postman, server-to-server)
     if (!origin) return callback(null, true);
 
     const isExplicitlyAllowed = allowedOrigins.includes(origin);
@@ -73,17 +69,15 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   exposedHeaders: ['Set-Cookie'],
-  maxAge: 86400, // 24 hours
+  maxAge: 86400,
 };
 
 app.use(cors(corsOptions));
 
-// Logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Request rate limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
@@ -91,11 +85,9 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Body Parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static bundled images if present (e.g. during local dev or legacy fallbacks)
 const clientPublicImagesDir = path.join(__dirname, '../client/public/images');
 const serverUploadsDir = path.join(__dirname, 'uploads');
 const serverImagesDir = path.join(__dirname, 'images');
@@ -120,7 +112,6 @@ if (!fs.existsSync(serverUploadsDir)) {
 }
 app.use('/uploads', express.static(serverUploadsDir, staticImageOptions));
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
@@ -133,10 +124,8 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/admin/settings', settingsRoutes);
 app.use('/api/banner', settingsRoutes);
 
-// Root SEO sitemap & robots.txt
 app.use('/', seoRoutes);
 
-// Base Health Check
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
@@ -147,7 +136,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Error handling middleware
 app.use(notFound);
 app.use(errorHandler);
 

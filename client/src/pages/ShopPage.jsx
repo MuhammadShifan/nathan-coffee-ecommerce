@@ -33,12 +33,10 @@ const ShopPage = () => {
     fetchProducts();
   }, []);
 
-  // Reset pagination when category or sort changes
   useEffect(() => {
     setVisibleCount(9);
   }, [activeCategory, sortBy]);
 
-  // Filter and sort products
   const filteredProducts = products.filter((p) => {
     if (activeCategory === 'all') return true;
     const textToCheck = `${p.blendRatio || ''} ${p.ingredients || ''} ${p.title || ''} ${p.slug || ''} ${p.category || ''}`.toLowerCase();
@@ -86,11 +84,7 @@ const ShopPage = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12 space-y-8 sm:space-y-10 w-full overflow-hidden">
-        {/* ========================================================================= */}
-        {/* HEADER & BREADCRUMBS */}
-        {/* ========================================================================= */}
         <div className="space-y-3 sm:space-y-4">
-          {/* Breadcrumbs Navigation */}
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-brand-coffee-600 flex-wrap">
             <Link to="/" className="hover:text-brand-pink-600 transition-colors">
               Home
@@ -99,7 +93,6 @@ const ShopPage = () => {
             <span className="text-brand-pink-600 font-bold">Products & Shop</span>
           </nav>
 
-          {/* H1 Tag for SEO */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-5 sm:pb-6 border-b border-brand-coffee-200">
             <div>
               <h1 className="text-2xl xs:text-3xl sm:text-4xl font-extrabold text-brand-coffee-950 tracking-tight">
@@ -111,7 +104,6 @@ const ShopPage = () => {
               </p>
             </div>
 
-            {/* Fast Dispatch Badge */}
             <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-2xl text-xs font-bold shadow-xs flex-shrink-0 self-start md:self-auto">
               <Truck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
               <span>Free Express Delivery on ₹500+</span>
@@ -119,11 +111,7 @@ const ShopPage = () => {
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* FILTER & SORT CONTROLS */}
-        {/* ========================================================================= */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5 sm:gap-4 bg-white p-3.5 sm:p-4 rounded-2xl border border-brand-coffee-200 shadow-sm w-full">
-          {/* Category Filter Tabs */}
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
             <button
               onClick={() => setActiveCategory('all')}
@@ -154,7 +142,6 @@ const ShopPage = () => {
             </button>
           </div>
 
-          {/* Sort Selector */}
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-brand-coffee-100">
             <span className="text-xs font-bold text-brand-coffee-600 flex items-center gap-1">
               <Filter className="w-3.5 h-3.5" /> Sort By:
@@ -172,9 +159,6 @@ const ShopPage = () => {
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* PRODUCT GRID */}
-        {/* ========================================================================= */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
             {[1, 2, 3].map((n) => (
@@ -205,7 +189,6 @@ const ShopPage = () => {
               ))}
             </div>
 
-            {/* Pagination / Load More Controls */}
             {sortedProducts.length > 9 && (
               <div className="flex flex-col items-center justify-center gap-3 pt-4">
                 <p className="text-xs font-semibold text-brand-coffee-600">
@@ -232,9 +215,6 @@ const ShopPage = () => {
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* TRUST & PURITY BANNER */}
-        {/* ========================================================================= */}
         <div className="bg-gradient-to-r from-brand-pink-600 via-brand-pink-700 to-brand-coffee-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border-2 border-brand-yellow-400/40 w-full">
           <div className="space-y-2 text-center md:text-left">
             <span className="bg-brand-yellow-400 text-brand-coffee-950 font-black text-xs uppercase px-2.5 py-1 rounded-full">

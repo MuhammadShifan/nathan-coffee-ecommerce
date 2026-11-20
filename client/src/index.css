@@ -70,7 +70,6 @@
   }
 }
 
-/* Button pulse & shine animation */
 .btn-shimmer {
   position: relative;
   overflow: hidden;
@@ -97,17 +96,14 @@
   transform: rotate(30deg) translateX(100%);
 }
 
-/* ==========================================================================
-   PRINT STYLES: 1-PAGE PROFESSIONAL RETAIL INVOICE
-   ========================================================================== */
 @media print {
-  /* Set standard A4 portrait with neat margins */
+  
   @page {
     size: A4 portrait;
     margin: 8mm 10mm;
   }
 
-  /* Force browsers (Chrome, Safari, Firefox, Edge) to retain background colors and images */
+  
   *,
   *::before,
   *::after {
@@ -116,7 +112,7 @@
     color-adjust: exact !important;
   }
 
-  /* Reset document and viewport layout so there is no clipping or multi-page spillover */
+  
   html,
   body,
   #root,
@@ -132,7 +128,7 @@
     box-shadow: none !important;
   }
 
-  /* Hide all non-receipt elements: Navbar, Footer, Trackers, Banner Cards, CTAs, Modals, Buttons */
+  
   nav,
   header:not(.receipt-print-header),
   footer,
@@ -147,7 +143,7 @@
     display: none !important;
   }
 
-  /* Reset page wrapper */
+  
   .order-success-page-container {
     padding: 0 !important;
     margin: 0 !important;
@@ -155,7 +151,7 @@
     width: 100% !important;
   }
 
-  /* Isolated printable receipt card */
+  
   .printable-receipt {
     display: block !important;
     position: static !important;
@@ -176,7 +172,7 @@
     color-adjust: exact !important;
   }
 
-  /* Compact section spacing in print to ensure neat 1-page fit */
+  
   .printable-receipt .receipt-header {
     margin-bottom: 10px !important;
     padding-bottom: 8px !important;
@@ -204,7 +200,7 @@
     padding-top: 6px !important;
   }
 
-  /* Ensure the logo renders crisply with exact colors */
+  
   .receipt-logo {
     display: block !important;
     max-height: 46px !important;
@@ -213,7 +209,7 @@
     print-color-adjust: exact !important;
   }
 
-  /* Table styling in print */
+  
   .receipt-table th {
     background-color: #f3f4f6 !important;
     color: #111827 !important;
@@ -224,7 +220,7 @@
     border-bottom: 1px solid #e5e7eb !important;
   }
 
-  /* Prevent page breaks inside any critical invoice blocks */
+  
   .receipt-header,
   .receipt-info-grid,
   .receipt-table-wrapper,

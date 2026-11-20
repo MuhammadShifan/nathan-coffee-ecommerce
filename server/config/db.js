@@ -8,7 +8,6 @@ const connectDB = async () => {
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`❌ MongoDB Connection Error: ${error.message}`);
-    // We will not exit process immediately so server can still serve mock data fallback if DB fails
   }
 };
 
