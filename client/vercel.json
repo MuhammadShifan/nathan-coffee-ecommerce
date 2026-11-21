@@ -2,11 +2,11 @@
     "rewrites": [
         {
             "source": "/api/:path*",
-            "destination": "https://nathan-coffee-ecommerce.onrender.com/api/:path*"
+            "destination": "https://nathan-coffee-ecommerce-tk06.onrender.com/api/:path*"
         },
         {
             "source": "/uploads/:path*",
-            "destination": "https://nathan-coffee-ecommerce.onrender.com/uploads/:path*"
+            "destination": "https://nathan-coffee-ecommerce-tk06.onrender.com/uploads/:path*"
         },
         {
             "source": "/sitemap.xml",
