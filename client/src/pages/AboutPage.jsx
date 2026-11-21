@@ -18,7 +18,7 @@ import SEOMeta from '../components/SEOMeta';
 const AboutPage = () => {
   const breadcrumbs = [
     { name: 'Home', url: '/' },
-    { name: 'Our Heritage', url: '/about' },
+    { name: 'About Us', url: '/about' },
   ];
 
   const timelineMilestones = [
@@ -51,12 +51,11 @@ const AboutPage = () => {
   return (
     <>
       <SEOMeta
-        title="Our Legacy & Heritage - Nathan Coffee | Authentic South Indian Roasters"
-        description="Discover the 70+ year legacy of Nathan Coffee. Founded by our beloved Grandfather in Thanjavur and expanded to Thanjavur. Dedicated to 100% pure filter coffee roasting with zero artificial additives."
+        title="Our Legacy & Heritage Since 1950 | About Nathan Coffee Thanjavur"
+        description="Discover the 70+ year legacy of Nathan Coffee. Founded by Grandfather Nathan in Thanjavur. Dedicated to artisanal slow drum roasting and 100% pure filter coffee."
         keywords="Nathan coffee legacy, nathan coffee history, thanjavur filter coffee grandfather, authentic Thanjavur coffee roasters, pure filter coffee heritage tamil nadu"
         canonicalUrl="/about"
         breadcrumbs={breadcrumbs}
-        includeLocalBusiness={true}
       />
 
       <div className="space-y-12 sm:space-y-20 lg:space-y-24 pb-16 w-full overflow-hidden">

@@ -39,6 +39,7 @@ const AdminLoginPage = () => {
         description="Secure admin access portal for Nathan Coffee order and product inventory management."
         canonicalUrl="/admin/login"
         includeLocalBusiness={false}
+        noIndex={true}
       />
 
       <div className="min-h-screen bg-gradient-to-br from-brand-coffee-950 via-brand-coffee-900 to-brand-pink-950 flex items-center justify-center p-4 relative overflow-hidden font-sans">

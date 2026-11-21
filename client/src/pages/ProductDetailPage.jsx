@@ -217,21 +217,29 @@ const ProductDetailPage = () => {
 
   if (!product) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center p-6">
-        <div className="text-center space-y-4 max-w-md bg-white p-8 rounded-3xl border border-brand-coffee-200 shadow-sm">
-          <Coffee className="w-12 h-12 text-brand-coffee-400 mx-auto" />
-          <h2 className="text-xl font-bold text-brand-coffee-950">Product Not Found</h2>
-          <p className="text-xs text-brand-coffee-600 leading-relaxed">
-            This product is no longer available in our store or has been removed from the catalog.
-          </p>
-          <Link
-            to="/shop"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl font-bold text-xs shadow-md transition-all"
-          >
-            Explore Available Blends
-          </Link>
+      <>
+        <SEOMeta
+          title="Product Not Found | Nathan Coffee"
+          description="The requested coffee product is no longer available in our store or has been removed from the catalog."
+          canonicalUrl="/shop"
+          noIndex={true}
+        />
+        <div className="min-h-[70vh] flex items-center justify-center p-6">
+          <div className="text-center space-y-4 max-w-md bg-white p-8 rounded-3xl border border-brand-coffee-200 shadow-sm">
+            <Coffee className="w-12 h-12 text-brand-coffee-400 mx-auto" />
+            <h2 className="text-xl font-bold text-brand-coffee-950">Product Not Found</h2>
+            <p className="text-xs text-brand-coffee-600 leading-relaxed">
+              This product is no longer available in our store or has been removed from the catalog.
+            </p>
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl font-bold text-xs shadow-md transition-all"
+            >
+              Explore Available Blends
+            </Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -392,19 +400,25 @@ const ProductDetailPage = () => {
   return (
     <>
       <SEOMeta
-        title={`${product.title} - Nathan Coffee`}
-        description={product.shortDescription || product.description}
+        title={`${product.title} | Pure Filter Coffee - Nathan Coffee`}
+        description={product.shortDescription || product.description || 'Authentic slow-roasted South Indian filter coffee from Thanjavur. 100% pure aroma, fresh dispatch.'}
         keywords={`${product.title}, south indian filter coffee, Thanjavur coffee, pure coffee powder buy online, thanjavur filter coffee`}
         canonicalUrl={`/product/${product.slug}`}
+        ogImage={primaryImage || images[0] || '/images/250g front.png'}
         breadcrumbs={breadcrumbs}
         productData={{
           name: product.title,
-          description: product.shortDescription,
-          image: images[0],
-          price: currentVariant.price,
+          title: product.title,
+          slug: product.slug,
+          description: product.shortDescription || product.description,
+          image: primaryImage || images[0] || '/images/250g front.png',
+          images: images.length > 0 ? images : ['/images/250g front.png'],
+          brand: 'Nathan Coffee',
+          price: Number(currentVariant.price) || 240,
           availability: currentVariant.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
           rating: product.rating || 4.9,
           reviewCount: product.reviewCount || 248,
+          sku: currentVariant.sku || `NC-${(product.slug || 'COFFEE').toUpperCase()}`,
         }}
       />
 

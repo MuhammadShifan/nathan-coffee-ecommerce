@@ -74,6 +74,8 @@ const HomePage = () => {
         keywords="coffee powder, Nathan coffee, nathan coffee, filter coffee powder, buy filter coffee powder online, Thanjavur coffee powder, thanjavur coffee powder, pure coffee powder, degree coffee powder, kumbakonam degree coffee powder, best coffee powder in tamil nadu"
         canonicalUrl="/"
         ogImage="/images/hero-coffee.jpg"
+        includeOrganization={true}
+        includeWebSiteSchema={true}
         includeLocalBusiness={true}
         includeFAQ={true}
       />

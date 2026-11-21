@@ -432,6 +432,7 @@ const MyOrdersPage = () => {
         description="View and track your Nathan Coffee filter coffee orders, shipping statuses, and past purchase history."
         canonicalUrl="/my-orders"
         includeLocalBusiness={false}
+        noIndex={true}
       />
 
       <div className="bg-brand-coffee-50 min-h-[85vh] py-8 sm:py-12">

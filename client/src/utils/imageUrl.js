@@ -4,7 +4,7 @@ const getBackendBaseUrl = () => {
     return import.meta.env.VITE_API_URL.replace(/\/+$/, '');
   }
   if (import.meta.env.PROD) {
-    return 'https://nathan-coffee-ecommerce.onrender.com';
+    return 'https://nathan-coffee-ecommerce-tk06.onrender.com';
   }
   return '';
 };

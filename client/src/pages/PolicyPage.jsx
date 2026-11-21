@@ -171,12 +171,18 @@ const PolicyPage = () => {
 
   const activePolicy = policies[type] || policies.shipping;
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: activePolicy.title, url: `/policy/${type}` },
+  ];
+
   return (
     <>
       <SEOMeta
-        title={`${activePolicy.title} - Nathan Coffee`}
-        description={`Read Nathan Coffee's ${activePolicy.title}. Transparent policies for fresh coffee powder dispatch, strict no cancellation, and customer assurance.`}
+        title={`${activePolicy.title} | Nathan Coffee Thanjavur`}
+        description={`Read Nathan Coffee's official ${activePolicy.title}. Transparent terms for fresh batch dispatch from Thanjavur and customer service assurance.`}
         canonicalUrl={`/policy/${type}`}
+        breadcrumbs={breadcrumbs}
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
