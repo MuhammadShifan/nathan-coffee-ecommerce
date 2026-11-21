@@ -48,7 +48,7 @@ if (typeof window !== 'undefined') {
         configurable: true,
         writable: true,
       });
-    } catch (e) {}
+    } catch (e) { }
   }
   if (!actualSessionStorage) {
     try {
@@ -57,7 +57,7 @@ if (typeof window !== 'undefined') {
         configurable: true,
         writable: true,
       });
-    } catch (e) {}
+    } catch (e) { }
   }
 }
 
@@ -67,7 +67,7 @@ export const safeLocalStorage = {
       if (actualLocalStorage) {
         return actualLocalStorage.getItem(key);
       }
-    } catch (e) {}
+    } catch (e) { }
     return memoryLocal.getItem(key);
   },
   setItem: (key, value) => {
@@ -76,7 +76,7 @@ export const safeLocalStorage = {
         actualLocalStorage.setItem(key, String(value));
         return true;
       }
-    } catch (e) {}
+    } catch (e) { }
     return memoryLocal.setItem(key, value);
   },
   removeItem: (key) => {
@@ -85,7 +85,7 @@ export const safeLocalStorage = {
         actualLocalStorage.removeItem(key);
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
     memoryLocal.removeItem(key);
   },
   clear: () => {
@@ -94,7 +94,7 @@ export const safeLocalStorage = {
         actualLocalStorage.clear();
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
     memoryLocal.clear();
   },
 };
@@ -105,7 +105,7 @@ export const safeSessionStorage = {
       if (actualSessionStorage) {
         return actualSessionStorage.getItem(key);
       }
-    } catch (e) {}
+    } catch (e) { }
     return memorySession.getItem(key);
   },
   setItem: (key, value) => {
@@ -114,7 +114,7 @@ export const safeSessionStorage = {
         actualSessionStorage.setItem(key, String(value));
         return true;
       }
-    } catch (e) {}
+    } catch (e) { }
     return memorySession.setItem(key, value);
   },
   removeItem: (key) => {
@@ -123,7 +123,7 @@ export const safeSessionStorage = {
         actualSessionStorage.removeItem(key);
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
     memorySession.removeItem(key);
   },
   clear: () => {
@@ -132,7 +132,7 @@ export const safeSessionStorage = {
         actualSessionStorage.clear();
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
     memorySession.clear();
   },
 };

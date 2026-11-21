@@ -1,10 +1,11 @@
 import express from 'express';
 import { protectAdmin } from '../middleware/auth.js';
 import { uploadProductImagesMiddleware } from '../middleware/uploadMiddleware.js';
+import { optimizeAndSaveImage } from '../utils/imageService.js';
 
 const router = express.Router();
 
-router.post('/', protectAdmin, uploadProductImagesMiddleware, (req, res) => {
+router.post('/', protectAdmin, uploadProductImagesMiddleware, async (req, res) => {
   try {
     const rawFiles = [];
     if (req.files?.images) rawFiles.push(...req.files.images);
@@ -22,20 +23,21 @@ router.post('/', protectAdmin, uploadProductImagesMiddleware, (req, res) => {
     const fileDetails = [];
 
     for (const file of rawFiles) {
-      const relativePath = `/uploads/${file.filename}`;
-      uploadedUrls.push(relativePath);
+      const saved = await optimizeAndSaveImage(file.buffer, file.originalname);
+      uploadedUrls.push(saved.url);
 
       fileDetails.push({
-        url: relativePath,
-        filename: file.filename,
-        size: file.size,
-        mimetype: file.mimetype,
+        id: saved.id,
+        url: saved.url,
+        filename: `${saved.id}.webp`,
+        size: saved.size,
+        mimetype: 'image/webp',
       });
     }
 
     return res.json({
       success: true,
-      message: `${uploadedUrls.length} image(s) uploaded successfully!`,
+      message: `${uploadedUrls.length} image(s) optimized & saved permanently to database!`,
       urls: uploadedUrls,
       url: uploadedUrls[0],
       files: fileDetails,

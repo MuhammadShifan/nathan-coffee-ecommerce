@@ -29,14 +29,18 @@ export const resolveProductImageUrl = (
 
   let normalized = trimmed;
   if (!normalized.startsWith('/')) {
-    if (normalized.startsWith('images/') || normalized.startsWith('uploads/')) {
+    if (
+      normalized.startsWith('images/') ||
+      normalized.startsWith('uploads/') ||
+      normalized.startsWith('api/')
+    ) {
       normalized = `/${normalized}`;
     } else {
       normalized = `/images/${normalized}`;
     }
   }
 
-  if (normalized.startsWith('/uploads/')) {
+  if (normalized.startsWith('/uploads/') || normalized.startsWith('/api/images/')) {
     const backendBase = getBackendBaseUrl();
     return backendBase ? `${backendBase}${normalized}` : normalized;
   }

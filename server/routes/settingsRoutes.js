@@ -2,12 +2,13 @@ import express from 'express';
 import SiteSettings from '../models/SiteSettings.js';
 import { protectAdmin } from '../middleware/auth.js';
 import { uploadHeroImageMiddleware } from '../middleware/uploadMiddleware.js';
+import { optimizeAndSaveImage, deleteImageById } from '../utils/imageService.js';
 
 const router = express.Router();
 
 const handleGetHeroBanner = async (req, res) => {
   try {
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
 
@@ -47,6 +48,10 @@ router.get('/banner', handleGetHeroBanner);
 
 router.get('/', async (req, res) => {
   try {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
     let settings = await SiteSettings.findOne({ key: 'default' });
     if (!settings) {
       settings = await SiteSettings.create({ key: 'default' });
@@ -67,9 +72,18 @@ const handleUpdateHeroImage = async (req, res) => {
       req.files?.banner?.[0] ||
       req.file;
 
-    if (uploadedFile) {
-      newHeroImageUrl = `/uploads/${uploadedFile.filename}`;
+    const existingSettings = await SiteSettings.findOne({ key: 'default' });
+
+    if (uploadedFile && uploadedFile.buffer) {
+      if (existingSettings?.heroImageUrl) {
+        await deleteImageById(existingSettings.heroImageUrl);
+      }
+      const saved = await optimizeAndSaveImage(uploadedFile.buffer, uploadedFile.originalname);
+      newHeroImageUrl = saved.url;
     } else if (req.body?.reset === true || req.body?.reset === 'true') {
+      if (existingSettings?.heroImageUrl) {
+        await deleteImageById(existingSettings.heroImageUrl);
+      }
       newHeroImageUrl = '/images/hero-coffee.jpg';
     } else if (req.body?.heroImageUrl || req.body?.bannerUrl || req.body?.image) {
       newHeroImageUrl = (req.body.heroImageUrl || req.body.bannerUrl || req.body.image).trim();
@@ -102,7 +116,7 @@ const handleUpdateHeroImage = async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Homepage hero banner published and saved successfully!',
+      message: 'Homepage hero banner published and saved permanently to database!',
       heroImageUrl: updatedSettings.heroImageUrl,
       bannerUrl: updatedSettings.heroImageUrl,
       url: updatedSettings.heroImageUrl,

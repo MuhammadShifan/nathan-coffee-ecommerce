@@ -18,6 +18,7 @@ import contactRoutes from './routes/contactRoutes.js';
 import seoRoutes from './routes/seoRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
+import imageRoutes from './routes/imageRoutes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -120,6 +121,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/seo', seoRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/images', imageRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/admin/settings', settingsRoutes);
 app.use('/api/banner', settingsRoutes);

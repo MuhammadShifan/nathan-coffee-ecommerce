@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import { protectAdmin } from '../middleware/auth.js';
 import multerInstance from '../middleware/uploadMiddleware.js';
+import { deleteImageById } from '../utils/imageService.js';
 
 const router = express.Router();
 
@@ -204,7 +205,7 @@ const parseProductPayload = (req) => {
 
 router.get('/', async (req, res) => {
   try {
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
 
@@ -227,7 +228,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:idOrSlug', async (req, res) => {
   try {
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
 
@@ -381,6 +382,14 @@ router.delete('/:idOrSlug', protectAdmin, async (req, res) => {
 
     const deletedId = product._id;
     const deletedSlug = product.slug;
+
+    if (Array.isArray(product.variants)) {
+      for (const v of product.variants) {
+        if (v.image) deleteImageById(v.image).catch(() => {});
+        if (v.image2) deleteImageById(v.image2).catch(() => {});
+      }
+    }
+
     await Product.deleteOne({ _id: deletedId });
 
     console.log(`[Product Removed] Successfully deleted "${product.title}" (${deletedId}) from database.`);
