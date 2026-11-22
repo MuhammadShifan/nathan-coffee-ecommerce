@@ -236,6 +236,17 @@ const ContactPage = () => {
                   <p className="text-brand-coffee-600">Sunday: Closed for Roastery Maintenance</p>
                 </div>
               </div>
+
+              <a
+                href="https://www.google.com/maps/dir//NATHAN+COFFEE+Thanjavur,+2928,+S+Main+St,+near+Canara+Bank,+Rajakrisnapuram,+Thanjavur,+Tamil+Nadu+613009/@10.7875477,79.0554136,13z/data=!4m17!1m8!3m7!1s0x3baab932efa2fd99:0x9e2f8c75e2f85705!2sNATHAN+COFFEE+Thanjavur!8m2!3d10.7875477!4d79.1316313!15sChduYXRoYW4gY29mZmVlIHRoYW5qYXZ1cloZIhduYXRoYW4gY29mZmVlIHRoYW5qYXZ1cpIBDGNvZmZlZV9zdG9yZeABAA!16s%2Fg%2F11t6j1gjsv!4m7!1m0!1m5!1m1!1s0x3baab932efa2fd99:0x9e2f8c75e2f85705!2m2!1d79.131644!2d10.787509?entry=ttu&g_ep=EgoyMDI2MTExOC4xIKXMDSoASAFQAw%3D%3D"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get directions to Nathan Coffee Thanjavur on Google Maps"
+                className="w-full py-3 bg-gradient-to-r from-brand-pink-600 to-brand-pink-700 hover:from-brand-pink-700 hover:to-brand-pink-800 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <MapPin className="w-4 h-4" />
+                <span>Get Directions</span>
+              </a>
             </div>
           </div>
 

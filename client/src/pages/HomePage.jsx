@@ -134,7 +134,7 @@ const HomePage = () => {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 pt-2 w-full"
+                  className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center lg:justify-start gap-3 pt-2 w-full"
                 >
                   <Link
                     id="hero-explore-products-btn"
@@ -153,6 +153,18 @@ const HomePage = () => {
                   >
                     <span>⚡ Buy Now (Express Order)</span>
                   </Link>
+
+                  <a
+                    id="hero-get-directions-btn"
+                    href="https://www.google.com/maps/dir//NATHAN+COFFEE+Thanjavur,+2928,+S+Main+St,+near+Canara+Bank,+Rajakrisnapuram,+Thanjavur,+Tamil+Nadu+613009/@10.7875477,79.0554136,13z/data=!4m17!1m8!3m7!1s0x3baab932efa2fd99:0x9e2f8c75e2f85705!2sNATHAN+COFFEE+Thanjavur!8m2!3d10.7875477!4d79.1316313!15sChduYXRoYW4gY29mZmVlIHRoYW5qYXZ1cloZIhduYXRoYW4gY29mZmVlIHRoYW5qYXZ1cpIBDGNvZmZlZV9zdG9yZeABAA!16s%2Fg%2F11t6j1gjsv!4m7!1m0!1m5!1m1!1s0x3baab932efa2fd99:0x9e2f8c75e2f85705!2m2!1d79.131644!2d10.787509?entry=ttu&g_ep=EgoyMDI2MTExOC4xIKXMDSoASAFQAw%3D%3D"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Get directions to Nathan Coffee Thanjavur on Google Maps"
+                    className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-white hover:bg-brand-coffee-50 text-brand-coffee-950 hover:text-brand-pink-600 rounded-2xl font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 border border-brand-coffee-200 hover:border-brand-pink-300"
+                  >
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-brand-pink-600 flex-shrink-0" />
+                    <span>Get Directions</span>
+                  </a>
                 </motion.div>
 
                 <div className="pt-5 sm:pt-6 border-t border-brand-coffee-200/80 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-left">
