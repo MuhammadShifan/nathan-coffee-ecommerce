@@ -1,6 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import Image from '../models/Image.js';
+import { protectAdmin } from '../middleware/auth.js';
+import { deleteImageById } from '../utils/imageService.js';
 
 const router = express.Router();
 
@@ -25,6 +27,16 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error('[Image Route Error]:', error);
     return res.status(500).send('Error serving image');
+  }
+});
+
+router.delete('/:id', protectAdmin, async (req, res) => {
+  try {
+    const deleted = await deleteImageById(req.params.id);
+    return res.json({ success: true, deleted });
+  } catch (error) {
+    console.error('[Image Delete Error]:', error);
+    return res.status(500).json({ success: false, message: 'Error deleting image' });
   }
 });
 

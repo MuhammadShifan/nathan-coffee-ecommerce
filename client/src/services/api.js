@@ -66,6 +66,7 @@ export const getUserToken = () => {
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '',
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -111,6 +112,7 @@ api.interceptors.request.use(
       url.startsWith('/api/admin') ||
       url.includes('/api/orders/stats') ||
       url.includes('/api/upload') ||
+      (url.startsWith('/api/images') && method !== 'GET') ||
       (url.startsWith('/api/products') && method !== 'GET') ||
       (url.startsWith('/api/contact') && method !== 'POST');
 
@@ -268,6 +270,41 @@ export const reorderProducts = async (productIds, customOptions = {}) => {
     ...customOptions,
     headers,
   });
+};
+
+export const deleteUploadedImage = async (imageUrlOrId) => {
+  if (!imageUrlOrId || typeof imageUrlOrId !== 'string') return;
+  const match = imageUrlOrId.match(/\/api\/images\/([a-f0-9]{24})/i);
+  const id = match ? match[1] : imageUrlOrId;
+  if (!/^[a-f0-9]{24}$/i.test(id)) return;
+  const adminToken = getAdminToken();
+  const headers = adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+  return api.delete(`/api/images/${id}`, { headers });
+};
+
+export const fetchProductsWithRetry = async ({ maxRetries = 2, onRetry } = {}) => {
+  let lastError;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await api.get('/api/products', { timeout: 30000 });
+      if (res.data?.success && Array.isArray(res.data?.data)) {
+        return res.data.data;
+      }
+      throw new Error(res.data?.message || 'Unexpected response from server');
+    } catch (err) {
+      lastError = err;
+      const status = err.response?.status;
+      const isRetryable = !status || status >= 500 || err.code === 'ECONNABORTED';
+      if (!isRetryable || attempt === maxRetries) {
+        break;
+      }
+      if (typeof onRetry === 'function') {
+        onRetry(attempt + 1);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+    }
+  }
+  throw lastError;
 };
 
 export default api;

@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://Muhammad_shifan:muhammadshifan2006@mdsdb.joqwsjx.mongodb.net/Nathan_coffee?retryWrites=true&w=majority', {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 15000,
+      socketTimeoutMS: 45000,
     });
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {

@@ -24,6 +24,7 @@ import api, {
   reorderProducts,
   getAdminToken,
   uploadProductImages,
+  deleteUploadedImage,
 } from '../../services/api';
 import AdminLayout from '../../components/AdminLayout';
 import { defaultProductsData } from '../../data/defaultProducts';
@@ -183,7 +184,25 @@ const AdminProductsPage = () => {
 
   const [uploadingVariant, setUploadingVariant] = useState(null);
 
-  const handleVariantImageUpload = async (index, slot, file) => {
+  const revokeIfBlob = (url) => {
+    if (typeof url === 'string' && url.startsWith('blob:')) {
+      try {
+        URL.revokeObjectURL(url);
+      } catch (e) {}
+    }
+  };
+
+  const closeModal = () => {
+    if (Array.isArray(formData.variants)) {
+      formData.variants.forEach((v) => {
+        revokeIfBlob(v.image);
+        revokeIfBlob(v.image2);
+      });
+    }
+    setModalOpen(false);
+  };
+
+  const handleVariantImageUpload = (index, slot, file) => {
     if (!file) return;
     if (!file.type.match(/^image\/(jpeg|jpg|png|webp|avif)$/)) {
       showFeedback('Please select a valid image file (JPG, PNG, WebP, AVIF)', 'error');
@@ -194,29 +213,20 @@ const AdminProductsPage = () => {
       return;
     }
 
-    setUploadingVariant({ index, slot });
-    const uploadData = new FormData();
-    uploadData.append('images', file);
+    const previewUrl = URL.createObjectURL(file);
+    const fileField = slot === 'image2' ? 'pendingImage2File' : 'pendingImage1File';
 
-    try {
-      const res = await uploadProductImages(uploadData);
-      const uploadedUrl = res.data?.urls?.[0] || res.data?.url;
-      if (uploadedUrl) {
-        handleVariantChange(index, slot, uploadedUrl);
-        const slotLabel = slot === 'image2' ? 'Back (Image 2)' : 'Front (Image 1)';
-        showFeedback(
-          `${slotLabel} uploaded for ${formData.variants[index]?.weight || `Variant #${index + 1}`}!`,
-          'success'
-        );
-      } else {
-        throw new Error(res.data?.message || 'Upload failed');
-      }
-    } catch (err) {
-      console.error('Variant image upload failed:', err);
-      showFeedback(err.response?.data?.message || 'Failed to upload variant image to server', 'error');
-    } finally {
-      setUploadingVariant(null);
-    }
+    setFormData((prev) => {
+      const updated = [...prev.variants];
+      if (!updated[index]) return prev;
+      revokeIfBlob(updated[index][slot]);
+      updated[index] = {
+        ...updated[index],
+        [slot]: previewUrl,
+        [fileField]: file,
+      };
+      return { ...prev, variants: updated };
+    });
   };
 
   const handleAddVariant = () => {
@@ -224,7 +234,7 @@ const AdminProductsPage = () => {
       ...prev,
       variants: [
         ...prev.variants,
-        { weight: '', price: '', mrp: '', image: '', image2: '', images: [] },
+        { weight: '', price: '', mrp: '', image: '', image2: '', images: [], pendingImage1File: null, pendingImage2File: null },
       ],
     }));
   };
@@ -232,10 +242,17 @@ const AdminProductsPage = () => {
   const handleVariantChange = (index, field, value) => {
     setFormData((prev) => {
       const updated = [...prev.variants];
-      updated[index] = {
+      if (!updated[index]) return prev;
+      const nextVariant = {
         ...updated[index],
         [field]: value,
       };
+      if ((field === 'image' || field === 'image2') && !value) {
+        revokeIfBlob(updated[index][field]);
+        const fileField = field === 'image2' ? 'pendingImage2File' : 'pendingImage1File';
+        nextVariant[fileField] = null;
+      }
+      updated[index] = nextVariant;
       return { ...prev, variants: updated };
     });
   };
@@ -245,10 +262,17 @@ const AdminProductsPage = () => {
       showFeedback('A product must have at least one variant', 'error');
       return;
     }
-    setFormData((prev) => ({
-      ...prev,
-      variants: prev.variants.filter((_, idx) => idx !== index),
-    }));
+    setFormData((prev) => {
+      const target = prev.variants[index];
+      if (target) {
+        revokeIfBlob(target.image);
+        revokeIfBlob(target.image2);
+      }
+      return {
+        ...prev,
+        variants: prev.variants.filter((_, idx) => idx !== index),
+      };
+    });
   };
 
   const openAddModal = () => {
@@ -360,71 +384,121 @@ const AdminProductsPage = () => {
       }
     }
 
-    const cleanedVariants = formData.variants.map((v) => {
-      const img1 = (v.image || '').trim();
-      const img2 = (v.image2 || '').trim();
-      const variantImages = [img1, img2].filter(Boolean);
-      return {
-        weight: v.weight.trim(),
-        price: Number(v.price),
-        mrp: Number(v.mrp) || Number(v.price),
-        image: img1 || '/images/250g front.png',
-        image2: img2 || '/images/250g back.png',
-        images: variantImages.length > 0 ? variantImages : ['/images/250g front.png', '/images/250g back.png'],
-        inStock: v.inStock !== false,
-        sku: `NC-${v.weight.toUpperCase().replace(/[^A-Z0-9]/g, '')}-${Date.now().toString().slice(-4)}`,
-      };
-    });
-
-    const defaultVariant = cleanedVariants[0];
-
-    const productPayload = {
-      title: formData.title.trim(),
-      tamilTitle: formData.tamilTitle?.trim() || '',
-      slug:
-        formData.slug?.trim() ||
-        formData.title
-          .toLowerCase()
-          .replace(/[^\w ]+/g, '')
-          .replace(/ +/g, '-'),
-      shortDescription: formData.shortDescription.trim(),
-      description: formData.description?.trim() || formData.shortDescription.trim(),
-      ingredients: (formData.ingredients || '').trim(),
-      blendRatio: (formData.blendRatio || '').trim(),
-      roastMaster: (formData.roastMaster || '').trim(),
-      packaging: (formData.packaging || '').trim(),
-      heritageOrigin: (formData.heritageOrigin || '').trim(),
-      roastLevel: (formData.roastMaster || '').trim(),
-      packagingType: (formData.packaging || '').trim(),
-      origin: (formData.heritageOrigin || '').trim(),
-      inStock: formData.inStock,
-      variants: cleanedVariants,
-      selectedWeight: defaultVariant?.weight || '250g',
-    };
+    const newlyUploadedUrls = [];
+    const blobUrlsToRevoke = [];
 
     try {
+      const cleanedVariants = [];
+      for (let i = 0; i < formData.variants.length; i++) {
+        const v = formData.variants[i];
+        let img1 = (v.image || '').trim();
+        let img2 = (v.image2 || '').trim();
+
+        if (v.pendingImage1File) {
+          setUploadingVariant({ index: i, slot: 'image' });
+          const uploadData = new FormData();
+          uploadData.append('images', v.pendingImage1File);
+          const uploadRes = await uploadProductImages(uploadData);
+          const uploadedUrl = uploadRes.data?.urls?.[0] || uploadRes.data?.url;
+          if (!uploadedUrl) {
+            throw new Error(uploadRes.data?.message || `Failed to upload Image 1 for ${v.weight}`);
+          }
+          blobUrlsToRevoke.push(img1);
+          img1 = uploadedUrl;
+          newlyUploadedUrls.push(uploadedUrl);
+        } else if (img1.startsWith('blob:')) {
+          img1 = '';
+        }
+
+        if (v.pendingImage2File) {
+          setUploadingVariant({ index: i, slot: 'image2' });
+          const uploadData = new FormData();
+          uploadData.append('images', v.pendingImage2File);
+          const uploadRes = await uploadProductImages(uploadData);
+          const uploadedUrl = uploadRes.data?.urls?.[0] || uploadRes.data?.url;
+          if (!uploadedUrl) {
+            throw new Error(uploadRes.data?.message || `Failed to upload Image 2 for ${v.weight}`);
+          }
+          blobUrlsToRevoke.push(img2);
+          img2 = uploadedUrl;
+          newlyUploadedUrls.push(uploadedUrl);
+        } else if (img2.startsWith('blob:')) {
+          img2 = '';
+        }
+
+        const variantImages = [img1, img2].filter(Boolean);
+        cleanedVariants.push({
+          weight: v.weight.trim(),
+          price: Number(v.price),
+          mrp: Number(v.mrp) || Number(v.price),
+          image: img1 || '/images/250g front.png',
+          image2: img2 || '/images/250g back.png',
+          images: variantImages.length > 0 ? variantImages : ['/images/250g front.png', '/images/250g back.png'],
+          inStock: v.inStock !== false,
+          sku: `NC-${v.weight.toUpperCase().replace(/[^A-Z0-9]/g, '')}-${Date.now().toString().slice(-4)}`,
+        });
+      }
+      setUploadingVariant(null);
+
+      const defaultVariant = cleanedVariants[0];
+
+      const productPayload = {
+        title: formData.title.trim(),
+        tamilTitle: formData.tamilTitle?.trim() || '',
+        slug:
+          formData.slug?.trim() ||
+          formData.title
+            .toLowerCase()
+            .replace(/[^\w ]+/g, '')
+            .replace(/ +/g, '-'),
+        shortDescription: formData.shortDescription.trim(),
+        description: formData.description?.trim() || formData.shortDescription.trim(),
+        ingredients: (formData.ingredients || '').trim(),
+        blendRatio: (formData.blendRatio || '').trim(),
+        roastMaster: (formData.roastMaster || '').trim(),
+        packaging: (formData.packaging || '').trim(),
+        heritageOrigin: (formData.heritageOrigin || '').trim(),
+        roastLevel: (formData.roastMaster || '').trim(),
+        packagingType: (formData.packaging || '').trim(),
+        origin: (formData.heritageOrigin || '').trim(),
+        inStock: formData.inStock,
+        variants: cleanedVariants,
+        selectedWeight: defaultVariant?.weight || '250g',
+      };
+
       if (editingProduct) {
         const res = await updateProduct(editingProduct._id, productPayload);
         if (res.data.success) {
+          blobUrlsToRevoke.forEach(revokeIfBlob);
           setProducts((prev) =>
             prev.map((p) => (p._id === editingProduct._id ? res.data.data : p))
           );
           showFeedback('Product updated successfully!', 'success');
           setModalOpen(false);
         } else {
+          if (newlyUploadedUrls.length > 0) {
+            await Promise.all(newlyUploadedUrls.map((u) => deleteUploadedImage(u).catch(() => {})));
+          }
           showFeedback(res.data.message || 'Failed to update product', 'error');
         }
       } else {
         const res = await createProduct(productPayload);
         if (res.data.success) {
+          blobUrlsToRevoke.forEach(revokeIfBlob);
           setProducts((prev) => [res.data.data, ...prev]);
           showFeedback('New product added successfully!', 'success');
           setModalOpen(false);
         } else {
+          if (newlyUploadedUrls.length > 0) {
+            await Promise.all(newlyUploadedUrls.map((u) => deleteUploadedImage(u).catch(() => {})));
+          }
           showFeedback(res.data.message || 'Failed to create product', 'error');
         }
       }
     } catch (err) {
+      if (newlyUploadedUrls.length > 0) {
+        await Promise.all(newlyUploadedUrls.map((u) => deleteUploadedImage(u).catch(() => {})));
+      }
       console.error('Error saving product:', err);
       const errMsg =
         err.response?.data?.message ||
@@ -433,6 +507,7 @@ const AdminProductsPage = () => {
         'Error saving product to server';
       showFeedback(errMsg, 'error');
     } finally {
+      setUploadingVariant(null);
       setSaving(false);
     }
   };
@@ -702,7 +777,8 @@ const AdminProductsPage = () => {
                   {editingProduct ? 'Edit Product Details' : 'Add New Coffee Product'}
                 </h3>
                 <button
-                  onClick={() => setModalOpen(false)}
+                  type="button"
+                  onClick={closeModal}
                   className="p-1.5 rounded-lg text-brand-coffee-400 hover:text-brand-coffee-700"
                 >
                   <X className="w-5 h-5" />
@@ -1102,7 +1178,7 @@ const AdminProductsPage = () => {
                 <div className="pt-4 flex justify-end gap-2 border-t border-brand-coffee-100">
                   <button
                     type="button"
-                    onClick={() => setModalOpen(false)}
+                    onClick={closeModal}
                     className="px-4 py-2 bg-brand-coffee-100 text-brand-coffee-800 rounded-xl font-bold"
                   >
                     Cancel

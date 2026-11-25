@@ -1,37 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Sparkles, Filter, ShieldCheck, CheckCircle2, ChevronRight, Coffee, Truck } from 'lucide-react';
-import api from '../services/api';
+import { ShoppingBag, Sparkles, Filter, ShieldCheck, CheckCircle2, ChevronRight, Coffee, Truck, RefreshCw } from 'lucide-react';
+import { fetchProductsWithRetry } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import SEOMeta from '../components/SEOMeta';
-import { defaultProductsData } from '../data/defaultProducts';
 
 const ShopPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [retrying, setRetrying] = useState(false);
+  const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
   const [visibleCount, setVisibleCount] = useState(9);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await api.get('/api/products');
-        if (res.data.success && Array.isArray(res.data.data)) {
-          setProducts(res.data.data);
-        } else {
-          setProducts([]);
-        }
-      } catch (err) {
-        console.warn('Using empty products list due to API issue:', err.message);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setRetrying(false);
+    try {
+      const data = await fetchProductsWithRetry({
+        maxRetries: 2,
+        onRetry: () => setRetrying(true),
+      });
+      setProducts(data);
+    } catch (err) {
+      console.warn('Failed to fetch products after retries:', err.message);
+      setError('Unable to reach our store server right now. It may be waking up—please try again.');
+    } finally {
+      setLoading(false);
+      setRetrying(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   useEffect(() => {
     setVisibleCount(9);
@@ -159,18 +164,39 @@ const ShopPage = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
-            {[1, 2, 3].map((n) => (
-              <div
-                key={n}
-                className="bg-white rounded-3xl p-6 border border-brand-coffee-100 shadow-sm animate-pulse space-y-4"
-              >
-                <div className="h-60 bg-brand-coffee-100 rounded-2xl" />
-                <div className="h-4 bg-brand-coffee-100 rounded w-3/4" />
-                <div className="h-3 bg-brand-coffee-100 rounded w-1/2" />
-                <div className="h-10 bg-brand-coffee-100 rounded-xl" />
+          <div className="space-y-4 w-full">
+            {retrying && (
+              <div className="text-center text-xs font-semibold text-brand-pink-700 bg-brand-pink-50 border border-brand-pink-200 rounded-xl py-2 px-4">
+                Waking up server &amp; loading fresh coffee blends...
               </div>
-            ))}
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
+              {[1, 2, 3].map((n) => (
+                <div
+                  key={n}
+                  className="bg-white rounded-3xl p-6 border border-brand-coffee-100 shadow-sm animate-pulse space-y-4"
+                >
+                  <div className="h-60 bg-brand-coffee-100 rounded-2xl" />
+                  <div className="h-4 bg-brand-coffee-100 rounded w-3/4" />
+                  <div className="h-3 bg-brand-coffee-100 rounded w-1/2" />
+                  <div className="h-10 bg-brand-coffee-100 rounded-xl" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : error ? (
+          <div className="w-full py-16 text-center bg-white rounded-3xl border border-brand-coffee-200 p-8 space-y-4">
+            <Coffee className="w-12 h-12 text-brand-pink-500 mx-auto" />
+            <h3 className="text-base font-extrabold text-brand-coffee-950">Could Not Load Products</h3>
+            <p className="text-xs text-brand-coffee-600 max-w-sm mx-auto">{error}</p>
+            <button
+              type="button"
+              onClick={loadProducts}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer"
+            >
+              <RefreshCw className="w-4 h-4" />
+              <span>Retry Loading Products</span>
+            </button>
           </div>
         ) : sortedProducts.length === 0 ? (
           <div className="w-full py-16 text-center bg-white rounded-3xl border border-brand-coffee-200 p-8 space-y-3">

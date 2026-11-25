@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -15,8 +15,9 @@ import {
   MapPin,
   ChevronRight,
   Heart,
+  RefreshCw,
 } from 'lucide-react';
-import api from '../services/api';
+import api, { fetchProductsWithRetry } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import SEOMeta from '../components/SEOMeta';
 import { defaultProductsData } from '../data/defaultProducts';
@@ -26,27 +27,26 @@ import { resolveProductImageUrl } from '../utils/imageUrl';
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [productsError, setProductsError] = useState(null);
   const [heroImageUrl, setHeroImageUrl] = useState(null);
   const [heroLoading, setHeroLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await api.get('/api/products');
-        if (res.data.success && Array.isArray(res.data.data)) {
-          setProducts(res.data.data);
-        } else {
-          setProducts([]);
-        }
-      } catch (err) {
-        console.warn('Error fetching products from API:', err.message);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    setProductsError(null);
+    try {
+      const data = await fetchProductsWithRetry({ maxRetries: 2 });
+      setProducts(data);
+    } catch (err) {
+      console.warn('Error fetching products from API:', err.message);
+      setProductsError('Unable to load products right now. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     const fetchHeroImage = async () => {
       try {
         const res = await api.get('/api/settings/hero-image');
@@ -62,9 +62,9 @@ const HomePage = () => {
       }
     };
 
-    fetchProducts();
+    loadProducts();
     fetchHeroImage();
-  }, []);
+  }, [loadProducts]);
 
   return (
     <>
@@ -245,11 +245,40 @@ const HomePage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
-            {products.slice(0, 6).map((product) => (
-              <ProductCard key={product._id || product.slug} product={product} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
+              {[1, 2, 3].map((n) => (
+                <div
+                  key={n}
+                  className="bg-white rounded-3xl p-6 border border-brand-coffee-100 shadow-sm animate-pulse space-y-4"
+                >
+                  <div className="h-60 bg-brand-coffee-100 rounded-2xl" />
+                  <div className="h-4 bg-brand-coffee-100 rounded w-3/4" />
+                  <div className="h-3 bg-brand-coffee-100 rounded w-1/2" />
+                  <div className="h-10 bg-brand-coffee-100 rounded-xl" />
+                </div>
+              ))}
+            </div>
+          ) : productsError ? (
+            <div className="w-full py-12 text-center bg-white rounded-3xl border border-brand-coffee-200 p-8 space-y-3">
+              <Coffee className="w-10 h-10 text-brand-pink-500 mx-auto" />
+              <p className="text-xs sm:text-sm font-semibold text-brand-coffee-700">{productsError}</p>
+              <button
+                type="button"
+                onClick={loadProducts}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-pink-600 hover:bg-brand-pink-700 text-white rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Retry</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
+              {products.slice(0, 6).map((product) => (
+                <ProductCard key={product._id || product.slug} product={product} />
+              ))}
+            </div>
+          )}
 
           {products.length > 6 && (
             <div className="mt-8 text-center">

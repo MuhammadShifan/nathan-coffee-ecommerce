@@ -1,11 +1,37 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import connectDB from '../config/db.js';
 import Product from '../models/Product.js';
 import { protectAdmin } from '../middleware/auth.js';
 import multerInstance from '../middleware/uploadMiddleware.js';
 import { deleteImageById } from '../utils/imageService.js';
 
 const router = express.Router();
+
+const extractProductImageUrls = (product) => {
+  const urls = new Set();
+  if (!product) return urls;
+  if (typeof product.image === 'string' && product.image.trim()) {
+    urls.add(product.image.trim());
+  }
+  if (Array.isArray(product.images)) {
+    for (const img of product.images) {
+      if (typeof img === 'string' && img.trim()) urls.add(img.trim());
+    }
+  }
+  if (Array.isArray(product.variants)) {
+    for (const v of product.variants) {
+      if (typeof v?.image === 'string' && v.image.trim()) urls.add(v.image.trim());
+      if (typeof v?.image2 === 'string' && v.image2.trim()) urls.add(v.image2.trim());
+      if (Array.isArray(v?.images)) {
+        for (const img of v.images) {
+          if (typeof img === 'string' && img.trim()) urls.add(img.trim());
+        }
+      }
+    }
+  }
+  return urls;
+};
 
 const handleOptionalMultipart = (req, res, next) => {
   const contentType = req.headers['content-type'] || '';
@@ -209,6 +235,10 @@ router.get('/', async (req, res) => {
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
 
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
+    }
+
     const products = await Product.find({}).sort({ sortOrder: 1, createdAt: -1 }).lean();
 
     res.json({
@@ -231,6 +261,10 @@ router.get('/:idOrSlug', async (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
+
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
+    }
 
     const { idOrSlug } = req.params;
     let product = null;
@@ -326,9 +360,16 @@ router.put('/:id', protectAdmin, handleOptionalMultipart, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
+    const oldImageUrls = extractProductImageUrls(product);
     const payload = parseProductPayload(req);
     Object.assign(product, payload);
     const updatedProduct = await product.save();
+
+    const newImageUrls = extractProductImageUrls(updatedProduct);
+    const removedUrls = [...oldImageUrls].filter((url) => !newImageUrls.has(url));
+    if (removedUrls.length > 0) {
+      await Promise.all(removedUrls.map((url) => deleteImageById(url).catch(() => {})));
+    }
 
     res.json({ success: true, data: updatedProduct });
   } catch (error) {
@@ -383,11 +424,9 @@ router.delete('/:idOrSlug', protectAdmin, async (req, res) => {
     const deletedId = product._id;
     const deletedSlug = product.slug;
 
-    if (Array.isArray(product.variants)) {
-      for (const v of product.variants) {
-        if (v.image) deleteImageById(v.image).catch(() => {});
-        if (v.image2) deleteImageById(v.image2).catch(() => {});
-      }
+    const imageUrlsToDelete = extractProductImageUrls(product);
+    if (imageUrlsToDelete.size > 0) {
+      await Promise.all([...imageUrlsToDelete].map((url) => deleteImageById(url).catch(() => {})));
     }
 
     await Product.deleteOne({ _id: deletedId });
