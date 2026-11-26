@@ -8,20 +8,16 @@
   "theme_color": "#e60067",
   "icons": [
     {
-      "src": "/Nlogo.jpg",
-      "sizes": "1080x1080",
-      "type": "image/jpeg",
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/Nlogo.jpg",
-      "sizes": "192x192",
-      "type": "image/jpeg"
-    },
-    {
-      "src": "/Nlogo.jpg",
+      "src": "/favicon-512x512.png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
