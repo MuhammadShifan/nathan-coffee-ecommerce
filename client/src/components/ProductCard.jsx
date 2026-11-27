@@ -51,9 +51,12 @@ const ProductCard = ({ product }) => {
   const cardImages = [primaryImage, secondaryImage].filter(Boolean);
   const hasMultipleImages = Boolean(secondaryImage && secondaryImage !== primaryImage);
 
-  const discountPercent = currentVariant.mrp > currentVariant.price
-    ? Math.round(((currentVariant.mrp - currentVariant.price) / currentVariant.mrp) * 100)
-    : 0;
+  const safePrice = Number(currentVariant?.price) || 0;
+  const safeMrp = Number(currentVariant?.mrp) || safePrice;
+  const discountPercent =
+    safeMrp > safePrice && safeMrp > 0
+      ? Math.round(((safeMrp - safePrice) / safeMrp) * 100)
+      : 0;
 
   const handleCardClick = () => {
     navigate(`/product/${product.slug || product._id}`);

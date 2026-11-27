@@ -106,7 +106,9 @@ const MyOrdersPage = () => {
   }, [isUserAuthenticated, lastOrderId]);
 
   const handleCopyOrderId = (orderId) => {
-    navigator.clipboard.writeText(orderId);
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(orderId).catch(() => {});
+    }
     setCopiedOrderId(orderId);
     showToast(`Order ID ${orderId} copied to clipboard!`, 'info');
     setTimeout(() => setCopiedOrderId(null), 2000);

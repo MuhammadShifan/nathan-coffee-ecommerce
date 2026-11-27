@@ -42,114 +42,114 @@ const SEOMeta = ({
 
   const websiteSchema = shouldIncludeWebSite
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        '@id': 'https://www.nathancoffeethanjavur.com/#website',
-        name: 'Nathan Coffee Thanjavur',
-        alternateName: ['Nathan Coffee', 'Nathan Filter Coffee', 'Nathan Coffee Thanjavur'],
-        url: 'https://www.nathancoffeethanjavur.com',
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: 'https://www.nathancoffeethanjavur.com/shop?q={search_term_string}',
-          'query-input': 'required name=search_term_string',
-        },
-      }
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': 'https://www.nathancoffeethanjavur.com/#website',
+      name: 'Nathan Coffee Thanjavur',
+      alternateName: ['Nathan Coffee', 'Nathan Filter Coffee', 'Nathan Coffee Thanjavur'],
+      url: 'https://www.nathancoffeethanjavur.com',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://www.nathancoffeethanjavur.com/shop?q={search_term_string}',
+        'query-input': 'required name=search_term_string',
+      },
+    }
     : null;
 
   const organizationSchema = shouldIncludeOrg
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        '@id': 'https://www.nathancoffeethanjavur.com/#organization',
-        name: 'Nathan Coffee Thanjavur',
-        alternateName: [
-          'Nathan Coffee',
-          'Nathan Filter Coffee',
-          'Nathan Coffee Thanjavur',
-        ],
-        url: 'https://www.nathancoffeethanjavur.com',
-        logo: 'https://www.nathancoffeethanjavur.com/Nlogo.jpg',
-        image: heroImageUrl,
-        description: SEO_CONFIG.business.description,
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': 'https://www.nathancoffeethanjavur.com/#organization',
+      name: 'Nathan Coffee Thanjavur',
+      alternateName: [
+        'Nathan Coffee',
+        'Nathan Filter Coffee',
+        'Nathan Coffee Thanjavur',
+      ],
+      url: 'https://www.nathancoffeethanjavur.com',
+      logo: 'https://www.nathancoffeethanjavur.com/Nlogo.jpg',
+      image: heroImageUrl,
+      description: SEO_CONFIG.business.description,
+      telephone: SEO_CONFIG.business.telephone,
+      email: SEO_CONFIG.business.email,
+      priceRange: SEO_CONFIG.business.priceRange,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: SEO_CONFIG.business.addresses[0].streetAddress,
+        addressLocality: SEO_CONFIG.business.addresses[0].addressLocality,
+        addressRegion: SEO_CONFIG.business.addresses[0].addressRegion,
+        postalCode: SEO_CONFIG.business.addresses[0].postalCode,
+        addressCountry: SEO_CONFIG.business.addresses[0].addressCountry,
+      },
+      sameAs: SEO_CONFIG.business.sameAs,
+      contactPoint: {
+        '@type': 'ContactPoint',
         telephone: SEO_CONFIG.business.telephone,
-        email: SEO_CONFIG.business.email,
-        priceRange: SEO_CONFIG.business.priceRange,
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: SEO_CONFIG.business.addresses[0].streetAddress,
-          addressLocality: SEO_CONFIG.business.addresses[0].addressLocality,
-          addressRegion: SEO_CONFIG.business.addresses[0].addressRegion,
-          postalCode: SEO_CONFIG.business.addresses[0].postalCode,
-          addressCountry: SEO_CONFIG.business.addresses[0].addressCountry,
-        },
-        sameAs: SEO_CONFIG.business.sameAs,
-        contactPoint: {
-          '@type': 'ContactPoint',
-          telephone: SEO_CONFIG.business.telephone,
-          contactType: 'customer service',
-          areaServed: 'IN',
-          availableLanguage: ['English', 'Tamil'],
-        },
-      }
+        contactType: 'customer service',
+        areaServed: 'IN',
+        availableLanguage: ['English', 'Tamil'],
+      },
+    }
     : null;
 
   const localBusinessSchema = shouldIncludeLocalBusiness
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'CoffeeShop',
-        '@id': 'https://www.nathancoffeethanjavur.com/#localbusiness',
-        name: 'Nathan Coffee Thanjavur',
-        alternateName: SEO_CONFIG.business.alternateNames,
-        url: 'https://www.nathancoffeethanjavur.com',
-        logo: logoUrl,
-        image: heroImageUrl,
-        description: SEO_CONFIG.business.description,
-        founder: {
-          '@type': 'Person',
-          name: SEO_CONFIG.business.founder.name,
-          jobTitle: SEO_CONFIG.business.founder.jobTitle,
-        },
-        foundingDate: SEO_CONFIG.business.foundingDate,
-        telephone: SEO_CONFIG.business.telephone,
-        email: SEO_CONFIG.business.email,
-        priceRange: SEO_CONFIG.business.priceRange,
-        currenciesAccepted: SEO_CONFIG.business.currenciesAccepted,
-        paymentAccepted: SEO_CONFIG.business.paymentAccepted,
-        address: SEO_CONFIG.business.addresses.map((addr) => ({
-          '@type': 'PostalAddress',
-          streetAddress: addr.streetAddress,
-          addressLocality: addr.addressLocality,
-          addressRegion: addr.addressRegion,
-          postalCode: addr.postalCode,
-          addressCountry: addr.addressCountry,
-        })),
-        geo: {
-          '@type': 'GeoCoordinates',
-          latitude: SEO_CONFIG.business.addresses[0].geo.latitude,
-          longitude: SEO_CONFIG.business.addresses[0].geo.longitude,
-        },
-        openingHoursSpecification: SEO_CONFIG.business.openingHours.map((hours) => ({
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: hours.dayOfWeek,
-          opens: hours.opens,
-          closes: hours.closes,
-        })),
-        sameAs: SEO_CONFIG.business.sameAs,
-      }
+      '@context': 'https://schema.org',
+      '@type': 'CoffeeShop',
+      '@id': 'https://www.nathancoffeethanjavur.com/#localbusiness',
+      name: 'Nathan Coffee Thanjavur',
+      alternateName: SEO_CONFIG.business.alternateNames,
+      url: 'https://www.nathancoffeethanjavur.com',
+      logo: logoUrl,
+      image: heroImageUrl,
+      description: SEO_CONFIG.business.description,
+      founder: {
+        '@type': 'Person',
+        name: SEO_CONFIG.business.founder.name,
+        jobTitle: SEO_CONFIG.business.founder.jobTitle,
+      },
+      foundingDate: SEO_CONFIG.business.foundingDate,
+      telephone: SEO_CONFIG.business.telephone,
+      email: SEO_CONFIG.business.email,
+      priceRange: SEO_CONFIG.business.priceRange,
+      currenciesAccepted: SEO_CONFIG.business.currenciesAccepted,
+      paymentAccepted: SEO_CONFIG.business.paymentAccepted,
+      address: SEO_CONFIG.business.addresses.map((addr) => ({
+        '@type': 'PostalAddress',
+        streetAddress: addr.streetAddress,
+        addressLocality: addr.addressLocality,
+        addressRegion: addr.addressRegion,
+        postalCode: addr.postalCode,
+        addressCountry: addr.addressCountry,
+      })),
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: SEO_CONFIG.business.addresses[0].geo.latitude,
+        longitude: SEO_CONFIG.business.addresses[0].geo.longitude,
+      },
+      openingHoursSpecification: SEO_CONFIG.business.openingHours.map((hours) => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: hours.dayOfWeek,
+        opens: hours.opens,
+        closes: hours.closes,
+      })),
+      sameAs: SEO_CONFIG.business.sameAs,
+    }
     : null;
 
   const breadcrumbsSchema =
     breadcrumbs && Array.isArray(breadcrumbs) && breadcrumbs.length > 0
       ? {
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: breadcrumbs.map((crumb, idx) => ({
-            '@type': 'ListItem',
-            position: idx + 1,
-            name: crumb.name,
-            item: resolveUrl(crumb.url),
-          })),
-        }
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbs.map((crumb, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: crumb.name,
+          item: resolveUrl(crumb.url),
+        })),
+      }
       : null;
 
   let productSchema = null;
@@ -185,8 +185,8 @@ const SEOMeta = ({
       productData.price != null
         ? Number(productData.price)
         : productData.variants?.length > 0
-        ? Number(productData.variants[0].price)
-        : 240;
+          ? Number(productData.variants[0].price)
+          : 240;
 
     const inStock =
       productData.availability === 'https://schema.org/InStock' ||
@@ -245,35 +245,35 @@ const SEOMeta = ({
 
   const faqSchema = includeFAQ
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: 'What is special about Nathan Filter Coffee Powder?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Nathan Coffee is slow roasted using traditional drum roasting techniques perfected since 1950 in South Street Thanjavur. We use 100% selected plantation Arabica and Robusta beans with zero artificial colors, yielding a thick, aromatic golden decoction.',
-            },
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is special about Nathan Filter Coffee Powder?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Nathan Coffee is slow roasted using traditional drum roasting techniques perfected since 1950 in South Street Thanjavur. We use 100% selected plantation Arabica and Robusta beans with zero artificial colors, yielding a thick, aromatic golden decoction.',
           },
-          {
-            '@type': 'Question',
-            name: 'How do I brew authentic South Indian Filter Coffee with Nathan Coffee Powder?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Add 2-3 tablespoons of Nathan Pure Coffee Powder to the top compartment of a traditional stainless steel or brass filter. Gently press down with the plunger disc, pour freshly boiled water, and let the thick decoction drip for 10-15 minutes. Mix with hot frothy boiled milk and sugar.',
-            },
+        },
+        {
+          '@type': 'Question',
+          name: 'How do I brew authentic South Indian Filter Coffee with Nathan Coffee Powder?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Add 2-3 tablespoons of Nathan Pure Coffee Powder to the top compartment of a traditional stainless steel or brass filter. Gently press down with the plunger disc, pour freshly boiled water, and let the thick decoction drip for 10-15 minutes. Mix with hot frothy boiled milk and sugar.',
           },
-          {
-            '@type': 'Question',
-            name: 'Do you deliver Nathan Coffee powder across India?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Yes! We ship freshly roasted and ground Nathan Coffee powder across all states in India with fast courier dispatch from Thanjavur, offering Free Delivery on orders above ₹500.',
-            },
+        },
+        {
+          '@type': 'Question',
+          name: 'Do you deliver Nathan Coffee powder across India?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes! We ship freshly roasted and ground Nathan Coffee powder across all states in India with fast courier dispatch from Thanjavur.',
           },
-        ],
-      }
+        },
+      ],
+    }
     : null;
 
   return (

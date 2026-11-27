@@ -272,8 +272,11 @@ router.get('/:idOrSlug', async (req, res) => {
     if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
       product = await Product.findById(idOrSlug).lean();
     }
-    if (!product) {
+    if (!product && idOrSlug) {
       product = await Product.findOne({ slug: idOrSlug }).lean();
+    }
+    if (!product && idOrSlug) {
+      product = await Product.findOne({ slug: String(idOrSlug).trim().toLowerCase() }).lean();
     }
 
     if (!product) {

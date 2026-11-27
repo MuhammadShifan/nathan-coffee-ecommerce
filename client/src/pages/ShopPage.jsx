@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Sparkles, Filter, ShieldCheck, CheckCircle2, ChevronRight, Coffee, Truck, RefreshCw } from 'lucide-react';
+import { ShoppingBag, Sparkles, Filter, ShieldCheck, CheckCircle2, ChevronRight, Coffee, RefreshCw } from 'lucide-react';
 import { fetchProductsWithRetry } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import SEOMeta from '../components/SEOMeta';
@@ -106,11 +106,6 @@ const ShopPage = () => {
               <p className="text-xs sm:text-sm text-brand-coffee-700 mt-1 max-w-2xl">
                 Freshly ground and packed in airtight ziplock kraft pouches to lock in original aroma. Choose from 100% Pure Filter Coffee or Traditional Chicory blends.
               </p>
-            </div>
-
-            <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-2xl text-xs font-bold shadow-xs flex-shrink-0 self-start md:self-auto">
-              <Truck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Free Express Delivery on ₹500+</span>
             </div>
           </div>
         </div>

@@ -182,13 +182,7 @@ const CartDrawer = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>Shipping Fee</span>
-                      <span>
-                        {shippingFee === 0 ? (
-                          <span className="text-emerald-700 font-bold uppercase">FREE</span>
-                        ) : (
-                          `₹${shippingFee}`
-                        )}
-                      </span>
+                      <span className="font-semibold text-brand-coffee-950">₹{shippingFee}</span>
                     </div>
                     <div className="flex justify-between text-sm font-black text-brand-coffee-950 pt-2 border-t border-brand-coffee-200">
                       <span>Final Total:</span>

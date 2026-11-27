@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Message from '../models/Message.js';
 import { protectAdmin } from '../middleware/auth.js';
 
@@ -45,6 +46,9 @@ router.get('/', protectAdmin, async (req, res) => {
 
 router.put('/:id/read', protectAdmin, async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid message ID' });
+    }
     const msg = await Message.findById(req.params.id);
     if (!msg) return res.status(404).json({ success: false, message: 'Message not found' });
     msg.isRead = true;

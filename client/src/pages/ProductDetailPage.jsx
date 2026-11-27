@@ -163,6 +163,11 @@ const ProductDetailPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setProduct(initialCatalogProduct);
+    setCurrentImgIndex(0);
+    setSlideDirection(0);
+    setQuantity(1);
+
     const fetchProductData = async () => {
       if (!initialCatalogProduct) {
         setLoading(true);
@@ -174,7 +179,7 @@ const ProductDetailPage = () => {
         ]);
 
         let currentProd = prodRes?.data?.data || null;
-        const productList = allRes?.data?.data?.length > 0 ? allRes.data.data : [];
+        const productList = Array.isArray(allRes?.data?.data) && allRes.data.data.length > 0 ? allRes.data.data : [];
 
         if (!currentProd && productList.length > 0) {
           currentProd = productList.find(
@@ -200,7 +205,20 @@ const ProductDetailPage = () => {
     };
 
     fetchProductData();
-  }, [slug]);
+  }, [slug, initialCatalogProduct]);
+
+  useEffect(() => {
+    if (!product) return;
+    const prodVariants = Array.isArray(product.variants) ? product.variants : [];
+    if (prodVariants.length > 0) {
+      const hasCurrent = prodVariants.some((v) => v?.weight === selectedWeight);
+      if (!hasCurrent) {
+        setSelectedWeight(product.selectedWeight || prodVariants[0]?.weight || '250g');
+      }
+    } else if (product.selectedWeight || product.weight) {
+      setSelectedWeight(product.selectedWeight || product.weight);
+    }
+  }, [product, selectedWeight]);
 
   if (loading) {
     return (
@@ -288,10 +306,18 @@ const ProductDetailPage = () => {
 
   const images = currentVariantImages;
   const displayedImage = images[currentImgIndex] || images[0] || resolveProductImageUrl('/images/250g front.png');
+  const primaryImage =
+    (currentVariant?.image ? resolveProductImageUrl(currentVariant.image) : null) ||
+    displayedImage ||
+    images[0] ||
+    resolveProductImageUrl('/images/250g front.png');
 
-  const discountPercent = currentVariant.mrp > currentVariant.price
-    ? Math.round(((currentVariant.mrp - currentVariant.price) / currentVariant.mrp) * 100)
-    : 0;
+  const safePrice = Number(currentVariant?.price) || 0;
+  const safeMrp = Number(currentVariant?.mrp) || safePrice;
+  const discountPercent =
+    safeMrp > safePrice && safeMrp > 0
+      ? Math.round(((safeMrp - safePrice) / safeMrp) * 100)
+      : 0;
 
   const currentReviews = getProductReviews(product);
 
@@ -323,23 +349,18 @@ const ProductDetailPage = () => {
   };
 
   const handleBuyNow = () => {
-    const targetWeight = currentVariant.weight || selectedWeight || '250g';
-    const primaryImage =
-      (currentVariant.image ? resolveProductImageUrl(currentVariant.image) : null) ||
-      displayedImage ||
-      images[0] ||
-      resolveProductImageUrl('/images/250g front.png');
+    const targetWeight = currentVariant?.weight || selectedWeight || '250g';
 
     const buyNowItem = {
       itemKey: `${product._id || product.slug}-${targetWeight}`,
       productId: product._id || product.slug,
-      title: product.title,
+      title: product.title || 'Nathan Coffee',
       weight: targetWeight,
-      price: Number(currentVariant.price),
-      mrp: Number(currentVariant.mrp || currentVariant.price),
+      price: safePrice,
+      mrp: safeMrp || safePrice,
       quantity: quantity,
       image: primaryImage,
-      slug: product.slug,
+      slug: product.slug || '',
     };
 
     safeSetJSON('session', 'Nathan_buy_now_item', buyNowItem);
@@ -354,7 +375,9 @@ const ProductDetailPage = () => {
   };
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(window.location.href).catch(() => {});
+    }
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
   };
@@ -387,38 +410,41 @@ const ProductDetailPage = () => {
     }),
   };
 
-  const relatedProducts = allProducts.filter(
-    (p) => (p._id !== product._id && p.slug !== product.slug)
-  ).slice(0, 3);
+  const relatedProducts = (Array.isArray(allProducts) ? allProducts : [])
+    .filter((p) => p && p._id !== product._id && p.slug !== product.slug)
+    .slice(0, 3);
+
+  const safeTitle = product.title || 'Nathan Filter Coffee';
+  const safeSlug = product.slug || product._id || '';
 
   const breadcrumbs = [
     { name: 'Home', url: '/' },
     { name: 'Shop', url: '/shop' },
-    { name: product.title, url: `/product/${product.slug}` },
+    { name: safeTitle, url: `/product/${safeSlug}` },
   ];
 
   return (
     <>
       <SEOMeta
-        title={`${product.title} | Pure Filter Coffee - Nathan Coffee`}
+        title={`${safeTitle} | Pure Filter Coffee - Nathan Coffee`}
         description={product.shortDescription || product.description || 'Authentic slow-roasted South Indian filter coffee from Thanjavur. 100% pure aroma, fresh dispatch.'}
-        keywords={`${product.title}, south indian filter coffee, Thanjavur coffee, pure coffee powder buy online, thanjavur filter coffee`}
-        canonicalUrl={`/product/${product.slug}`}
+        keywords={`${safeTitle}, south indian filter coffee, Thanjavur coffee, pure coffee powder buy online, thanjavur filter coffee`}
+        canonicalUrl={`/product/${safeSlug}`}
         ogImage={primaryImage || images[0] || '/images/250g front.png'}
         breadcrumbs={breadcrumbs}
         productData={{
-          name: product.title,
-          title: product.title,
-          slug: product.slug,
-          description: product.shortDescription || product.description,
+          name: safeTitle,
+          title: safeTitle,
+          slug: safeSlug,
+          description: product.shortDescription || product.description || '',
           image: primaryImage || images[0] || '/images/250g front.png',
           images: images.length > 0 ? images : ['/images/250g front.png'],
           brand: 'Nathan Coffee',
-          price: Number(currentVariant.price) || 240,
-          availability: currentVariant.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          price: safePrice || 240,
+          availability: currentVariant?.inStock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
           rating: product.rating || 4.9,
           reviewCount: product.reviewCount || 248,
-          sku: currentVariant.sku || `NC-${(product.slug || 'COFFEE').toUpperCase()}`,
+          sku: currentVariant?.sku || `NC-${String(safeSlug || 'COFFEE').toUpperCase()}`,
         }}
       />
 
@@ -624,16 +650,16 @@ const ProductDetailPage = () => {
                 </span>
                 <div className="flex items-baseline gap-2 mt-0.5">
                   <span className="text-3xl sm:text-4xl font-black text-brand-coffee-950">
-                    ₹{currentVariant.price * quantity}
+                    ₹{safePrice * quantity}
                   </span>
-                  {currentVariant.mrp > currentVariant.price && (
+                  {safeMrp > safePrice && (
                     <span className="text-sm sm:text-base text-brand-coffee-400 line-through">
-                      ₹{currentVariant.mrp * quantity}
+                      ₹{safeMrp * quantity}
                     </span>
                   )}
                   {discountPercent > 0 && (
                     <span className="text-xs font-extrabold text-brand-pink-600 bg-brand-pink-50 px-2 py-0.5 rounded-md border border-brand-pink-200">
-                      Save ₹{(currentVariant.mrp - currentVariant.price) * quantity} ({discountPercent}% OFF)
+                      Save ₹{(safeMrp - safePrice) * quantity} ({discountPercent}% OFF)
                     </span>
                   )}
                 </div>
@@ -655,12 +681,14 @@ const ProductDetailPage = () => {
               </div>
 
               <div className="flex flex-wrap gap-2.5 sm:gap-3">
-                {variants.map((variant) => {
-                  const isSelected = selectedWeight === variant.weight;
-                  const variantImg = variant.image || variant.imageUrl;
+                {variants.map((variant, idx) => {
+                  const isSelected = selectedWeight === variant?.weight;
+                  const variantImg = variant?.image || variant?.imageUrl;
+                  const vPrice = Number(variant?.price) || 0;
+                  const vMrp = Number(variant?.mrp) || vPrice;
                   return (
                     <button
-                      key={variant.weight}
+                      key={`${variant?.weight || 'variant'}-${idx}`}
                       type="button"
                       onClick={() => handleVariantSelect(variant)}
                       className={`p-3 sm:px-4 sm:py-3 rounded-2xl text-center border-2 transition-all flex flex-col justify-center items-center gap-1 min-w-[95px] sm:min-w-[115px] flex-1 sm:flex-none relative ${isSelected
@@ -672,7 +700,7 @@ const ProductDetailPage = () => {
                         <div className="w-8 h-8 rounded-lg bg-brand-coffee-50 p-0.5 flex items-center justify-center overflow-hidden border border-brand-coffee-200">
                           <img
                             src={resolveProductImageUrl(variantImg)}
-                            alt={variant.weight}
+                            alt={variant?.weight || 'Variant'}
                             className="w-full h-full object-contain"
                             onError={(e) => {
                               e.target.style.display = 'none';
@@ -681,14 +709,14 @@ const ProductDetailPage = () => {
                         </div>
                       )}
                       <span className={`text-sm font-black ${isSelected ? 'text-brand-pink-700' : 'text-brand-coffee-900'}`}>
-                        {variant.weight}
+                        {variant?.weight || 'Pack'}
                       </span>
                       <span className="text-xs font-bold text-brand-coffee-700">
-                        ₹{variant.price}
+                        ₹{vPrice}
                       </span>
-                      {variant.mrp > variant.price && (
+                      {vMrp > vPrice && (
                         <span className="text-[10px] text-brand-coffee-400 line-through">
-                          MRP ₹{variant.mrp}
+                          MRP ₹{vMrp}
                         </span>
                       )}
                     </button>
@@ -862,7 +890,7 @@ const ProductDetailPage = () => {
                       </span>
                     </div>
                     <div className="flex gap-0.5">
-                      {Array.from({ length: review.rating || 5 }).map((_, s) => (
+                      {Array.from({ length: Math.min(5, Math.max(0, Math.round(Number(review?.rating) || 5))) }).map((_, s) => (
                         <Star key={s} className="w-3 h-3 fill-amber-400 text-amber-500" />
                       ))}
                     </div>

@@ -5,7 +5,8 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
-    return safeGetJSON('local', 'Nathan_cart', []);
+    const saved = safeGetJSON('local', 'Nathan_cart', []);
+    return Array.isArray(saved) ? saved : [];
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
